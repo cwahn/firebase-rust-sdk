@@ -298,6 +298,136 @@ impl Firestore {
         Ok(())
     }
 
+    /// Commit a write batch atomically
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/main/write_batch_main.cc:70` - WriteBatchInternal::Commit
+    /// - `firestore/src/common/write_batch.cc:140` - WriteBatch::Commit
+    ///
+    /// Executes all write operations in the batch atomically. If any operation fails,
+    /// the entire batch is rolled back and no changes are applied.
+    ///
+    /// Uses the Firestore REST API `:commit` endpoint which accepts a batch of writes.
+    ///
+    /// # Arguments
+    /// * `batch` - WriteBatch containing operations to commit
+    ///
+    /// # Errors
+    /// Returns `FirebaseError` if:
+    /// - Batch is empty (nothing to commit)
+    /// - Network request fails
+    /// - Any write operation fails (entire batch is rolled back)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::{Firestore, types::WriteBatch};
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let mut batch = WriteBatch::new();
+    /// batch.set("users/alice", json!({"name": "Alice", "age": 30}))
+    ///      .update("users/bob", json!({"age": 31}))
+    ///      .delete("users/charlie");
+    /// firestore.commit_batch(batch).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn commit_batch(&self, batch: crate::firestore::types::WriteBatch) -> Result<(), FirebaseError> {
+        use crate::error::FirestoreError;
+        use crate::firestore::types::WriteOperation;
+
+        // Error-first: check if batch is empty
+        if batch.is_empty() {
+            return Err(FirebaseError::Firestore(
+                FirestoreError::InvalidArgument("Batch is empty, nothing to commit".to_string()),
+            ));
+        }
+
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents:commit",
+            self.project_id(),
+            self.database_id()
+        );
+
+        // Build writes array for the batch commit request
+        let writes: Vec<serde_json::Value> = batch.operations().iter().map(|op| {
+            match op {
+                WriteOperation::Set { path, data } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    serde_json::json!({
+                        "update": {
+                            "name": full_path,
+                            "fields": convert_value_to_firestore_fields(data)
+                        }
+                    })
+                }
+                WriteOperation::Update { path, data } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    let update_mask: Vec<String> = if let Some(obj) = data.as_object() {
+                        obj.keys().cloned().collect()
+                    } else {
+                        vec![]
+                    };
+                    serde_json::json!({
+                        "update": {
+                            "name": full_path,
+                            "fields": convert_value_to_firestore_fields(data)
+                        },
+                        "updateMask": {
+                            "fieldPaths": update_mask
+                        }
+                    })
+                }
+                WriteOperation::Delete { path } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    serde_json::json!({
+                        "delete": full_path
+                    })
+                }
+            }
+        }).collect();
+
+        let request_body = serde_json::json!({
+            "writes": writes
+        });
+
+        let response = self.http_client()
+            .post(&url)
+            .json(&request_body)
+            .send()
+            .await
+            .map_err(|e| FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Batch commit failed: {}", e))
+            ))?;
+
+        // Error-first: check for HTTP errors
+        if !response.status().is_success() {
+            let status = response.status();
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Batch commit failed: {} - {}", status, error_text))
+            ));
+        }
+
+        Ok(())
+    }
+
     /// Execute a query (internal method)
     ///
     /// # C++ Reference
@@ -535,6 +665,23 @@ fn convert_value_to_firestore(value: serde_json::Value) -> serde_json::Value {
                 }
             })
         }
+    }
+}
+
+/// Convert a JSON object to Firestore fields format
+///
+/// Takes a JSON Value and converts it to the fields format expected by Firestore REST API.
+/// If the value is an object, returns a map of field names to Firestore values.
+/// Otherwise returns an empty map.
+fn convert_value_to_firestore_fields(value: &serde_json::Value) -> serde_json::Value {
+    if let Some(obj) = value.as_object() {
+        let fields: serde_json::Map<String, serde_json::Value> = obj
+            .iter()
+            .map(|(k, v)| (k.clone(), convert_value_to_firestore(v.clone())))
+            .collect();
+        serde_json::Value::Object(fields)
+    } else {
+        serde_json::json!({})
     }
 }
 
@@ -1014,6 +1161,84 @@ mod tests {
                 assert!(msg.contains("JSON object"));
             }
             _ => panic!("Expected InvalidData error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_write_batch_builder() {
+        use serde_json::json;
+        use crate::firestore::types::WriteBatch;
+        
+        let mut batch = WriteBatch::new();
+        batch.set("users/alice", json!({"name": "Alice", "age": 30}))
+             .update("users/bob", json!({"age": 31}))
+             .delete("users/charlie");
+        
+        assert_eq!(batch.len(), 3);
+        assert!(!batch.is_empty());
+        
+        // Verify operations are stored
+        let ops = batch.operations();
+        assert_eq!(ops.len(), 3);
+    }
+
+    #[tokio::test]
+    async fn test_write_batch_empty() {
+        use crate::firestore::types::WriteBatch;
+        use crate::error::{FirebaseError, FirestoreError};
+        
+        let fs = Firestore::get_firestore("test-project-12").await.unwrap();
+        let batch = WriteBatch::new();
+        
+        // Empty batch should be rejected
+        let result = fs.commit_batch(batch).await;
+        assert!(result.is_err());
+        
+        match result.unwrap_err() {
+            FirebaseError::Firestore(FirestoreError::InvalidArgument(msg)) => {
+                assert!(msg.contains("empty"));
+            }
+            _ => panic!("Expected InvalidArgument error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_write_batch_operations_chaining() {
+        use serde_json::json;
+        use crate::firestore::types::{WriteBatch, WriteOperation};
+        
+        let mut batch = WriteBatch::new();
+        
+        // Test method chaining
+        batch
+            .set("path1", json!({"field": "value1"}))
+            .update("path2", json!({"field": "value2"}))
+            .delete("path3")
+            .set("path4", json!({"field": "value3"}));
+        
+        assert_eq!(batch.len(), 4);
+        
+        let ops = batch.operations();
+        
+        // Verify order is preserved
+        match &ops[0] {
+            WriteOperation::Set { path, .. } => assert_eq!(path, "path1"),
+            _ => panic!("Expected Set operation"),
+        }
+        
+        match &ops[1] {
+            WriteOperation::Update { path, .. } => assert_eq!(path, "path2"),
+            _ => panic!("Expected Update operation"),
+        }
+        
+        match &ops[2] {
+            WriteOperation::Delete { path } => assert_eq!(path, "path3"),
+            _ => panic!("Expected Delete operation"),
+        }
+        
+        match &ops[3] {
+            WriteOperation::Set { path, .. } => assert_eq!(path, "path4"),
+            _ => panic!("Expected Set operation"),
         }
     }
 }

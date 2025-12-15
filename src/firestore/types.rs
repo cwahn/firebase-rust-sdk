@@ -296,8 +296,8 @@ pub struct WriteBatch {
     operations: Vec<WriteOperation>,
 }
 
-#[derive(Debug)]
-enum WriteOperation {
+#[derive(Debug, Clone)]
+pub enum WriteOperation {
     Set { path: String, data: Value },
     Update { path: String, data: Value },
     Delete { path: String },
@@ -336,8 +336,46 @@ impl WriteBatch {
     }
 
     /// Commit the batch
-    pub async fn commit(self) -> Result<(), FirestoreError> {
-        todo!("Implement batch commit via REST API")
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/main/write_batch_main.cc:70` - WriteBatchInternal::Commit
+    /// - `firestore/src/common/write_batch.cc:140` - WriteBatch::Commit
+    ///
+    /// Commits all batched write operations atomically. If any operation fails,
+    /// none of the operations are applied.
+    ///
+    /// # Errors
+    /// Returns `FirestoreError` if:
+    /// - Batch is empty (nothing to commit)
+    /// - Network request fails
+    /// - Any write operation fails (entire batch is rolled back)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::types::WriteBatch;
+    /// use serde_json::json;
+    ///
+    /// let mut batch = WriteBatch::new();
+    /// batch.set("users/alice", json!({"name": "Alice", "age": 30}))
+    ///      .update("users/bob", json!({"age": 31}))
+    ///      .delete("users/charlie");
+    /// // batch.commit().await?;  // Requires Firestore instance
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn operations(&self) -> &[WriteOperation] {
+        &self.operations
+    }
+
+    /// Check if batch is empty
+    pub fn is_empty(&self) -> bool {
+        self.operations.is_empty()
+    }
+
+    /// Get number of operations
+    pub fn len(&self) -> usize {
+        self.operations.len()
     }
 }
 

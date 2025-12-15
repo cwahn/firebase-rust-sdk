@@ -23,10 +23,10 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
 - Firestore query operations (filters, ordering, limits, cursors)
-- **NEW:** CollectionReference::add() with auto-generated IDs
-- **NEW:** User::update_email() for account management
+- CollectionReference::add() with auto-generated IDs
+- **NEW:** WriteBatch for atomic multi-document operations
 
-**Tests:** 61 tests passing (+4 new tests)
+**Tests:** 64 tests passing (+3 new WriteBatch tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -66,10 +66,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Firestore Queries & Documents
+### Firestore Queries & Batch Operations
 
 ```rust
-use firebase_rust_sdk::firestore::{Firestore, FilterCondition, OrderDirection};
+use firebase_rust_sdk::firestore::{Firestore, types::WriteBatch, FilterCondition, OrderDirection};
 use serde_json::json;
 
 #[tokio::main]
@@ -85,6 +85,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }))
         .await?;
     println!("Created document: {}", doc_ref.path);
+    
+    // Batch write operations (atomic)
+    let mut batch = WriteBatch::new();
+    batch.set("users/bob", json!({"name": "Bob", "age": 25}))
+         .update("users/alice", json!({"age": 31}))
+         .delete("users/charlie");
+    firestore.commit_batch(batch).await?;
+    println!("Batch committed successfully");
     
     // Query documents
     let docs = firestore.collection("users")
