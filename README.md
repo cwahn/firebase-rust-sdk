@@ -28,8 +28,9 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - WriteBatch for atomic multi-document operations
 - **Transactions for atomic read-modify-write operations**
 - **Real-time snapshot listeners for documents and queries**
+- **OAuth authentication providers (Google, Facebook, GitHub)**
 
-**Tests:** 78 tests passing (+5 new snapshot listener tests)
+**Tests:** 83 tests passing (+5 OAuth provider tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -51,6 +52,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Or sign in anonymously
     let anon_user = auth.sign_in_anonymously().await?;
     println!("Anonymous user: {}", anon_user.user.uid);
+    
+    // OAuth sign-in with Google
+    use firebase_rust_sdk::auth::Credential;
+    let google_credential = Credential::Google {
+        id_token: Some("google_id_token".to_string()),
+        access_token: Some("google_access_token".to_string()),
+    };
+    let oauth_result = auth.sign_in_with_credential(google_credential).await?;
+    println!("OAuth user: {}", oauth_result.user.uid);
+    println!("Provider: {}", oauth_result.additional_user_info.provider_id);
+    
+    // OAuth sign-in with Facebook
+    let facebook_credential = Credential::Facebook {
+        access_token: "facebook_access_token".to_string(),
+    };
+    let fb_result = auth.sign_in_with_credential(facebook_credential).await?;
+    
+    // OAuth sign-in with GitHub
+    let github_credential = Credential::GitHub {
+        token: "github_token".to_string(),
+    };
+    let gh_result = auth.sign_in_with_credential(github_credential).await?;
+    
+    // Generic OAuth provider (e.g., Apple)
+    let oauth_credential = Credential::OAuth {
+        provider_id: "apple.com".to_string(),
+        id_token: Some("apple_id_token".to_string()),
+        access_token: None,
+        raw_nonce: Some("nonce".to_string()),
+    };
+    let result = auth.sign_in_with_credential(oauth_credential).await?;
     
     // Send password reset email
     auth.send_password_reset_email("user@example.com").await?;
