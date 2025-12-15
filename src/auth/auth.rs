@@ -399,6 +399,65 @@ impl Auth {
             }),
         })
     }
+
+    /// Send password reset email
+    ///
+    /// # C++ Reference
+    /// - `auth/src/desktop/auth_desktop.cc:474` - SendPasswordResetEmail
+    /// - `auth/src/desktop/rpcs/get_oob_confirmation_code_request.cc:70` - CreateSendPasswordResetEmailRequest
+    ///
+    /// Sends a password reset email to the given email address. If the email is not
+    /// registered, the operation still succeeds to prevent email enumeration.
+    ///
+    /// # Arguments
+    /// * `email` - The email address to send the password reset to
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::Auth;
+    ///
+    /// let auth = Auth::get_auth("YOUR_API_KEY").await?;
+    /// auth.send_password_reset_email("user@example.com").await?;
+    /// println!("Password reset email sent");
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn send_password_reset_email(&self, email: impl AsRef<str>) -> Result<(), FirebaseError> {
+        let email = email.as_ref();
+
+        // Validate email (error case first)
+        if email.is_empty() {
+            return Err(AuthError::InvalidEmail.into());
+        }
+
+        // Call Firebase Auth REST API - getOobConfirmationCode with PASSWORD_RESET
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={}",
+            self.inner.api_key
+        );
+
+        let response = self.inner.http_client
+            .post(&url)
+            .json(&serde_json::json!({
+                "requestType": "PASSWORD_RESET",
+                "email": email
+            }))
+            .send()
+            .await?;
+
+        // Handle error responses first
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("UNKNOWN_ERROR");
+            return Err(AuthError::from_error_code(error_message).into());
+        }
+
+        // Success - password reset email sent
+        Ok(())
+    }
 }
 
 /// Firebase Auth REST API response
@@ -589,6 +648,48 @@ mod tests {
         let user = current.unwrap();
         assert_eq!(user.uid, "anon123");
         assert!(user.is_anonymous);
+    }
+
+    #[tokio::test]
+    async fn test_password_reset_validates_email() {
+        let auth = Auth::get_auth("test_password_reset_key").await.unwrap();
+        let result = auth.send_password_reset_email("").await;
+        assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidEmail))));
+    }
+
+    #[tokio::test]
+    async fn test_password_reset_does_not_affect_current_user() {
+        use crate::auth::types::UserMetadata;
+        
+        let auth = Auth::get_auth("test_password_reset_key2").await.unwrap();
+        
+        // Sign in a user
+        let user = Arc::new(User {
+            uid: "user123".to_string(),
+            email: Some("test@example.com".to_string()),
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: false,
+            metadata: UserMetadata {
+                creation_timestamp: 0,
+                last_sign_in_timestamp: 0,
+            },
+            provider_data: vec![],
+            id_token: None,
+            refresh_token: None,
+        });
+        
+        auth.set_current_user(Some(user.clone())).await;
+        
+        // Password reset should not change current user
+        // (This will fail with network error, but that's expected in tests)
+        let _ = auth.send_password_reset_email("other@example.com").await;
+        
+        let current = auth.current_user().await;
+        assert!(current.is_some());
+        assert_eq!(current.unwrap().uid, "user123");
     }
 
     #[tokio::test]

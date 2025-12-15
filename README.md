@@ -10,18 +10,19 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 
 ## Implementation Status
 
-✅ **Phase 3 In Progress** - Query operations and anonymous auth added
+✅ **Phase 3 In Progress** - Auth features and query operations
 
 **Completed:**
 - Error types (FirebaseError, AuthError, FirestoreError)
 - Auth singleton with email/password authentication
-- **NEW:** Anonymous authentication
+- Anonymous authentication
+- **NEW:** Password reset email
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
 - Firestore query operations (filters, ordering, limits, cursors)
 
-**Tests:** 55 tests passing
+**Tests:** 57 tests passing
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -43,6 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Or sign in anonymously
     let anon_user = auth.sign_in_anonymously().await?;
     println!("Anonymous user: {}", anon_user.user.uid);
+    
+    // Send password reset email
+    auth.send_password_reset_email("user@example.com").await?;
+    println!("Password reset email sent");
     
     // Listen to auth state changes
     let mut stream = auth.auth_state_changes().await;
