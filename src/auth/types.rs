@@ -89,6 +89,14 @@ pub struct User {
     /// Refresh token - internal use
     #[serde(skip)]
     pub(crate) refresh_token: Option<String>,
+    
+    /// Token expiration timestamp (seconds since epoch) - internal use
+    #[serde(skip)]
+    pub(crate) token_expiration: Option<i64>,
+    
+    /// API key for token refresh - internal use
+    #[serde(skip)]
+    pub(crate) api_key: Option<String>,
 }
 
 impl User {
@@ -96,17 +104,77 @@ impl User {
     ///
     /// # C++ Reference
     /// - `auth/src/include/firebase/auth/user.h:498`
+    /// - `auth/src/desktop/user_desktop.cc:652` - GetToken implementation
+    /// - `auth/src/desktop/user_desktop.cc:118` - EnsureFreshToken
+    /// - `auth/src/desktop/rpcs/secure_token_request.cc:24` - SecureTokenRequest
     pub async fn get_id_token(&self, force_refresh: bool) -> Result<String, AuthError> {
-        // TODO: Implement token refresh logic
+        // Check if we have a token (error case first)
         let Some(token) = &self.id_token else {
             return Err(AuthError::UserTokenExpired);
         };
         
-        if force_refresh {
-            return Err(AuthError::UserTokenExpired);
+        // Check if token needs refresh
+        let needs_refresh = if force_refresh {
+            true
+        } else if let Some(expiration) = self.token_expiration {
+            // Token expires in less than 5 minutes, refresh it
+            let now = chrono::Utc::now().timestamp();
+            now >= (expiration - 300)
+        } else {
+            // No expiration info, assume token is fresh
+            false
+        };
+        
+        // If no refresh needed, return current token
+        if !needs_refresh {
+            return Ok(token.clone());
         }
         
-        Ok(token.clone())
+        // Need to refresh - check if we have refresh token (error case first)
+        let Some(refresh_token) = &self.refresh_token else {
+            return Err(AuthError::UserTokenExpired);
+        };
+        
+        // Need API key for refresh (error case first)
+        let Some(api_key) = &self.api_key else {
+            return Err(AuthError::NotAuthenticated);
+        };
+        
+        // Call secure token endpoint to refresh
+        let url = format!("https://securetoken.googleapis.com/v1/token?key={}", api_key);
+        
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&url)
+            .json(&serde_json::json!({
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token
+            }))
+            .send()
+            .await
+            .map_err(|e| AuthError::NetworkRequestFailed(format!("Token refresh failed: {}", e)))?;
+        
+        // Handle error responses first
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await
+                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("TOKEN_REFRESH_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+        
+        // Parse refresh response
+        let token_response: serde_json::Value = response.json().await
+            .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e)))?;
+        
+        let new_id_token = token_response["id_token"]
+            .as_str()
+            .ok_or(AuthError::UserTokenExpired)?;
+        
+        // Note: In a real implementation, we would update the user's token in the Auth instance
+        // For now, we return the new token but don't mutate self (User is immutable in our design)
+        Ok(new_id_token.to_string())
     }
 
     /// Delete the user account
@@ -330,6 +398,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         };
 
         assert_eq!(user.uid, "test123");
@@ -395,6 +465,8 @@ mod tests {
             provider_data: vec![],
             id_token: Some("token".to_string()),
             refresh_token: Some("refresh".to_string()),
+            token_expiration: None,
+            api_key: None,
         };
 
         // Test that serialization works (tokens are skipped)

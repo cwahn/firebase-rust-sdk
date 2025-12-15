@@ -249,7 +249,7 @@ impl Auth {
 
         // Parse successful response
         let user_data: SignInResponse = response.json().await?;
-        let user = Arc::new(user_data.into_user());
+        let user = Arc::new(user_data.into_user(self.inner.api_key.clone()));
 
         // Update current user
         self.set_current_user(Some(Arc::clone(&user))).await;
@@ -325,7 +325,7 @@ impl Auth {
 
         // Parse successful response
         let user_data: SignInResponse = response.json().await?;
-        let user = Arc::new(user_data.into_user());
+        let user = Arc::new(user_data.into_user(self.inner.api_key.clone()));
 
         // Update current user
         self.set_current_user(Some(Arc::clone(&user))).await;
@@ -385,7 +385,7 @@ impl Auth {
 
         // Parse successful response
         let user_data: SignInResponse = response.json().await?;
-        let user = Arc::new(user_data.into_user());
+        let user = Arc::new(user_data.into_user(self.inner.api_key.clone()));
 
         // Update current user
         self.set_current_user(Some(Arc::clone(&user))).await;
@@ -474,7 +474,17 @@ struct SignInResponse {
 }
 
 impl SignInResponse {
-    fn into_user(self) -> User {
+    fn into_user(self, api_key: String) -> User {
+        // Calculate token expiration (expires_in is in seconds)
+        let token_expiration = if let Some(expires_in_str) = &self.expires_in {
+            expires_in_str.parse::<i64>().ok().map(|seconds| {
+                chrono::Utc::now().timestamp() + seconds
+            })
+        } else {
+            // Default: 1 hour expiration
+            Some(chrono::Utc::now().timestamp() + 3600)
+        };
+        
         User {
             uid: self.local_id,
             email: self.email,
@@ -490,6 +500,8 @@ impl SignInResponse {
             provider_data: vec![],
             id_token: Some(self.id_token),
             refresh_token: Some(self.refresh_token),
+            token_expiration,
+            api_key: Some(api_key),
         }
     }
 }
@@ -554,6 +566,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         });
         
         auth.set_current_user(Some(user)).await;
@@ -639,6 +653,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         });
         
         auth.set_current_user(Some(anon_user.clone())).await;
@@ -679,6 +695,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         });
         
         auth.set_current_user(Some(user.clone())).await;
@@ -732,6 +750,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         });
         
         auth.set_current_user(Some(user.clone())).await;
@@ -767,6 +787,8 @@ mod tests {
             provider_data: vec![],
             id_token: None,
             refresh_token: None,
+            token_expiration: None,
+            api_key: None,
         });
         auth.set_current_user(Some(user)).await;
         

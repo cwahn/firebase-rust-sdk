@@ -116,8 +116,12 @@ pub enum AuthError {
     InvalidUserToken,
 
     /// Network error
-    #[error("Network error")]
-    NetworkRequestFailed,
+    #[error("Network error: {0}")]
+    NetworkRequestFailed(String),
+
+    /// Not authenticated
+    #[error("Not authenticated")]
+    NotAuthenticated,
 
     /// No signed-in user
     #[error("No user is currently signed in")]
@@ -228,7 +232,7 @@ impl FirebaseError {
     pub fn is_retryable(&self) -> bool {
         match self {
             Self::Network(_) 
-            | Self::Auth(AuthError::NetworkRequestFailed)
+            | Self::Auth(AuthError::NetworkRequestFailed(_))
             | Self::Auth(AuthError::TooManyRequests)
             | Self::Firestore(FirestoreError::Unavailable)
             | Self::Firestore(FirestoreError::DeadlineExceeded)
@@ -318,7 +322,7 @@ mod tests {
 
     #[test]
     fn test_is_retryable() {
-        assert!(FirebaseError::Auth(AuthError::NetworkRequestFailed).is_retryable());
+        assert!(FirebaseError::Auth(AuthError::NetworkRequestFailed("test".to_string())).is_retryable());
         assert!(FirebaseError::Auth(AuthError::TooManyRequests).is_retryable());
         assert!(!FirebaseError::Auth(AuthError::InvalidEmail).is_retryable());
         
