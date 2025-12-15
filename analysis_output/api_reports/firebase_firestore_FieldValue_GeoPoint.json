@@ -1,0 +1,39 @@
+{
+  "api": "firebase::firestore::FieldValue::GeoPoint",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "GeoPoint",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "FieldValue",
+    "GeoPoint",
+    "firebase::firestore::FieldValue::FieldValue"
+  ],
+  "transitive_dependencies": [
+    "FieldValue",
+    "FieldValueInternal",
+    "GeoPoint",
+    "firebase::firestore::FieldValue::FieldValue",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 7,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshotInternal::ConvertScalar"
+  ],
+  "implementation_order": [
+    "GeoPoint",
+    "FieldValue",
+    "std::__1::swap",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "FieldValueInternal",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::firestore::FieldValue::FieldValue",
+    "firebase::firestore::FieldValue::GeoPoint"
+  ]
+}

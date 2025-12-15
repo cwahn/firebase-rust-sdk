@@ -1,0 +1,19 @@
+{
+  "api": "firebase::firestore::FieldValue::is_valid",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "is_valid",
+    "is_static": false,
+    "is_virtual": false
+  },
+  "direct_dependencies": [],
+  "transitive_dependencies": [],
+  "dependency_count": 0,
+  "direct_dependents": [
+    "firebase::firestore::FieldValue::ToString"
+  ],
+  "implementation_order": [
+    "firebase::firestore::FieldValue::is_valid"
+  ]
+}

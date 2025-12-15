@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::EmailAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::EmailAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "EmailAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "EmailAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "EmailAuthProvider",
+    "firebase::auth::EmailAuthProvider::operator="
+  ]
+}

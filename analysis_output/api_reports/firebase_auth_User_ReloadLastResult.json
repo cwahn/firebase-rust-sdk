@@ -1,0 +1,29 @@
+{
+  "api": "firebase::auth::User::ReloadLastResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "ReloadLastResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Future<void>",
+    "firebase::Future<void>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "transitive_dependencies": [
+    "Future<void>",
+    "firebase::Future<void>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "dependency_count": 3,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Future<void>",
+    "firebase::ReferenceCountedFutureImpl::LastResult",
+    "firebase::Future<void>::Future",
+    "firebase::auth::User::ReloadLastResult"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "api": "firebase::firestore::Query::AddSnapshotListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Query",
+    "method": "AddSnapshotListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "ListenerRegistration",
+    "MetadataChanges",
+    "firebase::firestore::ListenerRegistration::ListenerRegistration",
+    "function<..(..)>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "ListenerRegistration",
+    "ListenerRegistrationInternal",
+    "MetadataChanges",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::ListenerRegistration::ListenerRegistration",
+    "firebase::firestore::ListenerRegistrationInternal::firestore_internal",
+    "function<..(..)>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 16,
+  "direct_dependents": [],
+  "implementation_order": [
+    "MetadataChanges",
+    "ListenerRegistrationInternal",
+    "ListenerRegistration",
+    "function<..(..)>",
+    "std::__1::swap",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::ListenerRegistrationInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::ListenerRegistration::ListenerRegistration",
+    "firebase::firestore::Query::AddSnapshotListener"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::SetOptions::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SetOptions",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "SetOptions"
+  ],
+  "transitive_dependencies": [
+    "SetOptions"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "SetOptions",
+    "firebase::firestore::SetOptions::operator="
+  ]
+}

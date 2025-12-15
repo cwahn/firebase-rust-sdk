@@ -1,0 +1,30 @@
+{
+  "api": "firebase::auth::Auth::RemoveAuthStateListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "RemoveAuthStateListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AuthStateListener",
+    "firebase::auth::RemoveListener"
+  ],
+  "transitive_dependencies": [
+    "AuthStateListener",
+    "firebase::auth::RemoveListener"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::Auth::current_user",
+    "firebase::auth::AuthData::ClearListeners",
+    "firebase::auth::AuthStateListener::~AuthStateListener"
+  ],
+  "implementation_order": [
+    "AuthStateListener",
+    "firebase::auth::RemoveListener",
+    "firebase::auth::Auth::RemoveAuthStateListener"
+  ]
+}

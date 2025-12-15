@@ -1,0 +1,26 @@
+{
+  "api": "firebase::auth::FederatedAuthProvider::Link",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::FederatedAuthProvider",
+    "method": "Link",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "AuthData",
+    "Future<AuthResult>"
+  ],
+  "transitive_dependencies": [
+    "AuthData",
+    "Future<AuthResult>"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [],
+  "implementation_order": [
+    "AuthData",
+    "Future<AuthResult>",
+    "firebase::auth::FederatedAuthProvider::Link"
+  ]
+}

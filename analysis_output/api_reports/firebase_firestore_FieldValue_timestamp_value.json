@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::FieldValue::timestamp_value",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "timestamp_value",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Timestamp"
+  ],
+  "transitive_dependencies": [
+    "Timestamp"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Timestamp",
+    "firebase::firestore::FieldValue::timestamp_value"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "api": "firebase::firestore::SnapshotMetadata::ToString",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SnapshotMetadata",
+    "method": "ToString",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::firestore::SnapshotMetadata::has_pending_writes",
+    "firebase::firestore::SnapshotMetadata::is_from_cache",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::operator+"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::firestore::SnapshotMetadata::has_pending_writes",
+    "firebase::firestore::SnapshotMetadata::is_from_cache",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::operator+"
+  ],
+  "dependency_count": 6,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshot::ToString"
+  ],
+  "implementation_order": [
+    "firebase::firestore::SnapshotMetadata::has_pending_writes",
+    "std::__1::operator+",
+    "firebase::firestore::SnapshotMetadata::is_from_cache",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::firestore::SnapshotMetadata::ToString"
+  ]
+}

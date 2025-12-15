@@ -1,0 +1,20 @@
+{
+  "api": "firebase::firestore::TransactionOptions::max_attempts",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::TransactionOptions",
+    "method": "max_attempts",
+    "is_static": false,
+    "is_virtual": false
+  },
+  "direct_dependencies": [],
+  "transitive_dependencies": [],
+  "dependency_count": 0,
+  "direct_dependents": [
+    "firebase::firestore::Firestore::RunTransaction",
+    "firebase::firestore::TransactionOptions::ToString"
+  ],
+  "implementation_order": [
+    "firebase::firestore::TransactionOptions::max_attempts"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::Listener::OnVerificationFailed",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider::Listener",
+    "method": "OnVerificationFailed",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::PhoneAuthProvider::Listener::OnVerificationFailed"
+  ]
+}

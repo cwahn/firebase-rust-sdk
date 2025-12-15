@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::GameCenterAuthProvider::IsPlayerAuthenticated",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::GameCenterAuthProvider",
+    "method": "IsPlayerAuthenticated",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::LogAssert"
+  ],
+  "transitive_dependencies": [
+    "firebase::LogAssert"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "firebase::auth::GameCenterAuthProvider::IsPlayerAuthenticated"
+  ]
+}

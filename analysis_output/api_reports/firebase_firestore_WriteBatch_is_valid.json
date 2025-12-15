@@ -1,0 +1,17 @@
+{
+  "api": "firebase::firestore::WriteBatch::is_valid",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::WriteBatch",
+    "method": "is_valid",
+    "is_static": false,
+    "is_virtual": false
+  },
+  "direct_dependencies": [],
+  "transitive_dependencies": [],
+  "dependency_count": 0,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::firestore::WriteBatch::is_valid"
+  ]
+}

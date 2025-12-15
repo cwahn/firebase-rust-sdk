@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::TransactionOptions::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::TransactionOptions",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "TransactionOptions"
+  ],
+  "transitive_dependencies": [
+    "TransactionOptions"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "TransactionOptions",
+    "firebase::firestore::TransactionOptions::operator="
+  ]
+}

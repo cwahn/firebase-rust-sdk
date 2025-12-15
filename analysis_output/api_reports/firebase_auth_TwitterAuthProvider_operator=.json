@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::TwitterAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::TwitterAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "TwitterAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "TwitterAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "TwitterAuthProvider",
+    "firebase::auth::TwitterAuthProvider::operator="
+  ]
+}

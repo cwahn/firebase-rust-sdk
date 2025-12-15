@@ -1,0 +1,15 @@
+# Rust build artifacts
+/target
+
+# Large external dependencies
+/firebase-cpp-sdk/
+/codeql-repo/
+
+# CodeQL database (can be regenerated)
+/codeql-db/
+
+# CodeQL query results (binary format)
+codeql_results/*.bqrs
+
+# Build logs
+codeql_create.log

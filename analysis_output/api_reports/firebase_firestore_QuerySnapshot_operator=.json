@@ -1,0 +1,43 @@
+{
+  "api": "firebase::firestore::QuerySnapshot::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::QuerySnapshot",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "QuerySnapshot",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "QuerySnapshot",
+    "QuerySnapshotInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::QuerySnapshotInternal::firestore_internal"
+  ],
+  "dependency_count": 10,
+  "direct_dependents": [],
+  "implementation_order": [
+    "QuerySnapshotInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "QuerySnapshot",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::QuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::QuerySnapshot::operator="
+  ]
+}

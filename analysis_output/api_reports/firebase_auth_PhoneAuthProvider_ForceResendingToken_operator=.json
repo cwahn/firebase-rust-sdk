@@ -1,0 +1,25 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider::ForceResendingToken",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "ForceResendingToken"
+  ],
+  "transitive_dependencies": [
+    "ForceResendingToken"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::auth::PhoneAuthProvider::VerifyPhoneNumber"
+  ],
+  "implementation_order": [
+    "ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::operator="
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "PhoneAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "PhoneAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "PhoneAuthProvider",
+    "firebase::auth::PhoneAuthProvider::operator="
+  ]
+}

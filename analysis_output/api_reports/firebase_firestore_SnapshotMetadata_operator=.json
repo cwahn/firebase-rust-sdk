@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::SnapshotMetadata::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SnapshotMetadata",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "SnapshotMetadata"
+  ],
+  "transitive_dependencies": [
+    "SnapshotMetadata"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "SnapshotMetadata",
+    "firebase::firestore::SnapshotMetadata::operator="
+  ]
+}

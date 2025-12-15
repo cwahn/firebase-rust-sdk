@@ -1,0 +1,29 @@
+{
+  "api": "firebase::auth::Auth::FetchProvidersForEmailLastResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "FetchProvidersForEmailLastResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Future<FetchProvidersResult>",
+    "firebase::Future<FetchProvidersResult>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "transitive_dependencies": [
+    "Future<FetchProvidersResult>",
+    "firebase::Future<FetchProvidersResult>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "dependency_count": 3,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Future<FetchProvidersResult>",
+    "firebase::ReferenceCountedFutureImpl::LastResult",
+    "firebase::Future<FetchProvidersResult>::Future",
+    "firebase::auth::Auth::FetchProvidersForEmailLastResult"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "api": "firebase::auth::Auth::RemoveIdTokenListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "RemoveIdTokenListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "IdTokenListener",
+    "firebase::auth::DisableTokenAutoRefresh",
+    "firebase::auth::RemoveListener",
+    "std::__1::vector<IdTokenListener *, allocator<IdTokenListener *>>::size"
+  ],
+  "transitive_dependencies": [
+    "IdTokenListener",
+    "firebase::auth::DisableTokenAutoRefresh",
+    "firebase::auth::RemoveListener",
+    "std::__1::vector<IdTokenListener *, allocator<IdTokenListener *>>::size"
+  ],
+  "dependency_count": 4,
+  "direct_dependents": [
+    "firebase::auth::AuthData::ClearListeners",
+    "firebase::auth::IdTokenListener::~IdTokenListener",
+    "firebase::auth::IdTokenRefreshThread::Destroy"
+  ],
+  "implementation_order": [
+    "firebase::auth::RemoveListener",
+    "firebase::auth::DisableTokenAutoRefresh",
+    "std::__1::vector<IdTokenListener *, allocator<IdTokenListener *>>::size",
+    "IdTokenListener",
+    "firebase::auth::Auth::RemoveIdTokenListener"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "api": "firebase::firestore::Settings::host",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Settings",
+    "method": "host",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::firestore::Settings::ToString",
+    "firebase::firestore::SettingsInternal::Create"
+  ],
+  "implementation_order": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::firestore::Settings::host"
+  ]
+}

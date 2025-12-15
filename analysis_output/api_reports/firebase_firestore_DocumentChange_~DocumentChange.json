@@ -1,0 +1,37 @@
+{
+  "api": "firebase::firestore::DocumentChange::~DocumentChange",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::DocumentChange",
+    "method": "~DocumentChange",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "DocumentChange",
+    "DocumentChangeInternal",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentChangeInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup"
+  ],
+  "dependency_count": 8,
+  "direct_dependents": [],
+  "implementation_order": [
+    "DocumentChange",
+    "DocumentChangeInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::DocumentChangeInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentChange::~DocumentChange"
+  ]
+}

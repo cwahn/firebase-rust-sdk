@@ -1,0 +1,30 @@
+{
+  "api": "firebase::auth::AuthStateListener::AuthStateListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AuthStateListener",
+    "method": "AuthStateListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AuthStateListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector"
+  ],
+  "transitive_dependencies": [
+    "AuthStateListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::CurrentUserBlockListener::CurrentUserBlockListener",
+    "firebase::auth::FunctionRegistryAuthStateListener::FunctionRegistryAuthStateListener",
+    "firebase::auth::UserDataPersist::UserDataPersist"
+  ],
+  "implementation_order": [
+    "AuthStateListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector",
+    "firebase::auth::AuthStateListener::AuthStateListener"
+  ]
+}

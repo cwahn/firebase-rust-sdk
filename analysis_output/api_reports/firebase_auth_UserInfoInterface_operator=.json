@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::UserInfoInterface::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::UserInfoInterface",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "UserInfoInterface"
+  ],
+  "transitive_dependencies": [
+    "UserInfoInterface"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "UserInfoInterface",
+    "firebase::auth::UserInfoInterface::operator="
+  ]
+}

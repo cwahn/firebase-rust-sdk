@@ -1,0 +1,25 @@
+{
+  "api": "firebase::auth::IdTokenListener::OnIdTokenChanged",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::IdTokenListener",
+    "method": "OnIdTokenChanged",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "Auth"
+  ],
+  "transitive_dependencies": [
+    "Auth"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::auth::Auth::AddIdTokenListener"
+  ],
+  "implementation_order": [
+    "Auth",
+    "firebase::auth::IdTokenListener::OnIdTokenChanged"
+  ]
+}

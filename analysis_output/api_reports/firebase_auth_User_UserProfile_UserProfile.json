@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::User::UserProfile::UserProfile",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User::UserProfile",
+    "method": "UserProfile",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "UserProfile"
+  ],
+  "transitive_dependencies": [
+    "UserProfile"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "UserProfile",
+    "firebase::auth::User::UserProfile::UserProfile"
+  ]
+}

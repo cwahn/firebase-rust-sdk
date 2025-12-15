@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::PlayGamesAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PlayGamesAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "PlayGamesAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "PlayGamesAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "PlayGamesAuthProvider",
+    "firebase::auth::PlayGamesAuthProvider::operator="
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::Listener::OnCodeSent",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider::Listener",
+    "method": "OnCodeSent",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "ForceResendingToken",
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "transitive_dependencies": [
+    "ForceResendingToken",
+    "basic_string<char, char_traits<char>, allocator<char>>"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::PhoneAuthProvider::VerifyPhoneNumber"
+  ],
+  "implementation_order": [
+    "ForceResendingToken",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeSent"
+  ]
+}

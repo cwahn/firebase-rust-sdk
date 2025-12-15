@@ -1,0 +1,28 @@
+{
+  "api": "firebase::auth::UserInfoInterface::email",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::UserInfoInterface",
+    "method": "email",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::User::provider_data"
+  ],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::UserInfoInterface::email"
+  ]
+}

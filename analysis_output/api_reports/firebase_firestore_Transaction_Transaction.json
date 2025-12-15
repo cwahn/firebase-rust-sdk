@@ -1,0 +1,47 @@
+{
+  "api": "firebase::firestore::Transaction::Transaction",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Transaction",
+    "method": "Transaction",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "Transaction",
+    "TransactionInternal",
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Register",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "Transaction",
+    "TransactionInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Register",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::TransactionInternal::firestore_internal",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 10,
+  "direct_dependents": [
+    "firebase::firestore::TransactionInternal::TransactionFunctionNativeApply"
+  ],
+  "implementation_order": [
+    "TransactionInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "Transaction",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::TransactionInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Register",
+    "firebase::firestore::Transaction::Transaction"
+  ]
+}

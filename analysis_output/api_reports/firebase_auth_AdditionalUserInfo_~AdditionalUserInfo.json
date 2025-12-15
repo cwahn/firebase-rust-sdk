@@ -1,0 +1,38 @@
+{
+  "api": "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AdditionalUserInfo",
+    "method": "~AdditionalUserInfo",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::Credential::~Credential",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map"
+  ],
+  "transitive_dependencies": [
+    "firebase::auth::Credential::~Credential",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [
+    "firebase::auth::AuthResult::~AuthResult",
+    "firebase::auth::AuthenticationResult::FromAuthenticatedUserData",
+    "firebase::auth::AuthenticationResult::FromResponse",
+    "firebase::auth::AuthenticationResult::~AuthenticationResult"
+  ],
+  "implementation_order": [
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "firebase::auth::Credential::~Credential",
+    "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo"
+  ]
+}

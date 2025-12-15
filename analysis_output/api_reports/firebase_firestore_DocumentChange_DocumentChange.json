@@ -1,0 +1,55 @@
+{
+  "api": "firebase::firestore::DocumentChange::DocumentChange",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::DocumentChange",
+    "method": "DocumentChange",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "DocumentChange",
+    "DocumentChangeInternal",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "DocumentChange",
+    "DocumentChangeInternal",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentChangeInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 13,
+  "direct_dependents": [
+    "firebase::firestore::ConverterImpl::MakePublicFromJava"
+  ],
+  "implementation_order": [
+    "DocumentChange",
+    "std::__1::swap",
+    "DocumentChangeInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::DocumentChangeInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentChange::DocumentChange"
+  ]
+}

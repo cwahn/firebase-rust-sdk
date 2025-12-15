@@ -1,0 +1,45 @@
+{
+  "api": "firebase::auth::AuthResult::~AuthResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AuthResult",
+    "method": "~AuthResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
+    "firebase::auth::Credential::~Credential",
+    "firebase::auth::User::~User"
+  ],
+  "transitive_dependencies": [
+    "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
+    "firebase::auth::Credential::~Credential",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "firebase::auth::User::~User",
+    "firebase::auth::UserInfoInterface::~UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr"
+  ],
+  "dependency_count": 8,
+  "direct_dependents": [
+    "firebase::auth::Auth::SignInAnonymously",
+    "firebase::auth::Auth::SignInWithProvider",
+    "firebase::auth::AuthenticationResult::SetAsCurrentUser",
+    "firebase::auth::User::LinkWithProvider",
+    "firebase::auth::User::ReauthenticateWithProvider"
+  ],
+  "implementation_order": [
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "firebase::auth::UserInfoInterface::~UserInfoInterface",
+    "firebase::auth::Credential::~Credential",
+    "firebase::auth::User::~User",
+    "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
+    "firebase::auth::AuthResult::~AuthResult"
+  ]
+}

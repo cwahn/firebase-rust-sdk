@@ -1,0 +1,36 @@
+{
+  "api": "firebase::firestore::DocumentReference::firestore",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::DocumentReference",
+    "method": "firestore",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Firestore",
+    "firebase::firestore::DocumentReferenceInternal::firestore",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "Firestore",
+    "firebase::LogAssert",
+    "firebase::firestore::DocumentReferenceInternal::firestore",
+    "firebase::firestore::FirestoreInternal::firestore_public",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 6,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "Firestore",
+    "firebase::firestore::FirestoreInternal::firestore_public",
+    "firebase::firestore::DocumentReferenceInternal::firestore",
+    "firebase::firestore::DocumentReference::firestore"
+  ]
+}

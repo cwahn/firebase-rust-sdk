@@ -1,0 +1,32 @@
+{
+  "api": "firebase::firestore::Settings::~Settings",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Settings",
+    "method": "~Settings",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::shared_ptr<const Executor>::~shared_ptr"
+  ],
+  "transitive_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::shared_ptr<const Executor>::~shared_ptr"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::firestore::Firestore::set_settings",
+    "firebase::firestore::FirestoreInternal::ApplyDefaultSettings",
+    "firebase::firestore::FirestoreInternal::FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::settings",
+    "firebase::firestore::SettingsInternal::ToPublic"
+  ],
+  "implementation_order": [
+    "std::__1::shared_ptr<const Executor>::~shared_ptr",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::firestore::Settings::~Settings"
+  ]
+}

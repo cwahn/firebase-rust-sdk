@@ -1,0 +1,24 @@
+{
+  "api": "firebase::firestore::FieldValue::~FieldValue",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "~FieldValue",
+    "is_static": false,
+    "is_virtual": false
+  },
+  "direct_dependencies": [],
+  "transitive_dependencies": [],
+  "dependency_count": 0,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshotInternal::ConvertArray",
+    "firebase::firestore::DocumentSnapshotInternal::ConvertObject",
+    "firebase::firestore::DocumentSnapshotInternal::GetData",
+    "firebase::firestore::FieldValue::Null",
+    "firebase::firestore::FieldValueInternal::array_value",
+    "firebase::firestore::FieldValueInternal::map_value"
+  ],
+  "implementation_order": [
+    "firebase::firestore::FieldValue::~FieldValue"
+  ]
+}

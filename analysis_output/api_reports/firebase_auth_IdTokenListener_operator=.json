@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::IdTokenListener::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::IdTokenListener",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "IdTokenListener"
+  ],
+  "transitive_dependencies": [
+    "IdTokenListener"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "IdTokenListener",
+    "firebase::auth::IdTokenListener::operator="
+  ]
+}

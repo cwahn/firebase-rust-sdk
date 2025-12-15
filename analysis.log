@@ -1,0 +1,43 @@
+===============================================================================
+Firebase C++ SDK Dependency Analysis
+===============================================================================
+
+CodeQL version: CodeQL command-line toolchain release 2.23.8.
+
+SDK location: /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk
+
+===============================================================================
+[1/4] Creating CodeQL Database
+===============================================================================
+
+Creating CodeQL database (this may take 10-30 minutes)...
+Database will be created at: /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql-db
+
+Initializing database at /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql-db.
+Running build command: [/opt/homebrew/Caskroom/codeql/2.23.8/codeql/cpp/tools/autobuild.sh]
+Running command in /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk: [/opt/homebrew/Caskroom/codeql/2.23.8/codeql/cpp/tools/autobuild.sh]
+[2025-12-15 19:16:15] [build-stderr] cpp/autobuilder: Using build system found in '.'
+[2025-12-15 19:16:15] [build-stderr] cpp/autobuilder: trying to run cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DBUILD_DOCS=OFF -DCATKIN_ENABLE_TESTING=OFF -DBUILD_DOCUMENTATION=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS= -DCMAKE_C_FLAGS= .. [current dir: /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk/_codeql_build_dir]
+[2025-12-15 19:16:15] [build-stdout] /opt/homebrew/Caskroom/codeql/2.23.8/codeql/cpp/tools/lib/build.sh: line 27: cmake: command not found
+[2025-12-15 19:16:18] [build-stdout] ~/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk ~/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk
+[2025-12-15 19:16:18] [build-stdout] ~/Documents/dev/rust/firebase-rust-sdk/firebase-cpp-sdk
+[2025-12-15 19:16:22] [build-stderr] cpp/autobuilder: No supported build command succeeded.
+[2025-12-15 19:16:24] [build-stderr] cpp/autobuilder: autobuild summary.
+[2025-12-15 19:16:29] [ERROR] Spawned process exited abnormally (code 1; tried to run: [/opt/homebrew/Caskroom/codeql/2.23.8/codeql/tools/osx64/preload_tracer, /opt/homebrew/Caskroom/codeql/2.23.8/codeql/cpp/tools/autobuild.sh])
+A fatal error occurred: Exit status 1 from command: [/opt/homebrew/Caskroom/codeql/2.23.8/codeql/cpp/tools/autobuild.sh]
+
+Database created successfully!
+
+Verifying database...
+Unmatched arguments from index 0: 'info', '/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql-db'
+Try codeql database --help for usage help.
+Database verification skipped
+
+===============================================================================
+[2/4] Running CodeQL Queries
+===============================================================================
+
+Running query: class_hierarchy
+  Query file: /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/class_hierarchy.ql
+Warning: '/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql-db/db-cpp' is not a recognized as a dataset, ignoring.
+A fatal error occurred: /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql-db/db-cpp does not exist.

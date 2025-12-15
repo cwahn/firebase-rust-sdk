@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::Auth::FetchProvidersResult::~FetchProvidersResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth::FetchProvidersResult",
+    "method": "~FetchProvidersResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector"
+  ],
+  "transitive_dependencies": [
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector",
+    "firebase::auth::Auth::FetchProvidersResult::~FetchProvidersResult"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "api": "firebase::firestore::Transaction::~Transaction",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Transaction",
+    "method": "~Transaction",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::TransactionInternal::~TransactionInternal"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "Transaction",
+    "TransactionInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::TransactionInternal::firestore_internal",
+    "firebase::firestore::TransactionInternal::~TransactionInternal",
+    "firebase::firestore::Wrapper::~Wrapper",
+    "firebase::firestore::jni::ArenaRef::~ArenaRef",
+    "std::__1::shared_ptr<<error-type>>::~shared_ptr",
+    "std::__1::shared_ptr<Local<Throwable>>::~shared_ptr",
+    "std::__1::shared_ptr<ObjectArenaEntry>::~shared_ptr"
+  ],
+  "dependency_count": 14,
+  "direct_dependents": [
+    "firebase::firestore::TransactionInternal::TransactionFunctionNativeApply"
+  ],
+  "implementation_order": [
+    "TransactionInternal",
+    "std::__1::shared_ptr<<error-type>>::~shared_ptr",
+    "std::__1::shared_ptr<Local<Throwable>>::~shared_ptr",
+    "std::__1::shared_ptr<ObjectArenaEntry>::~shared_ptr",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "Transaction",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::jni::ArenaRef::~ArenaRef",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::TransactionInternal::firestore_internal",
+    "firebase::firestore::Wrapper::~Wrapper",
+    "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::TransactionInternal::~TransactionInternal",
+    "firebase::firestore::Transaction::~Transaction"
+  ]
+}

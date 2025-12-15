@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::Firestore::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Firestore",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Firestore"
+  ],
+  "transitive_dependencies": [
+    "Firestore"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Firestore",
+    "firebase::firestore::Firestore::operator="
+  ]
+}

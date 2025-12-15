@@ -1,0 +1,30 @@
+{
+  "api": "firebase::auth::UserInfoInterface::UserInfoInterface",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::UserInfoInterface",
+    "method": "UserInfoInterface",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string"
+  ],
+  "transitive_dependencies": [
+    "UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::User::User",
+    "firebase::auth::User::provider_data",
+    "firebase::auth::UserInfoInterfaceImpl::UserInfoInterfaceImpl"
+  ],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "UserInfoInterface",
+    "firebase::auth::UserInfoInterface::UserInfoInterface"
+  ]
+}

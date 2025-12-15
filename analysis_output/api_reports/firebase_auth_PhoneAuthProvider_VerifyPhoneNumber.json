@@ -1,0 +1,54 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::VerifyPhoneNumber",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider",
+    "method": "VerifyPhoneNumber",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "Listener",
+    "PhoneAuthOptions",
+    "firebase::LogAssert",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::~ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeAutoRetrievalTimeOut",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeSent",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "ForceResendingToken",
+    "Listener",
+    "PhoneAuthOptions",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::LogAssert",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::~ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeAutoRetrievalTimeOut",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeSent",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 12,
+  "direct_dependents": [],
+  "implementation_order": [
+    "ForceResendingToken",
+    "firebase::LogAssert",
+    "PhoneAuthOptions",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::~ForceResendingToken",
+    "Listener",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=",
+    "firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeSent",
+    "firebase::auth::PhoneAuthProvider::Listener::OnCodeAutoRetrievalTimeOut",
+    "firebase::auth::PhoneAuthProvider::VerifyPhoneNumber"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::YahooAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::YahooAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "YahooAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "YahooAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "YahooAuthProvider",
+    "firebase::auth::YahooAuthProvider::operator="
+  ]
+}

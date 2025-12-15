@@ -1,0 +1,43 @@
+{
+  "api": "firebase::auth::AuthStateListener::~AuthStateListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AuthStateListener",
+    "method": "~AuthStateListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::Auth::RemoveAuthStateListener",
+    "std::__1::__wrap_iter<Auth **>::operator*",
+    "std::__1::vector<Auth *, allocator<Auth *>>::begin",
+    "std::__1::vector<Auth *, allocator<Auth *>>::empty",
+    "std::__1::vector<Auth *, allocator<Auth *>>::~vector"
+  ],
+  "transitive_dependencies": [
+    "AuthStateListener",
+    "firebase::auth::Auth::RemoveAuthStateListener",
+    "firebase::auth::RemoveListener",
+    "std::__1::__wrap_iter<Auth **>::operator*",
+    "std::__1::vector<Auth *, allocator<Auth *>>::begin",
+    "std::__1::vector<Auth *, allocator<Auth *>>::empty",
+    "std::__1::vector<Auth *, allocator<Auth *>>::~vector"
+  ],
+  "dependency_count": 7,
+  "direct_dependents": [
+    "firebase::auth::CurrentUserBlockListener::~CurrentUserBlockListener",
+    "firebase::auth::FunctionRegistryAuthStateListener::~FunctionRegistryAuthStateListener",
+    "firebase::auth::UserDataPersist::~UserDataPersist"
+  ],
+  "implementation_order": [
+    "AuthStateListener",
+    "firebase::auth::RemoveListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::empty",
+    "std::__1::vector<Auth *, allocator<Auth *>>::~vector",
+    "std::__1::vector<Auth *, allocator<Auth *>>::begin",
+    "std::__1::__wrap_iter<Auth **>::operator*",
+    "firebase::auth::Auth::RemoveAuthStateListener",
+    "firebase::auth::AuthStateListener::~AuthStateListener"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "api": "firebase::auth::Auth::AddIdTokenListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "AddIdTokenListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "IdTokenListener",
+    "firebase::MutexLock::MutexLock",
+    "firebase::MutexLock::~MutexLock",
+    "firebase::auth::AddListener",
+    "firebase::auth::EnableTokenAutoRefresh",
+    "firebase::auth::IdTokenListener::OnIdTokenChanged"
+  ],
+  "transitive_dependencies": [
+    "Auth",
+    "IdTokenListener",
+    "firebase::MutexLock::MutexLock",
+    "firebase::MutexLock::~MutexLock",
+    "firebase::auth::AddListener",
+    "firebase::auth::EnableTokenAutoRefresh",
+    "firebase::auth::IdTokenListener::OnIdTokenChanged"
+  ],
+  "dependency_count": 7,
+  "direct_dependents": [
+    "firebase::auth::IdTokenRefreshThread::Initialize"
+  ],
+  "implementation_order": [
+    "firebase::MutexLock::~MutexLock",
+    "firebase::MutexLock::MutexLock",
+    "firebase::auth::EnableTokenAutoRefresh",
+    "firebase::auth::AddListener",
+    "IdTokenListener",
+    "Auth",
+    "firebase::auth::IdTokenListener::OnIdTokenChanged",
+    "firebase::auth::Auth::AddIdTokenListener"
+  ]
+}

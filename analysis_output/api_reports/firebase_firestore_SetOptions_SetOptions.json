@@ -1,0 +1,43 @@
+{
+  "api": "firebase::firestore::SetOptions::SetOptions",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SetOptions",
+    "method": "SetOptions",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "SetOptions",
+    "Type",
+    "std::__1::move",
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::unordered_set",
+    "unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>"
+  ],
+  "transitive_dependencies": [
+    "SetOptions",
+    "Type",
+    "std::__1::move",
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::unordered_set",
+    "unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [
+    "firebase::firestore::DocumentReference::Set",
+    "firebase::firestore::SetOptions::Merge",
+    "firebase::firestore::SetOptions::MergeFieldPaths",
+    "firebase::firestore::SetOptions::MergeFields",
+    "firebase::firestore::SetOptionsInternal::SetOptionsInternal",
+    "firebase::firestore::Transaction::Set",
+    "firebase::firestore::WriteBatch::Set"
+  ],
+  "implementation_order": [
+    "std::__1::move",
+    "SetOptions",
+    "unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>",
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::unordered_set",
+    "Type",
+    "firebase::firestore::SetOptions::SetOptions"
+  ]
+}

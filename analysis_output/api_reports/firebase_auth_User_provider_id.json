@@ -1,0 +1,61 @@
+{
+  "api": "firebase::auth::User::provider_id",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "provider_id",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::UserView::Reader::IsValid",
+    "firebase::auth::UserView::Reader::operator->",
+    "firebase::auth::UserView::Reader::~Reader",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "AuthData",
+    "Mutex",
+    "Reader",
+    "UserData",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::LogAssert",
+    "firebase::Mutex::Acquire",
+    "firebase::Mutex::Release",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::UserView::Reader::IsValid",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::operator->",
+    "firebase::auth::UserView::Reader::~Reader",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 17,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "AuthData",
+    "firebase::Mutex::Acquire",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::UserView::Reader::IsValid",
+    "Reader",
+    "Mutex",
+    "UserData",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::Mutex::Release",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::Reader::operator->",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::User::provider_id"
+  ]
+}

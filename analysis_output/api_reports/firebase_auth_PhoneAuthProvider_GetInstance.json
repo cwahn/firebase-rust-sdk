@@ -1,0 +1,26 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::GetInstance",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider",
+    "method": "GetInstance",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Auth",
+    "PhoneAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "Auth",
+    "PhoneAuthProvider"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Auth",
+    "PhoneAuthProvider",
+    "firebase::auth::PhoneAuthProvider::GetInstance"
+  ]
+}

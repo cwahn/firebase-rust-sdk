@@ -1,0 +1,35 @@
+{
+  "api": "firebase::auth::Auth::UseEmulator",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "UseEmulator",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::append",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::to_string"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::append",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::to_string"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::to_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::append",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::auth::Auth::UseEmulator"
+  ]
+}

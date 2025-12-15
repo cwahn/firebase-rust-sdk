@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::MicrosoftAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::MicrosoftAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "MicrosoftAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "MicrosoftAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "MicrosoftAuthProvider",
+    "firebase::auth::MicrosoftAuthProvider::operator="
+  ]
+}

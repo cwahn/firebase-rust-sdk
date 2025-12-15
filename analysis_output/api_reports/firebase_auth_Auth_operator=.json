@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::Auth::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Auth"
+  ],
+  "transitive_dependencies": [
+    "Auth"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Auth",
+    "firebase::auth::Auth::operator="
+  ]
+}

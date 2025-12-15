@@ -1,0 +1,26 @@
+{
+  "api": "firebase::auth::User::metadata",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "metadata",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "UserMetadata",
+    "firebase::auth::UserMetadata::UserMetadata"
+  ],
+  "transitive_dependencies": [
+    "UserMetadata",
+    "firebase::auth::UserMetadata::UserMetadata"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [],
+  "implementation_order": [
+    "UserMetadata",
+    "firebase::auth::UserMetadata::UserMetadata",
+    "firebase::auth::User::metadata"
+  ]
+}

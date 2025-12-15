@@ -1,0 +1,29 @@
+{
+  "api": "firebase::firestore::SnapshotMetadata::SnapshotMetadata",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SnapshotMetadata",
+    "method": "SnapshotMetadata",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "SnapshotMetadata"
+  ],
+  "transitive_dependencies": [
+    "SnapshotMetadata"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshot::metadata",
+    "firebase::firestore::DocumentSnapshotInternal::metadata",
+    "firebase::firestore::QuerySnapshot::metadata",
+    "firebase::firestore::QuerySnapshotInternal::metadata",
+    "firebase::firestore::SnapshotMetadataInternal::ToPublic"
+  ],
+  "implementation_order": [
+    "SnapshotMetadata",
+    "firebase::firestore::SnapshotMetadata::SnapshotMetadata"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "api": "firebase::auth::AdditionalUserInfo::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AdditionalUserInfo",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "AdditionalUserInfo",
+    "firebase::auth::Credential::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::operator="
+  ],
+  "transitive_dependencies": [
+    "AdditionalUserInfo",
+    "AuthCredential",
+    "Credential",
+    "CredentialImpl",
+    "firebase::auth::Credential::operator=",
+    "firebase::auth::CredentialImpl::CredentialImpl",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::operator=",
+    "std::__1::shared_ptr<AuthCredential>::shared_ptr",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr"
+  ],
+  "dependency_count": 11,
+  "direct_dependents": [
+    "firebase::auth::AuthResult::operator=",
+    "firebase::auth::AuthenticationResult::FromAuthenticatedUserData",
+    "firebase::auth::AuthenticationResult::FromResponse",
+    "firebase::auth::AuthenticationResult::SetAsCurrentUser"
+  ],
+  "implementation_order": [
+    "Credential",
+    "std::__1::shared_ptr<AuthCredential>::shared_ptr",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::operator=",
+    "AuthCredential",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
+    "CredentialImpl",
+    "AdditionalUserInfo",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "firebase::auth::CredentialImpl::CredentialImpl",
+    "firebase::auth::Credential::operator=",
+    "firebase::auth::AdditionalUserInfo::operator="
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "api": "firebase::firestore::Query::firestore",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Query",
+    "method": "firestore",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Firestore",
+    "firebase::firestore::QueryInternal::firestore"
+  ],
+  "transitive_dependencies": [
+    "Firestore",
+    "firebase::LogAssert",
+    "firebase::firestore::FirestoreInternal::firestore_public",
+    "firebase::firestore::QueryInternal::firestore"
+  ],
+  "dependency_count": 4,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "Firestore",
+    "firebase::firestore::FirestoreInternal::firestore_public",
+    "firebase::firestore::QueryInternal::firestore",
+    "firebase::firestore::Query::firestore"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "api": "firebase::firestore::QuerySnapshot::QuerySnapshot",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::QuerySnapshot",
+    "method": "QuerySnapshot",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "QuerySnapshot",
+    "QuerySnapshotInternal",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "QuerySnapshot",
+    "QuerySnapshotInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::QuerySnapshotInternal::firestore_internal",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 13,
+  "direct_dependents": [
+    "firebase::firestore::ConverterImpl::MakePublicFromJava"
+  ],
+  "implementation_order": [
+    "QuerySnapshotInternal",
+    "std::__1::swap",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "QuerySnapshot",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::QuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::QuerySnapshot::QuerySnapshot"
+  ]
+}

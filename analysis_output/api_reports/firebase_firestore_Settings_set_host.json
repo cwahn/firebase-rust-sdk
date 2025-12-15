@@ -1,0 +1,32 @@
+{
+  "api": "firebase::firestore::Settings::set_host",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Settings",
+    "method": "set_host",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::move"
+  ],
+  "transitive_dependencies": [
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::move"
+  ],
+  "dependency_count": 3,
+  "direct_dependents": [
+    "firebase::firestore::FirestoreInternal::settings",
+    "firebase::firestore::SettingsInternal::ToPublic"
+  ],
+  "implementation_order": [
+    "std::__1::move",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "basic_string<char, char_traits<char>, allocator<char>>",
+    "firebase::firestore::Settings::set_host"
+  ]
+}

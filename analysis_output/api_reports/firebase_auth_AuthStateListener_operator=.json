@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::AuthStateListener::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AuthStateListener",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "AuthStateListener"
+  ],
+  "transitive_dependencies": [
+    "AuthStateListener"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "AuthStateListener",
+    "firebase::auth::AuthStateListener::operator="
+  ]
+}

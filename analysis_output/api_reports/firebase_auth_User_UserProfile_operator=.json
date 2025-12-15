@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::User::UserProfile::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User::UserProfile",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "UserProfile"
+  ],
+  "transitive_dependencies": [
+    "UserProfile"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "UserProfile",
+    "firebase::auth::User::UserProfile::operator="
+  ]
+}

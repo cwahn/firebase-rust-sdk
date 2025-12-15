@@ -1,0 +1,55 @@
+{
+  "api": "firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::AggregateQuerySnapshot",
+    "method": "AggregateQuerySnapshot",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AggregateQuerySnapshot",
+    "AggregateQuerySnapshotInternal",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "transitive_dependencies": [
+    "AggregateQuerySnapshot",
+    "AggregateQuerySnapshotInternal",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 13,
+  "direct_dependents": [
+    "firebase::firestore::ConverterImpl::MakePublicFromJava"
+  ],
+  "implementation_order": [
+    "AggregateQuerySnapshot",
+    "std::__1::swap",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "AggregateQuerySnapshotInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot"
+  ]
+}

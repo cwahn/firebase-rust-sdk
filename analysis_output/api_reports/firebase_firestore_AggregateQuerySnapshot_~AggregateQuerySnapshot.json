@@ -1,0 +1,39 @@
+{
+  "api": "firebase::firestore::AggregateQuerySnapshot::~AggregateQuerySnapshot",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::AggregateQuerySnapshot",
+    "method": "~AggregateQuerySnapshot",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister"
+  ],
+  "transitive_dependencies": [
+    "AggregateQuerySnapshot",
+    "AggregateQuerySnapshotInternal",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup"
+  ],
+  "dependency_count": 8,
+  "direct_dependents": [
+    "firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>::SucceedWithResult"
+  ],
+  "implementation_order": [
+    "AggregateQuerySnapshot",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "AggregateQuerySnapshotInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::AggregateQuerySnapshot::~AggregateQuerySnapshot"
+  ]
+}

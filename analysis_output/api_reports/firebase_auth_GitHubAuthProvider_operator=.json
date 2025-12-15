@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::GitHubAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::GitHubAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "GitHubAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "GitHubAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "GitHubAuthProvider",
+    "firebase::auth::GitHubAuthProvider::operator="
+  ]
+}

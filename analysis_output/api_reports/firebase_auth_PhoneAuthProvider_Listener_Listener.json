@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::PhoneAuthProvider::Listener::Listener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthProvider::Listener",
+    "method": "Listener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "Listener"
+  ],
+  "transitive_dependencies": [
+    "Listener"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "Listener",
+    "firebase::auth::PhoneAuthProvider::Listener::Listener"
+  ]
+}

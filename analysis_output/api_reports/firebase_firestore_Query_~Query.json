@@ -1,0 +1,47 @@
+{
+  "api": "firebase::firestore::Query::~Query",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Query",
+    "method": "~Query",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<Query, QueryInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::QueryInternal::~QueryInternal"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "Query",
+    "QueryInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::FutureManager::ReleaseFutureApi",
+    "firebase::firestore::CleanupFn<Query, QueryInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::PromiseFactory<AsyncApis>::~PromiseFactory",
+    "firebase::firestore::QueryInternal::firestore_internal",
+    "firebase::firestore::QueryInternal::~QueryInternal"
+  ],
+  "dependency_count": 11,
+  "direct_dependents": [
+    "firebase::firestore::CollectionReference::~CollectionReference",
+    "firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::Completer<Query, QueryInternal, void>::SucceedWithResult"
+  ],
+  "implementation_order": [
+    "Query",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::FutureManager::ReleaseFutureApi",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "QueryInternal",
+    "firebase::firestore::PromiseFactory<AsyncApis>::~PromiseFactory",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::QueryInternal::firestore_internal",
+    "firebase::firestore::QueryInternal::~QueryInternal",
+    "firebase::firestore::CleanupFn<Query, QueryInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::Query::~Query"
+  ]
+}

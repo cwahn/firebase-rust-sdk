@@ -1,0 +1,62 @@
+{
+  "api": "firebase::auth::AuthResult::AuthResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::AuthResult",
+    "method": "AuthResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AuthResult",
+    "firebase::auth::AdditionalUserInfo::AdditionalUserInfo",
+    "firebase::auth::Credential::Credential",
+    "firebase::auth::User::User"
+  ],
+  "transitive_dependencies": [
+    "AdditionalUserInfo",
+    "AuthCredential",
+    "AuthData",
+    "AuthResult",
+    "Credential",
+    "CredentialImpl",
+    "User",
+    "UserInfoInterface",
+    "firebase::auth::AdditionalUserInfo::AdditionalUserInfo",
+    "firebase::auth::Credential::Credential",
+    "firebase::auth::CredentialImpl::CredentialImpl",
+    "firebase::auth::User::User",
+    "firebase::auth::UserInfoInterface::UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::map",
+    "std::__1::shared_ptr<AuthCredential>::shared_ptr"
+  ],
+  "dependency_count": 17,
+  "direct_dependents": [
+    "firebase::auth::Auth::SignInAnonymously",
+    "firebase::auth::AuthenticationResult::SetAsCurrentUser",
+    "firebase::auth::Promise<AuthResult>::Promise"
+  ],
+  "implementation_order": [
+    "AuthData",
+    "Credential",
+    "std::__1::shared_ptr<AuthCredential>::shared_ptr",
+    "AuthCredential",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "CredentialImpl",
+    "AdditionalUserInfo",
+    "AuthResult",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::map",
+    "User",
+    "UserInfoInterface",
+    "firebase::auth::CredentialImpl::CredentialImpl",
+    "firebase::auth::UserInfoInterface::UserInfoInterface",
+    "firebase::auth::Credential::Credential",
+    "firebase::auth::User::User",
+    "firebase::auth::AdditionalUserInfo::AdditionalUserInfo",
+    "firebase::auth::AuthResult::AuthResult"
+  ]
+}

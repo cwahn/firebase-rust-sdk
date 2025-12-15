@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::GoogleAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::GoogleAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "GoogleAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "GoogleAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "GoogleAuthProvider",
+    "firebase::auth::GoogleAuthProvider::operator="
+  ]
+}

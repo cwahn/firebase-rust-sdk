@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::FieldValue::geo_point_value",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "geo_point_value",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "GeoPoint"
+  ],
+  "transitive_dependencies": [
+    "GeoPoint"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "GeoPoint",
+    "firebase::firestore::FieldValue::geo_point_value"
+  ]
+}

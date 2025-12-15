@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::SetOptions::~SetOptions",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::SetOptions",
+    "method": "~SetOptions",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::~unordered_set"
+  ],
+  "transitive_dependencies": [
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::~unordered_set"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::~unordered_set",
+    "firebase::firestore::SetOptions::~SetOptions"
+  ]
+}

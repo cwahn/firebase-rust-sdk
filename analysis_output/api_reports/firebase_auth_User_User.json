@@ -1,0 +1,41 @@
+{
+  "api": "firebase::auth::User::User",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "User",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AuthData",
+    "User",
+    "firebase::auth::UserInfoInterface::UserInfoInterface"
+  ],
+  "transitive_dependencies": [
+    "AuthData",
+    "User",
+    "UserInfoInterface",
+    "firebase::auth::UserInfoInterface::UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [
+    "firebase::auth::Auth::SignInWithProvider",
+    "firebase::auth::Auth::current_user",
+    "firebase::auth::AuthData::AuthData",
+    "firebase::auth::AuthResult::AuthResult",
+    "firebase::auth::Promise<User>::Promise",
+    "firebase::auth::User::LinkWithProvider",
+    "firebase::auth::User::ReauthenticateWithProvider"
+  ],
+  "implementation_order": [
+    "AuthData",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "User",
+    "UserInfoInterface",
+    "firebase::auth::UserInfoInterface::UserInfoInterface",
+    "firebase::auth::User::User"
+  ]
+}

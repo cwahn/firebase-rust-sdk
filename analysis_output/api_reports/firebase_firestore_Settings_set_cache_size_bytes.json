@@ -1,0 +1,20 @@
+{
+  "api": "firebase::firestore::Settings::set_cache_size_bytes",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::Settings",
+    "method": "set_cache_size_bytes",
+    "is_static": false,
+    "is_virtual": false
+  },
+  "direct_dependencies": [],
+  "transitive_dependencies": [],
+  "dependency_count": 0,
+  "direct_dependents": [
+    "firebase::firestore::FirestoreInternal::settings",
+    "firebase::firestore::SettingsInternal::ToPublic"
+  ],
+  "implementation_order": [
+    "firebase::firestore::Settings::set_cache_size_bytes"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::FederatedOAuthProvider::SetProviderData",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::FederatedOAuthProvider",
+    "method": "SetProviderData",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "FederatedOAuthProviderData"
+  ],
+  "transitive_dependencies": [
+    "FederatedOAuthProviderData"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "FederatedOAuthProviderData",
+    "firebase::auth::FederatedOAuthProvider::SetProviderData"
+  ]
+}

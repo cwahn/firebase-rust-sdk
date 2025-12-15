@@ -1,0 +1,39 @@
+{
+  "api": "firebase::auth::Auth::AddAuthStateListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "AddAuthStateListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "AuthStateListener",
+    "firebase::MutexLock::MutexLock",
+    "firebase::MutexLock::~MutexLock",
+    "firebase::auth::AddListener",
+    "firebase::auth::AuthStateListener::OnAuthStateChanged"
+  ],
+  "transitive_dependencies": [
+    "Auth",
+    "AuthStateListener",
+    "firebase::MutexLock::MutexLock",
+    "firebase::MutexLock::~MutexLock",
+    "firebase::auth::AddListener",
+    "firebase::auth::AuthStateListener::OnAuthStateChanged"
+  ],
+  "dependency_count": 6,
+  "direct_dependents": [
+    "firebase::auth::Auth::current_user"
+  ],
+  "implementation_order": [
+    "AuthStateListener",
+    "firebase::MutexLock::~MutexLock",
+    "firebase::MutexLock::MutexLock",
+    "firebase::auth::AddListener",
+    "Auth",
+    "firebase::auth::AuthStateListener::OnAuthStateChanged",
+    "firebase::auth::Auth::AddAuthStateListener"
+  ]
+}

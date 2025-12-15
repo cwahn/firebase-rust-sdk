@@ -1,0 +1,61 @@
+{
+  "api": "firebase::auth::User::is_valid",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "is_valid",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::UserView::Reader::IsValid",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::ValidUser"
+  ],
+  "transitive_dependencies": [
+    "AuthData",
+    "Mutex",
+    "Reader",
+    "UserData",
+    "firebase::LogAssert",
+    "firebase::Mutex::Acquire",
+    "firebase::Mutex::Release",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::UserView::Reader::IsValid",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::ValidUser"
+  ],
+  "dependency_count": 14,
+  "direct_dependents": [
+    "firebase::auth::Auth::GetAuthTokenAsyncForRegistry",
+    "firebase::auth::Auth::GetCurrentUserUidForRegistry",
+    "firebase::auth::IdTokenRefreshListener::OnIdTokenChanged",
+    "firebase::auth::User::SendEmailVerification",
+    "firebase::auth::User::SendEmailVerificationBeforeUpdatingEmail",
+    "firebase::auth::User::operator==",
+    "firebase::auth::User::provider_data",
+    "firebase::auth::UserDataPersist::OnAuthStateChanged"
+  ],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "AuthData",
+    "firebase::Mutex::Acquire",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::ValidUser",
+    "firebase::auth::UserView::Reader::IsValid",
+    "Reader",
+    "Mutex",
+    "UserData",
+    "firebase::Mutex::Release",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::User::is_valid"
+  ]
+}

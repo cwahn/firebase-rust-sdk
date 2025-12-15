@@ -1,0 +1,33 @@
+{
+  "api": "firebase::auth::User::~User",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "~User",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::UserInfoInterface::~UserInfoInterface"
+  ],
+  "transitive_dependencies": [
+    "firebase::auth::UserInfoInterface::~UserInfoInterface",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::Auth::GetAuthTokenAsyncForRegistry",
+    "firebase::auth::Auth::GetAuthTokenForRegistry",
+    "firebase::auth::Auth::GetCurrentUserUidForRegistry",
+    "firebase::auth::AuthData::~AuthData",
+    "firebase::auth::AuthResult::~AuthResult",
+    "firebase::auth::IdTokenRefreshListener::OnIdTokenChanged",
+    "firebase::auth::UserDataPersist::OnAuthStateChanged"
+  ],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::auth::UserInfoInterface::~UserInfoInterface",
+    "firebase::auth::User::~User"
+  ]
+}

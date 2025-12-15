@@ -1,0 +1,29 @@
+{
+  "api": "firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::LoadBundleTaskProgress",
+    "method": "LoadBundleTaskProgress",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "LoadBundleTaskProgress",
+    "State"
+  ],
+  "transitive_dependencies": [
+    "LoadBundleTaskProgress",
+    "State"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::firestore::ConverterImpl::MakePublicFromJava",
+    "firebase::firestore::EventListenerInternal::ProgressListenerNativeOnProgress"
+  ],
+  "implementation_order": [
+    "State",
+    "LoadBundleTaskProgress",
+    "firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress"
+  ]
+}

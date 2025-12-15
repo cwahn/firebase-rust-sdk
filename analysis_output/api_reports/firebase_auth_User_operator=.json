@@ -1,0 +1,27 @@
+{
+  "api": "firebase::auth::User::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "User"
+  ],
+  "transitive_dependencies": [
+    "User"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::auth::Auth::SignInAnonymously",
+    "firebase::auth::AuthResult::operator=",
+    "firebase::auth::AuthenticationResult::SetAsCurrentUser"
+  ],
+  "implementation_order": [
+    "User",
+    "firebase::auth::User::operator="
+  ]
+}

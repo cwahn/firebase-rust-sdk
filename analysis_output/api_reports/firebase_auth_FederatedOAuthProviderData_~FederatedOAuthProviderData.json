@@ -1,0 +1,31 @@
+{
+  "api": "firebase::auth::FederatedOAuthProviderData::~FederatedOAuthProviderData",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::FederatedOAuthProviderData",
+    "method": "~FederatedOAuthProviderData",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::auth::FederatedProviderData::~FederatedProviderData",
+    "std::__1::map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>::~map",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector"
+  ],
+  "transitive_dependencies": [
+    "firebase::auth::FederatedProviderData::~FederatedProviderData",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>::~map",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector"
+  ],
+  "dependency_count": 4,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>::~map",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::~vector",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::auth::FederatedProviderData::~FederatedProviderData",
+    "firebase::auth::FederatedOAuthProviderData::~FederatedOAuthProviderData"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "api": "firebase::auth::User::operator==",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "operator==",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "User",
+    "firebase::auth::User::is_valid"
+  ],
+  "transitive_dependencies": [
+    "AuthData",
+    "Mutex",
+    "Reader",
+    "User",
+    "UserData",
+    "firebase::LogAssert",
+    "firebase::Mutex::Acquire",
+    "firebase::Mutex::Release",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::User::is_valid",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::UserView::Reader::IsValid",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::ValidUser"
+  ],
+  "dependency_count": 16,
+  "direct_dependents": [
+    "firebase::auth::User::operator!="
+  ],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "AuthData",
+    "firebase::Mutex::Acquire",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::ValidUser",
+    "firebase::auth::UserView::Reader::IsValid",
+    "Reader",
+    "Mutex",
+    "UserData",
+    "firebase::Mutex::Release",
+    "User",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::Reader::Reader",
+    "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::UserView::GetReader",
+    "firebase::auth::User::is_valid",
+    "firebase::auth::User::operator=="
+  ]
+}

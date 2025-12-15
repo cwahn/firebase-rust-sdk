@@ -1,0 +1,35 @@
+{
+  "api": "firebase::auth::Auth::set_language_code",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "set_language_code",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "char",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "char",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "char",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::auth::Auth::set_language_code"
+  ]
+}

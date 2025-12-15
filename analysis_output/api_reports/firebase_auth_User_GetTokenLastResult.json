@@ -1,0 +1,29 @@
+{
+  "api": "firebase::auth::User::GetTokenLastResult",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::User",
+    "method": "GetTokenLastResult",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "Future<basic_string<char, char_traits<char>, allocator<char>>>",
+    "firebase::Future<basic_string<char, char_traits<char>, allocator<char>>>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "transitive_dependencies": [
+    "Future<basic_string<char, char_traits<char>, allocator<char>>>",
+    "firebase::Future<basic_string<char, char_traits<char>, allocator<char>>>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult"
+  ],
+  "dependency_count": 3,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::Future<basic_string<char, char_traits<char>, allocator<char>>>::Future",
+    "firebase::ReferenceCountedFutureImpl::LastResult",
+    "Future<basic_string<char, char_traits<char>, allocator<char>>>",
+    "firebase::auth::User::GetTokenLastResult"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::UserMetadata::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::UserMetadata",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "UserMetadata"
+  ],
+  "transitive_dependencies": [
+    "UserMetadata"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "UserMetadata",
+    "firebase::auth::UserMetadata::operator="
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "api": "firebase::auth::Auth::app",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "app",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "App",
+    "firebase::LogAssert"
+  ],
+  "transitive_dependencies": [
+    "App",
+    "firebase::LogAssert"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [],
+  "implementation_order": [
+    "firebase::LogAssert",
+    "App",
+    "firebase::auth::Auth::app"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "api": "firebase::firestore::FieldPath::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldPath",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "FieldPath",
+    "std::__1::swap"
+  ],
+  "transitive_dependencies": [
+    "FieldPath",
+    "std::__1::swap"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::swap",
+    "FieldPath",
+    "firebase::firestore::FieldPath::operator="
+  ]
+}

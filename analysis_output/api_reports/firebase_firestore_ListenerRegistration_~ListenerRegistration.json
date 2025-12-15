@@ -1,0 +1,33 @@
+{
+  "api": "firebase::firestore::ListenerRegistration::~ListenerRegistration",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::ListenerRegistration",
+    "method": "~ListenerRegistration",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "ListenerRegistration",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup"
+  ],
+  "dependency_count": 6,
+  "direct_dependents": [],
+  "implementation_order": [
+    "ListenerRegistration",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::ListenerRegistration::~ListenerRegistration"
+  ]
+}

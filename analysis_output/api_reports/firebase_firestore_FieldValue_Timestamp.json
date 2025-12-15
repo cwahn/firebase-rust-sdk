@@ -1,0 +1,40 @@
+{
+  "api": "firebase::firestore::FieldValue::Timestamp",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "Timestamp",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "FieldValue",
+    "Timestamp",
+    "firebase::firestore::FieldValue::FieldValue"
+  ],
+  "transitive_dependencies": [
+    "FieldValue",
+    "FieldValueInternal",
+    "Timestamp",
+    "firebase::firestore::FieldValue::FieldValue",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 7,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshotInternal::ConvertScalar",
+    "firebase::firestore::DocumentSnapshotInternal::ConvertServerTimestamp"
+  ],
+  "implementation_order": [
+    "FieldValue",
+    "std::__1::swap",
+    "Timestamp",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "FieldValueInternal",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::firestore::FieldValue::FieldValue",
+    "firebase::firestore::FieldValue::Timestamp"
+  ]
+}

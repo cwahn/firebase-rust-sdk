@@ -1,0 +1,47 @@
+Running class_hierarchy...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/class_hierarchy.ql.
+[1/1 comp 10s] Compiled /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/class_hierarchy.ql.
+Starting evaluation of firebase-analysis/class_hierarchy.ql.
+[1/1 eval 1.4s] Evaluation done; writing results to /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_results/class_hierarchy.bqrs.
+Shutting down query evaluator.
+
+Running field_dependencies...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/field_dependencies.ql.
+ERROR: getQualifiedName() cannot be resolved for type Type::Type (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/field_dependencies.ql:28,5-21)
+ERROR: Expected a predicate with result but found 'isPublic', which is a predicate without result. (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/field_dependencies.ql:29,3-15)
+
+Running include_dependencies...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/include_dependencies.ql.
+[1/1 comp 7.7s] Compiled /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/include_dependencies.ql.
+Starting evaluation of firebase-analysis/include_dependencies.ql.
+[1/1 eval 205ms] Evaluation done; writing results to /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_results/include_dependencies.bqrs.
+Shutting down query evaluator.
+
+Running method_dependencies...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/method_dependencies.ql.
+[1/1 comp 8.3s] Compiled /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/method_dependencies.ql.
+Starting evaluation of firebase-analysis/method_dependencies.ql.
+[1/1 eval 1.6s] Evaluation done; writing results to /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_results/method_dependencies.bqrs.
+Shutting down query evaluator.
+
+Running public_api_methods...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/public_api_methods.ql.
+ERROR: isConst() cannot be resolved for type MemberFunction::MemberFunction (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/public_api_methods.ql:28,5-12)
+ERROR: Expected a predicate with result but found 'isStatic', which is a predicate without result. (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/public_api_methods.ql:26,3-15)
+ERROR: Expected a predicate with result but found 'isVirtual', which is a predicate without result. (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/public_api_methods.ql:27,3-16)
+
+Running return_type_dependencies...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/return_type_dependencies.ql.
+ERROR: getQualifiedName() cannot be resolved for type Type::Type (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/return_type_dependencies.ql:29,5-21)
+
+Running type_dependencies...
+Error retrieving qlpack commit hash from Git repository
+Compiling query plan for /Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/type_dependencies.ql.
+ERROR: getQualifiedName() cannot be resolved for type Type::Type (/Users/chanwooahn/Documents/dev/rust/firebase-rust-sdk/codeql_queries/type_dependencies.ql:31,5-21)
+

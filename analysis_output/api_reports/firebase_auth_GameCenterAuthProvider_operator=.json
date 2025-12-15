@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::GameCenterAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::GameCenterAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "GameCenterAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "GameCenterAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "GameCenterAuthProvider",
+    "firebase::auth::GameCenterAuthProvider::operator="
+  ]
+}

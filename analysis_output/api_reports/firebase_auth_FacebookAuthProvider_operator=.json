@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::FacebookAuthProvider::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::FacebookAuthProvider",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "FacebookAuthProvider"
+  ],
+  "transitive_dependencies": [
+    "FacebookAuthProvider"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "FacebookAuthProvider",
+    "firebase::auth::FacebookAuthProvider::operator="
+  ]
+}

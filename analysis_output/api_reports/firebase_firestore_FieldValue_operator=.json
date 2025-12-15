@@ -1,0 +1,25 @@
+{
+  "api": "firebase::firestore::FieldValue::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldValue",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "FieldValue"
+  ],
+  "transitive_dependencies": [
+    "FieldValue"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [
+    "firebase::firestore::DocumentSnapshotInternal::ConvertObject"
+  ],
+  "implementation_order": [
+    "FieldValue",
+    "firebase::firestore::FieldValue::operator="
+  ]
+}

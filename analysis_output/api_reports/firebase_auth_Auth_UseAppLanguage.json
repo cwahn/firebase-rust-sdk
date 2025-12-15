@@ -1,0 +1,29 @@
+{
+  "api": "firebase::auth::Auth::UseAppLanguage",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::Auth",
+    "method": "UseAppLanguage",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 3,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::auth::Auth::UseAppLanguage"
+  ]
+}

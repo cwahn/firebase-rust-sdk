@@ -1,0 +1,23 @@
+{
+  "api": "firebase::firestore::LoadBundleTaskProgress::operator=",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::LoadBundleTaskProgress",
+    "method": "operator=",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "returns"
+  },
+  "direct_dependencies": [
+    "LoadBundleTaskProgress"
+  ],
+  "transitive_dependencies": [
+    "LoadBundleTaskProgress"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "LoadBundleTaskProgress",
+    "firebase::firestore::LoadBundleTaskProgress::operator="
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "api": "firebase::auth::IdTokenListener::IdTokenListener",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::IdTokenListener",
+    "method": "IdTokenListener",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "IdTokenListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector"
+  ],
+  "transitive_dependencies": [
+    "IdTokenListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector"
+  ],
+  "dependency_count": 2,
+  "direct_dependents": [
+    "firebase::auth::IdTokenRefreshListener::IdTokenRefreshListener"
+  ],
+  "implementation_order": [
+    "IdTokenListener",
+    "std::__1::vector<Auth *, allocator<Auth *>>::vector",
+    "firebase::auth::IdTokenListener::IdTokenListener"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "api": "firebase::auth::PhoneAuthOptions::~PhoneAuthOptions",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::auth::PhoneAuthOptions",
+    "method": "~PhoneAuthOptions",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "transitive_dependencies": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string"
+  ],
+  "dependency_count": 1,
+  "direct_dependents": [],
+  "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "firebase::auth::PhoneAuthOptions::~PhoneAuthOptions"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "api": "firebase::firestore::DocumentSnapshot::DocumentSnapshot",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::DocumentSnapshot",
+    "method": "DocumentSnapshot",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "DocumentSnapshot",
+    "DocumentSnapshotInternal",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "DocumentSnapshot",
+    "DocumentSnapshotInternal",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::swap"
+  ],
+  "dependency_count": 13,
+  "direct_dependents": [
+    "firebase::firestore::ConverterImpl::MakePublicFromJava",
+    "firebase::firestore::DocumentChange::document",
+    "firebase::firestore::Transaction::Get",
+    "firebase::firestore::TransactionInternal::Get"
+  ],
+  "implementation_order": [
+    "DocumentSnapshotInternal",
+    "std::__1::swap",
+    "DocumentSnapshot",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::DocumentSnapshot::DocumentSnapshot"
+  ]
+}

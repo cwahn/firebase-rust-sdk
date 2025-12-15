@@ -1,0 +1,39 @@
+{
+  "api": "firebase::firestore::DocumentSnapshot::~DocumentSnapshot",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::DocumentSnapshot",
+    "method": "~DocumentSnapshot",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "calls"
+  },
+  "direct_dependencies": [
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister"
+  ],
+  "transitive_dependencies": [
+    "CleanupNotifier",
+    "DocumentSnapshot",
+    "DocumentSnapshotInternal",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup"
+  ],
+  "dependency_count": 8,
+  "direct_dependents": [
+    "firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::Completer<DocumentSnapshot, DocumentSnapshotInternal, void>::SucceedWithResult"
+  ],
+  "implementation_order": [
+    "DocumentSnapshotInternal",
+    "DocumentSnapshot",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "CleanupNotifier",
+    "FirestoreInternal",
+    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::DocumentSnapshot::~DocumentSnapshot"
+  ]
+}

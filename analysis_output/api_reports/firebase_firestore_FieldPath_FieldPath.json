@@ -1,0 +1,37 @@
+{
+  "api": "firebase::firestore::FieldPath::FieldPath",
+  "metadata": {
+    "type": "public_api",
+    "class": "firebase::firestore::FieldPath",
+    "method": "FieldPath",
+    "is_static": false,
+    "is_virtual": false,
+    "relationship": "uses_type"
+  },
+  "direct_dependencies": [
+    "FieldPath",
+    "firebase::firestore::FieldPath::InternalFromSegments",
+    "initializer_list<basic_string<char, char_traits<char>, allocator<char>>>",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
+    "vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>"
+  ],
+  "transitive_dependencies": [
+    "FieldPath",
+    "firebase::firestore::FieldPath::InternalFromSegments",
+    "initializer_list<basic_string<char, char_traits<char>, allocator<char>>>",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
+    "vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>"
+  ],
+  "dependency_count": 5,
+  "direct_dependents": [
+    "firebase::firestore::UnaryFilterInternal::UnaryFilterInternal"
+  ],
+  "implementation_order": [
+    "vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
+    "initializer_list<basic_string<char, char_traits<char>, allocator<char>>>",
+    "FieldPath",
+    "firebase::firestore::FieldPath::InternalFromSegments",
+    "firebase::firestore::FieldPath::FieldPath"
+  ]
+}
