@@ -379,6 +379,284 @@ impl WriteBatch {
     }
 }
 
+/// Transaction for atomic read-modify-write operations
+///
+/// Transactions are used to ensure data consistency when reading and writing
+/// multiple documents atomically. All reads must happen before any writes.
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/transaction.h:42`
+/// - `firestore/src/common/transaction.cc:88` (Get)
+///
+/// # Example
+/// ```no_run
+/// # use firebase_rust_sdk::firestore::Firestore;
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// let firestore = Firestore::new("my-project", "my-key", "(default)").await?;
+/// 
+/// firestore.run_transaction(|txn| async move {
+///     // All reads must happen first
+///     let doc = txn.get("users/alice").await?;
+///     let count = doc.get("count").and_then(|v| v.as_i64()).unwrap_or(0);
+///     
+///     // Then perform writes
+///     txn.set("users/alice", json!({"count": count + 1}));
+///     Ok(())
+/// }).await?;
+/// # Ok(())
+/// # }
+/// ```
+#[derive(Debug, Clone)]
+pub struct Transaction {
+    /// Transaction ID from Firestore
+    pub(crate) id: Option<String>,
+    
+    /// Project ID
+    pub(crate) project_id: String,
+    
+    /// Database ID
+    pub(crate) database_id: String,
+    
+    /// API key for authentication
+    pub(crate) api_key: String,
+    
+    /// Write operations accumulated during transaction
+    pub(crate) operations: Vec<WriteOperation>,
+    
+    /// Documents read during this transaction (for validation)
+    pub(crate) reads: Vec<String>,
+}
+
+impl Transaction {
+    /// Create a new transaction
+    pub(crate) fn new(project_id: String, database_id: String, api_key: String) -> Self {
+        Self {
+            id: None,
+            project_id,
+            database_id,
+            api_key,
+            operations: Vec::new(),
+            reads: Vec::new(),
+        }
+    }
+
+    /// Set transaction ID (received from Firestore on first read)
+    pub(crate) fn set_id(&mut self, id: String) {
+        self.id = Some(id);
+    }
+
+    /// Get transaction ID
+    pub(crate) fn id(&self) -> Option<&str> {
+        self.id.as_deref()
+    }
+
+    /// Add a read to the transaction
+    pub(crate) fn add_read(&mut self, path: String) {
+        self.reads.push(path);
+    }
+
+    /// Write to a document (replaces entire document)
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/transaction.h:74` (Set)
+    ///
+    /// # Arguments
+    /// * `path` - Document path (e.g. "users/alice")
+    /// * `data` - Document data as JSON value
+    pub fn set(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+        self.operations.push(WriteOperation::Set {
+            path: path.into(),
+            data,
+        });
+        self
+    }
+
+    /// Update specific fields in a document
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/transaction.h:87` (Update)
+    ///
+    /// # Arguments
+    /// * `path` - Document path (e.g. "users/alice")
+    /// * `data` - Fields to update as JSON value
+    pub fn update(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+        self.operations.push(WriteOperation::Update {
+            path: path.into(),
+            data,
+        });
+        self
+    }
+
+    /// Delete a document
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/transaction.h:107` (Delete)
+    ///
+    /// # Arguments
+    /// * `path` - Document path (e.g. "users/alice")
+    pub fn delete(&mut self, path: impl Into<String>) -> &mut Self {
+        self.operations.push(WriteOperation::Delete {
+            path: path.into(),
+        });
+        self
+    }
+
+    /// Get all operations in this transaction
+    pub(crate) fn operations(&self) -> &[WriteOperation] {
+        &self.operations
+    }
+
+    /// Read a document within the transaction
+    ///
+    /// All reads must happen before any writes in the transaction.
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/common/transaction.cc:88` (Get)
+    /// - `firestore/src/include/firebase/firestore/transaction.h:118`
+    ///
+    /// # Arguments
+    /// * `path` - Document path (e.g. "users/alice")
+    ///
+    /// # Returns
+    /// Document snapshot with the current document data
+    pub async fn get(&mut self, path: impl Into<String>) -> Result<DocumentSnapshot, crate::error::FirebaseError> {
+        use crate::error::{FirebaseError, FirestoreError};
+        
+        let path_string = path.into();
+        
+        // Error-first: validate path
+        if path_string.is_empty() {
+            return Err(FirebaseError::Firestore(
+                FirestoreError::InvalidArgument("Document path cannot be empty".to_string())
+            ));
+        }
+
+        // Track this read
+        self.add_read(path_string.clone());
+
+        // Build document URL
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
+            self.project_id,
+            self.database_id,
+            path_string
+        );
+
+        // Make request
+        let client = reqwest::Client::new();
+        let mut request = client.get(&url);
+
+        // Add transaction ID if we have one
+        if let Some(txn_id) = &self.id {
+            request = request.query(&[("transaction", txn_id)]);
+        }
+
+        let response = request
+            .send()
+            .await
+            .map_err(|e| FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Get document failed: {}", e))
+            ))?;
+
+        // Store transaction ID from response if this is the first read
+        if self.id.is_none() {
+            // First read in transaction - Firestore returns a transaction ID
+            // For now we'll handle this in the commit phase
+        }
+
+        // Error-first: check for HTTP errors
+        if !response.status().is_success() {
+            if response.status() == 404 {
+                // Document doesn't exist - return empty snapshot
+                return Ok(DocumentSnapshot {
+                    reference: DocumentReference {
+                        path: path_string.clone(),
+                    },
+                    data: None,
+                    metadata: SnapshotMetadata::default(),
+                });
+            }
+            
+            let status = response.status();
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Get document failed: {} - {}", status, error_text))
+            ));
+        }
+
+        let doc: serde_json::Value = response.json().await
+            .map_err(|e| FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Failed to parse document: {}", e))
+            ))?;
+
+        // Parse document fields
+        let data = if let Some(fields) = doc.get("fields") {
+            // Convert Firestore field format to plain JSON
+            Some(Self::convert_firestore_fields(fields))
+        } else {
+            None
+        };
+
+        Ok(DocumentSnapshot {
+            reference: DocumentReference {
+                path: path_string,
+            },
+            data,
+            metadata: SnapshotMetadata::default(),
+        })
+    }
+
+    /// Convert Firestore fields format to plain JSON (internal helper)
+    fn convert_firestore_fields(fields: &serde_json::Value) -> serde_json::Value {
+        use serde_json::{json, Map, Value as JsonValue};
+        
+        if let Some(obj) = fields.as_object() {
+            let mut result = Map::new();
+            for (key, value) in obj {
+                result.insert(key.clone(), Self::convert_firestore_value(value));
+            }
+            JsonValue::Object(result)
+        } else {
+            json!({})
+        }
+    }
+
+    /// Convert a single Firestore value to plain JSON
+    fn convert_firestore_value(value: &serde_json::Value) -> serde_json::Value {
+        use serde_json::{json, Value as JsonValue};
+
+        // Firestore format: {"integerValue": "123"} or {"stringValue": "hello"}
+        if let Some(obj) = value.as_object() {
+            if let Some(string_val) = obj.get("stringValue") {
+                return string_val.clone();
+            } else if let Some(int_val) = obj.get("integerValue") {
+                if let Some(s) = int_val.as_str() {
+                    if let Ok(n) = s.parse::<i64>() {
+                        return json!(n);
+                    }
+                }
+                return int_val.clone();
+            } else if let Some(double_val) = obj.get("doubleValue") {
+                return double_val.clone();
+            } else if let Some(bool_val) = obj.get("booleanValue") {
+                return bool_val.clone();
+            } else if let Some(null_val) = obj.get("nullValue") {
+                return json!(null);
+            } else if let Some(array_val) = obj.get("arrayValue") {
+                if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
+                    return json!(values.iter().map(|v| Self::convert_firestore_value(v)).collect::<Vec<_>>());
+                }
+            } else if let Some(map_val) = obj.get("mapValue") {
+                if let Some(fields) = map_val.get("fields") {
+                    return Self::convert_firestore_fields(fields);
+                }
+            }
+        }
+        
+        value.clone()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

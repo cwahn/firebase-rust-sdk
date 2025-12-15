@@ -26,8 +26,9 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - **Query pagination (start_at, start_after, end_at, end_before)**
 - CollectionReference::add() with auto-generated IDs
 - WriteBatch for atomic multi-document operations
+- **Transactions for atomic read-modify-write operations**
 
-**Tests:** 70 tests passing (+4 new pagination tests)
+**Tests:** 73 tests passing (+3 new transaction tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -129,6 +130,52 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .await?;
         println!("Next page: {} documents", next_page.len());
     }
+    
+    Ok(())
+}
+```
+
+### Transactions
+
+```rust
+use firebase_rust_sdk::firestore::Firestore;
+use serde_json::json;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let firestore = Firestore::get_firestore_with_database_and_key(
+        "my-project",
+        "(default)",
+        "YOUR_API_KEY"
+    ).await?;
+    
+    // Atomic counter increment with retry
+    firestore.run_transaction(|mut txn| async move {
+        // All reads must happen first
+        let doc = txn.get("counters/visits").await?;
+        let count = doc.get("count").and_then(|v| v.as_i64()).unwrap_or(0);
+        
+        // Then perform writes
+        txn.set("counters/visits", json!({"count": count + 1}));
+        Ok(())
+    }).await?;
+    
+    // Custom retry attempts
+    firestore.run_transaction_with_options(|mut txn| async move {
+        let balance_doc = txn.get("accounts/alice").await?;
+        let balance = balance_doc.get("balance").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        
+        if balance < 100.0 {
+            return Err(FirebaseError::Firestore(
+                FirestoreError::InvalidArgument("Insufficient funds".to_string())
+            ));
+        }
+        
+        txn.update("accounts/alice", json!({"balance": balance - 100.0}))
+           .update("accounts/bob", json!({"balance": balance_doc.get("balance").unwrap_or(&json!(0.0)).as_f64().unwrap_or(0.0) + 100.0}));
+        
+        Ok(())
+    }, 10).await?; // Retry up to 10 times
     
     Ok(())
 }

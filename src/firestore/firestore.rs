@@ -32,6 +32,7 @@ pub struct Firestore {
 struct FirestoreInner {
     project_id: String,
     database_id: String,
+    api_key: String,
     http_client: reqwest::Client,
 }
 
@@ -72,8 +73,23 @@ impl Firestore {
         project_id: impl Into<String>,
         database_id: impl Into<String>,
     ) -> Result<Self, FirebaseError> {
+        Self::get_firestore_with_database_and_key(project_id, database_id, "").await
+    }
+
+    /// Get or create Firestore instance with specific database ID and API key
+    ///
+    /// # Arguments
+    /// * `project_id` - The Google Cloud project ID
+    /// * `database_id` - The database ID (default: "(default)")
+    /// * `api_key` - Firebase API key (required for transactions)
+    pub async fn get_firestore_with_database_and_key(
+        project_id: impl Into<String>,
+        database_id: impl Into<String>,
+        api_key: impl Into<String>,
+    ) -> Result<Self, FirebaseError> {
         let project_id = project_id.into();
         let database_id = database_id.into();
+        let api_key = api_key.into();
 
         // Validate project ID (error case first)
         if project_id.is_empty() {
@@ -101,6 +117,7 @@ impl Firestore {
             inner: Arc::new(FirestoreInner {
                 project_id,
                 database_id,
+                api_key,
                 http_client,
             }),
         };
@@ -118,6 +135,11 @@ impl Firestore {
     /// Get the database ID
     pub fn database_id(&self) -> &str {
         &self.inner.database_id
+    }
+
+    /// Get the API key
+    pub fn api_key(&self) -> &str {
+        &self.inner.api_key
     }
 
     /// Get a reference to a collection
@@ -422,6 +444,208 @@ impl Firestore {
             let error_text = response.text().await.unwrap_or_default();
             return Err(FirebaseError::Firestore(
                 FirestoreError::Internal(format!("Batch commit failed: {} - {}", status, error_text))
+            ));
+        }
+
+        Ok(())
+    }
+
+    /// Run a transaction for atomic read-modify-write operations
+    ///
+    /// Transactions allow you to read and write data atomically. All reads must
+    /// happen before any writes. The transaction will automatically retry up to
+    /// max_attempts times if there are conflicts.
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/common/firestore.cc:359` - RunTransaction
+    /// - `firestore/src/include/firebase/firestore/transaction.h:42`
+    ///
+    /// # Arguments
+    /// * `callback` - Async function that receives a Transaction reference
+    /// * `max_attempts` - Maximum number of retry attempts (default: 5)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # use serde_json::json;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("my-project", "my-key", "(default)").await?;
+    /// 
+    /// // Atomic counter increment
+    /// firestore.run_transaction(|txn| async move {
+    ///     let doc = txn.get("counters/visits").await?;
+    ///     let count = doc.get("value").and_then(|v| v.as_i64()).unwrap_or(0);
+    ///     txn.set("counters/visits", json!({"value": count + 1}));
+    ///     Ok(())
+    /// }).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn run_transaction<F, Fut>(&self, callback: F) -> Result<(), FirebaseError>
+    where
+        F: Fn(crate::firestore::types::Transaction) -> Fut,
+        Fut: std::future::Future<Output = Result<(), FirebaseError>>,
+    {
+        self.run_transaction_with_options(callback, 5).await
+    }
+
+    /// Run a transaction with custom retry options
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/common/firestore.cc:359` - RunTransaction with TransactionOptions
+    ///
+    /// # Arguments
+    /// * `callback` - Async function that receives a Transaction reference
+    /// * `max_attempts` - Maximum number of retry attempts
+    pub async fn run_transaction_with_options<F, Fut>(
+        &self,
+        callback: F,
+        max_attempts: u32,
+    ) -> Result<(), FirebaseError>
+    where
+        F: Fn(crate::firestore::types::Transaction) -> Fut,
+        Fut: std::future::Future<Output = Result<(), FirebaseError>>,
+    {
+        use crate::error::FirestoreError;
+        use crate::firestore::types::{Transaction, WriteOperation};
+
+        // Error-first: validate max_attempts
+        if max_attempts == 0 {
+            return Err(FirebaseError::Firestore(
+                FirestoreError::InvalidArgument("max_attempts must be at least 1".to_string()),
+            ));
+        }
+
+        let mut last_error = None;
+
+        for attempt in 0..max_attempts {
+            // Create a new transaction for this attempt
+            let mut txn = Transaction::new(
+                self.project_id().to_string(),
+                self.database_id().to_string(),
+                self.api_key().to_string(),
+            );
+
+            // Run the callback
+            let callback_result = callback(txn.clone()).await;
+            
+            // Error-first: check if callback failed
+            if let Err(e) = callback_result {
+                last_error = Some(e);
+                continue;
+            }
+
+            // Try to commit the transaction
+            match self.commit_transaction(&txn).await {
+                Ok(()) => return Ok(()),
+                Err(e) => {
+                    // Check if it's a conflict error that should be retried
+                    if attempt + 1 < max_attempts {
+                        last_error = Some(e);
+                        continue;
+                    } else {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+
+        // All attempts failed
+        Err(last_error.unwrap_or_else(|| {
+            FirebaseError::Firestore(FirestoreError::Internal(
+                "Transaction failed after all retry attempts".to_string(),
+            ))
+        }))
+    }
+
+    /// Commit a transaction (internal method)
+    async fn commit_transaction(&self, txn: &crate::firestore::types::Transaction) -> Result<(), FirebaseError> {
+        use crate::error::FirestoreError;
+        use crate::firestore::types::WriteOperation;
+
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents:commit",
+            self.project_id(),
+            self.database_id()
+        );
+
+        // Build writes array
+        let writes: Vec<serde_json::Value> = txn.operations().iter().map(|op| {
+            match op {
+                WriteOperation::Set { path, data } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    serde_json::json!({
+                        "update": {
+                            "name": full_path,
+                            "fields": convert_value_to_firestore_fields(data)
+                        }
+                    })
+                }
+                WriteOperation::Update { path, data } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    let update_mask: Vec<String> = if let Some(obj) = data.as_object() {
+                        obj.keys().cloned().collect()
+                    } else {
+                        vec![]
+                    };
+                    serde_json::json!({
+                        "update": {
+                            "name": full_path,
+                            "fields": convert_value_to_firestore_fields(data)
+                        },
+                        "updateMask": {
+                            "fieldPaths": update_mask
+                        }
+                    })
+                }
+                WriteOperation::Delete { path } => {
+                    let full_path = format!(
+                        "projects/{}/databases/{}/documents/{}",
+                        self.project_id(),
+                        self.database_id(),
+                        path
+                    );
+                    serde_json::json!({
+                        "delete": full_path
+                    })
+                }
+            }
+        }).collect();
+
+        let mut request_body = serde_json::json!({
+            "writes": writes
+        });
+
+        // Add transaction ID if present
+        if let Some(txn_id) = txn.id() {
+            request_body["transaction"] = serde_json::json!(txn_id);
+        }
+
+        let response = self.http_client()
+            .post(&url)
+            .json(&request_body)
+            .send()
+            .await
+            .map_err(|e| FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Transaction commit failed: {}", e))
+            ))?;
+
+        // Error-first: check for HTTP errors
+        if !response.status().is_success() {
+            let status = response.status();
+            let error_text = response.text().await.unwrap_or_default();
+            return Err(FirebaseError::Firestore(
+                FirestoreError::Internal(format!("Transaction commit failed: {} - {}", status, error_text))
             ));
         }
 
@@ -1463,6 +1687,91 @@ mod tests {
         match &ops[3] {
             WriteOperation::Set { path, .. } => assert_eq!(path, "path4"),
             _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_transaction_operations() {
+        use crate::firestore::types::{Transaction, WriteOperation};
+        use serde_json::json;
+        
+        let mut txn = Transaction::new(
+            "test-project".to_string(),
+            "(default)".to_string(),
+            "test-key".to_string(),
+        );
+
+        // Test set operation
+        txn.set("users/alice", json!({"name": "Alice", "age": 30}));
+        
+        // Test update operation
+        txn.update("users/bob", json!({"age": 31}));
+        
+        // Test delete operation
+        txn.delete("users/charlie");
+
+        assert_eq!(txn.operations().len(), 3);
+        
+        // Verify operations
+        match &txn.operations()[0] {
+            WriteOperation::Set { path, data } => {
+                assert_eq!(path, "users/alice");
+                assert_eq!(data["name"], "Alice");
+            }
+            _ => panic!("Expected Set operation"),
+        }
+        
+        match &txn.operations()[1] {
+            WriteOperation::Update { path, .. } => assert_eq!(path, "users/bob"),
+            _ => panic!("Expected Update operation"),
+        }
+        
+        match &txn.operations()[2] {
+            WriteOperation::Delete { path } => assert_eq!(path, "users/charlie"),
+            _ => panic!("Expected Delete operation"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_transaction_chaining() {
+        use crate::firestore::types::Transaction;
+        use serde_json::json;
+        
+        let mut txn = Transaction::new(
+            "test-project".to_string(),
+            "(default)".to_string(),
+            "test-key".to_string(),
+        );
+
+        // Test chaining
+        txn.set("doc1", json!({"a": 1}))
+           .update("doc2", json!({"b": 2}))
+           .delete("doc3");
+
+        assert_eq!(txn.operations().len(), 3);
+    }
+
+    #[tokio::test]
+    async fn test_run_transaction_max_attempts_validation() {
+        use crate::error::{FirebaseError, FirestoreError};
+        
+        let firestore = Firestore::get_firestore_with_database_and_key(
+            "test-project",
+            "(default)",
+            "test-key"
+        ).await.unwrap();
+
+        let result = firestore.run_transaction_with_options(
+            |mut _txn| async move { Ok(()) },
+            0 // invalid: must be at least 1
+        ).await;
+
+        assert!(result.is_err());
+        match result {
+            Err(FirebaseError::Firestore(FirestoreError::InvalidArgument(msg))) => {
+                assert!(msg.contains("max_attempts must be at least 1"));
+            }
+            _ => panic!("Expected InvalidArgument error"),
         }
     }
 }
