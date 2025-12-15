@@ -181,8 +181,49 @@ impl User {
     ///
     /// # C++ Reference
     /// - `auth/src/include/firebase/auth/user.h:527`
+    /// - `auth/src/desktop/user_desktop.cc:695` - Delete implementation
+    /// - `auth/src/desktop/rpcs/delete_account_request.cc:30` - deleteAccount endpoint
+    ///
+    /// Note: After successful deletion, the user should sign out. This method only
+    /// deletes the account on the server. The caller should call Auth::sign_out() afterward.
     pub async fn delete(&self) -> Result<(), AuthError> {
-        todo!("Implement user deletion via REST API")
+        // Need ID token (error case first)
+        let id_token = self.get_id_token(false).await?;
+        
+        // Need API key (error case first)
+        let Some(api_key) = &self.api_key else {
+            return Err(AuthError::NotAuthenticated);
+        };
+        
+        // Call deleteAccount REST API
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:delete?key={}",
+            api_key
+        );
+        
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&url)
+            .json(&serde_json::json!({
+                "idToken": id_token
+            }))
+            .send()
+            .await
+            .map_err(|e| AuthError::NetworkRequestFailed(format!("Delete account failed: {}", e)))?;
+        
+        // Handle error responses first
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await
+                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("DELETE_ACCOUNT_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+        
+        // Account deleted successfully
+        // Note: Caller should call Auth::sign_out() to complete the sign out process
+        Ok(())
     }
 
     /// Reload user data from server
@@ -219,14 +260,54 @@ impl User {
     ///
     /// # C++ Reference
     /// - `auth/src/include/firebase/auth/user.h:626`
+    /// - `auth/src/desktop/user_desktop.cc:838` - UpdatePassword implementation
+    /// - `auth/src/desktop/rpcs/set_account_info_request.cc:30` - setAccountInfo endpoint
     pub async fn update_password(&self, new_password: impl AsRef<str>) -> Result<(), AuthError> {
         let new_password = new_password.as_ref();
         
+        // Validate password (error case first)
         if new_password.is_empty() {
             return Err(AuthError::InvalidPassword);
         }
         
-        todo!("Implement password update via REST API")
+        // Need ID token (error case first)
+        let id_token = self.get_id_token(false).await?;
+        
+        // Need API key (error case first)
+        let Some(api_key) = &self.api_key else {
+            return Err(AuthError::NotAuthenticated);
+        };
+        
+        // Call setAccountInfo REST API
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:update?key={}",
+            api_key
+        );
+        
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&url)
+            .json(&serde_json::json!({
+                "idToken": id_token,
+                "password": new_password,
+                "returnSecureToken": false
+            }))
+            .send()
+            .await
+            .map_err(|e| AuthError::NetworkRequestFailed(format!("Update password failed: {}", e)))?;
+        
+        // Handle error responses first
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await
+                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("PASSWORD_UPDATE_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+        
+        // Password updated successfully
+        Ok(())
     }
 
     /// Update user profile

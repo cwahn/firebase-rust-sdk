@@ -10,14 +10,15 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 
 ## Implementation Status
 
-✅ **Phase 3 In Progress** - Auth features and query operations
+✅ **Phase 3 In Progress** - Auth user management and query operations
 
 **Completed:**
 - Error types (FirebaseError, AuthError, FirestoreError)
 - Auth singleton with email/password authentication
 - Anonymous authentication
 - Password reset email
-- **NEW:** Automatic token refresh with expiration tracking
+- Automatic token refresh with expiration tracking
+- **NEW:** User account management (update_password, delete)
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
