@@ -18,15 +18,16 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - Anonymous authentication
 - Password reset email
 - Automatic token refresh with expiration tracking
-- User account management (update_password, update_email, delete, **update_profile**)
+- User account management (update_password, update_email, delete, update_profile)
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
-- Firestore query operations (filters, ordering, limits, cursors)
+- Firestore query operations (filters, ordering, limits)
+- **Query pagination (start_at, start_after, end_at, end_before)**
 - CollectionReference::add() with auto-generated IDs
 - WriteBatch for atomic multi-document operations
 
-**Tests:** 66 tests passing (+2 new profile tests)
+**Tests:** 70 tests passing (+4 new pagination tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -101,18 +102,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     firestore.commit_batch(batch).await?;
     println!("Batch committed successfully");
     
-    // Query documents
+    // Query with pagination
     let docs = firestore.collection("users")
         .query()
         .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
         .where_filter(FilterCondition::Equal("active".to_string(), json!(true)))
         .order_by("age", OrderDirection::Ascending)
+        .start_after(vec![json!(25)])  // Start after age 25 (exclusive)
         .limit(10)
         .get()
         .await?;
     
     for doc in docs {
-        println!("Document: {}", doc.reference.id());
+        println!("Document: {} (age: {})", doc.reference.id(), doc.data.as_ref().unwrap()["age"]);
+    }
+    
+    // Next page using end value from previous results
+    let last_age = docs.last().and_then(|d| d.data.as_ref()?.get("age"));
+    if let Some(age) = last_age {
+        let next_page = firestore.collection("users")
+            .query()
+            .order_by("age", OrderDirection::Ascending)
+            .start_after(vec![age.clone()])
+            .limit(10)
+            .get()
+            .await?;
+        println!("Next page: {} documents", next_page.len());
     }
     
     Ok(())

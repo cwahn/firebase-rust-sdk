@@ -590,10 +590,36 @@ impl Firestore {
             structured_query["limit"] = serde_json::json!(limit);
         }
 
-        // Add start/end cursors (simplified - actual implementation needs proper cursor handling)
-        if query.start_at.is_some() || query.end_at.is_some() {
-            // Cursor implementation would go here
-            // For now, we'll skip complex cursor logic
+        // Add start cursor (inclusive)
+        if let Some(start_values) = &query.start_at {
+            structured_query["startAt"] = serde_json::json!({
+                "values": start_values.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>(),
+                "before": false
+            });
+        }
+
+        // Add start cursor (exclusive - after)
+        if let Some(start_values) = &query.start_after {
+            structured_query["startAt"] = serde_json::json!({
+                "values": start_values.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>(),
+                "before": true
+            });
+        }
+
+        // Add end cursor (inclusive)
+        if let Some(end_values) = &query.end_at {
+            structured_query["endAt"] = serde_json::json!({
+                "values": end_values.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>(),
+                "before": false
+            });
+        }
+
+        // Add end cursor (exclusive - before)
+        if let Some(end_values) = &query.end_before {
+            structured_query["endAt"] = serde_json::json!({
+                "values": end_values.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>(),
+                "before": true
+            });
         }
 
         let request_body = serde_json::json!({
@@ -697,7 +723,9 @@ pub struct Query {
     order_by: Vec<(String, crate::firestore::types::OrderDirection)>,
     limit_value: Option<usize>,
     start_at: Option<Vec<serde_json::Value>>,
+    start_after: Option<Vec<serde_json::Value>>,
     end_at: Option<Vec<serde_json::Value>>,
+    end_before: Option<Vec<serde_json::Value>>,
 }
 
 impl Query {
@@ -710,7 +738,9 @@ impl Query {
             order_by: Vec::new(),
             limit_value: None,
             start_at: None,
+            start_after: None,
             end_at: None,
+            end_before: None,
         }
     }
 
@@ -745,21 +775,135 @@ impl Query {
         self
     }
 
-    /// Start query at cursor values
+    /// Start query at cursor values (inclusive)
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/query.h:285` - StartAt()
+    ///
+    /// Creates a query that starts at the provided fields relative to the order of the query.
+    /// The order of the field values must match the order of the order by clauses.
+    ///
+    /// # Arguments
+    /// * `values` - Field values to start at (inclusive)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let docs = firestore.collection("users")
+    ///     .query()
+    ///     .order_by("age", firebase_rust_sdk::firestore::types::OrderDirection::Ascending)
+    ///     .start_at(vec![json!(25)])  // Start at age 25 (inclusive)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn start_at(mut self, values: Vec<serde_json::Value>) -> Self {
         self.start_at = Some(values);
+        self.start_after = None;  // Clear conflicting cursor
         self
     }
 
-    /// End query at cursor values
+    /// Start query after cursor values (exclusive)
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:555` - StartAfter()
+    ///
+    /// Creates a query that starts after the provided fields relative to the order of the query.
+    /// The order of the field values must match the order of the order by clauses.
+    ///
+    /// # Arguments
+    /// * `values` - Field values to start after (exclusive)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let docs = firestore.collection("users")
+    ///     .query()
+    ///     .order_by("age", firebase_rust_sdk::firestore::types::OrderDirection::Ascending)
+    ///     .start_after(vec![json!(25)])  // Start after age 25 (exclusive)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn start_after(mut self, values: Vec<serde_json::Value>) -> Self {
+        self.start_after = Some(values);
+        self.start_at = None;  // Clear conflicting cursor
+        self
+    }
+
+    /// End query at cursor values (inclusive)
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/query.h:298` - EndAt()
+    ///
+    /// Creates a query that ends at the provided fields relative to the order of the query.
+    /// The order of the field values must match the order of the order by clauses.
+    ///
+    /// # Arguments
+    /// * `values` - Field values to end at (inclusive)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let docs = firestore.collection("users")
+    ///     .query()
+    ///     .order_by("age", firebase_rust_sdk::firestore::types::OrderDirection::Ascending)
+    ///     .end_at(vec![json!(65)])  // End at age 65 (inclusive)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn end_at(mut self, values: Vec<serde_json::Value>) -> Self {
         self.end_at = Some(values);
+        self.end_before = None;  // Clear conflicting cursor
+        self
+    }
+
+    /// End query before cursor values (exclusive)
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:579` - EndBefore()
+    ///
+    /// Creates a query that ends before the provided fields relative to the order of the query.
+    /// The order of the field values must match the order of the order by clauses.
+    ///
+    /// # Arguments
+    /// * `values` - Field values to end before (exclusive)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let docs = firestore.collection("users")
+    ///     .query()
+    ///     .order_by("age", firebase_rust_sdk::firestore::types::OrderDirection::Ascending)
+    ///     .end_before(vec![json!(65)])  // End before age 65 (exclusive)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn end_before(mut self, values: Vec<serde_json::Value>) -> Self {
+        self.end_before = Some(values);
+        self.end_at = None;  // Clear conflicting cursor
         self
     }
 
@@ -1069,6 +1213,86 @@ mod tests {
 
         assert!(query.start_at.is_some());
         assert!(query.end_at.is_some());
+        assert!(query.start_after.is_none());
+        assert!(query.end_before.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_query_with_start_after() {
+        use serde_json::json;
+        use crate::firestore::types::OrderDirection;
+
+        let fs = Firestore::get_firestore("test-project-pagination-1").await.unwrap();
+        let query = fs.collection("users")
+            .query()
+            .order_by("age", OrderDirection::Ascending)
+            .start_after(vec![json!(25)]);
+
+        assert!(query.start_after.is_some());
+        assert!(query.start_at.is_none());  // start_after should clear start_at
+        assert_eq!(query.start_after.as_ref().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_query_with_end_before() {
+        use serde_json::json;
+        use crate::firestore::types::OrderDirection;
+
+        let fs = Firestore::get_firestore("test-project-pagination-2").await.unwrap();
+        let query = fs.collection("users")
+            .query()
+            .order_by("age", OrderDirection::Ascending)
+            .end_before(vec![json!(65)]);
+
+        assert!(query.end_before.is_some());
+        assert!(query.end_at.is_none());  // end_before should clear end_at
+        assert_eq!(query.end_before.as_ref().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_query_pagination_range() {
+        use serde_json::json;
+        use crate::firestore::types::OrderDirection;
+
+        let fs = Firestore::get_firestore("test-project-pagination-3").await.unwrap();
+        let query = fs.collection("products")
+            .query()
+            .order_by("price", OrderDirection::Ascending)
+            .start_after(vec![json!(10.00)])
+            .end_before(vec![json!(100.00)])
+            .limit(20);
+
+        // Verify pagination configuration
+        assert!(query.start_after.is_some());
+        assert!(query.end_before.is_some());
+        assert_eq!(query.limit_value, Some(20));
+        assert_eq!(query.start_after.as_ref().unwrap()[0], json!(10.00));
+        assert_eq!(query.end_before.as_ref().unwrap()[0], json!(100.00));
+    }
+
+    #[tokio::test]
+    async fn test_query_cursor_conflicts() {
+        use serde_json::json;
+
+        let fs = Firestore::get_firestore("test-project-pagination-4").await.unwrap();
+        
+        // start_after should clear start_at
+        let query = fs.collection("data")
+            .query()
+            .start_at(vec![json!(1)])
+            .start_after(vec![json!(2)]);
+        
+        assert!(query.start_after.is_some());
+        assert!(query.start_at.is_none());
+
+        // end_before should clear end_at
+        let query2 = fs.collection("data")
+            .query()
+            .end_at(vec![json!(10)])
+            .end_before(vec![json!(9)]);
+        
+        assert!(query2.end_before.is_some());
+        assert!(query2.end_at.is_none());
     }
 
     #[tokio::test]
