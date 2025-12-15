@@ -40,9 +40,10 @@ pub mod firestore {
     //! Cloud Firestore
     
     pub mod types;
-    // pub mod document;
-    // pub mod collection;
+    pub mod firestore;
     // pub mod query;
+    
+    pub use firestore::{Firestore, CollectionReference};
 }
 
 // Re-exports for convenience

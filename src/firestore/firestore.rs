@@ -1,0 +1,319 @@
+//! Cloud Firestore
+//!
+//! # C++ Reference
+//! - `firestore/src/include/firebase/firestore.h:91` - Firestore class
+
+use crate::error::FirebaseError;
+use crate::firestore::types::DocumentReference;
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+/// Global map of project IDs to Firestore instances
+///
+/// C++ equivalent: Similar to Auth singleton pattern
+static FIRESTORE_INSTANCES: Lazy<RwLock<HashMap<String, Firestore>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
+
+/// Cloud Firestore instance
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore.h:91`
+///
+/// Entry point for the Firebase Firestore SDK.
+/// Use `Firestore::get_firestore(project_id)` to obtain an instance.
+#[derive(Clone)]
+pub struct Firestore {
+    inner: Arc<FirestoreInner>,
+}
+
+struct FirestoreInner {
+    project_id: String,
+    database_id: String,
+    http_client: reqwest::Client,
+}
+
+impl Firestore {
+    /// Get or create Firestore instance for the given project
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:118` - GetInstance(app)
+    ///
+    /// Returns existing Firestore if one exists for this project ID, otherwise creates new.
+    /// Thread-safe singleton pattern following C++ implementation.
+    ///
+    /// # Arguments
+    /// * `project_id` - The Google Cloud project ID
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project-id").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn get_firestore(project_id: impl Into<String>) -> Result<Self, FirebaseError> {
+        Self::get_firestore_with_database(project_id, "(default)").await
+    }
+
+    /// Get or create Firestore instance with specific database ID
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:158` - GetInstance(app, db_name)
+    ///
+    /// # Arguments
+    /// * `project_id` - The Google Cloud project ID
+    /// * `database_id` - The database ID (default: "(default)")
+    pub async fn get_firestore_with_database(
+        project_id: impl Into<String>,
+        database_id: impl Into<String>,
+    ) -> Result<Self, FirebaseError> {
+        let project_id = project_id.into();
+        let database_id = database_id.into();
+
+        // Validate project ID (error case first)
+        if project_id.is_empty() {
+            return Err(FirebaseError::Internal("Project ID cannot be empty".to_string()));
+        }
+
+        // Create composite key for instances map
+        let key = format!("{}:{}", project_id, database_id);
+
+        let mut instances = FIRESTORE_INSTANCES.write().await;
+
+        // Check if instance already exists
+        let existing = instances.get(&key);
+        if let Some(firestore) = existing {
+            return Ok(firestore.clone());
+        }
+
+        // Create new Firestore instance
+        let http_client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(|e| FirebaseError::Internal(format!("Failed to create HTTP client: {}", e)))?;
+
+        let firestore = Firestore {
+            inner: Arc::new(FirestoreInner {
+                project_id,
+                database_id,
+                http_client,
+            }),
+        };
+
+        instances.insert(key, firestore.clone());
+
+        Ok(firestore)
+    }
+
+    /// Get the project ID
+    pub fn project_id(&self) -> &str {
+        &self.inner.project_id
+    }
+
+    /// Get the database ID
+    pub fn database_id(&self) -> &str {
+        &self.inner.database_id
+    }
+
+    /// Get a reference to a collection
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:227` - Collection(path)
+    ///
+    /// # Arguments
+    /// * `path` - Slash-separated path to the collection
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let users = firestore.collection("users");
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn collection(&self, path: impl AsRef<str>) -> CollectionReference {
+        CollectionReference::new(self.clone(), path.as_ref().to_string())
+    }
+
+    /// Get a reference to a document
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:246` - Document(path)
+    ///
+    /// # Arguments
+    /// * `path` - Slash-separated path to the document
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let doc = firestore.document("users/alice");
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn document(&self, path: impl AsRef<str>) -> DocumentReference {
+        DocumentReference::new(path.as_ref())
+    }
+
+    /// Internal: Get HTTP client
+    pub(crate) fn http_client(&self) -> &reqwest::Client {
+        &self.inner.http_client
+    }
+}
+
+/// Collection reference
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/collection_reference.h`
+pub struct CollectionReference {
+    firestore: Firestore,
+    path: String,
+}
+
+impl CollectionReference {
+    fn new(firestore: Firestore, path: String) -> Self {
+        Self { firestore, path }
+    }
+
+    /// Get the collection path
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    /// Get the collection ID (last segment of path)
+    pub fn id(&self) -> &str {
+        self.path.rsplit('/').next().unwrap_or(&self.path)
+    }
+
+    /// Get a document reference within this collection
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/collection_reference.h:96` - Document(path)
+    pub fn document(&self, document_id: impl AsRef<str>) -> DocumentReference {
+        let full_path = format!("{}/{}", self.path, document_id.as_ref());
+        DocumentReference::new(full_path)
+    }
+
+    /// Add a new document with auto-generated ID
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/collection_reference.h:124` - Add(data)
+    pub async fn add(&self, _data: serde_json::Value) -> Result<DocumentReference, FirebaseError> {
+        todo!("Implement add document via REST API")
+    }
+}
+
+impl std::fmt::Debug for Firestore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Firestore")
+            .field("project_id", &self.inner.project_id)
+            .field("database_id", &self.inner.database_id)
+            .finish()
+    }
+}
+
+impl std::fmt::Debug for CollectionReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CollectionReference")
+            .field("path", &self.path)
+            .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_firestore_creates_instance() {
+        let fs = Firestore::get_firestore("test-project-1").await.unwrap();
+        assert_eq!(fs.project_id(), "test-project-1");
+        assert_eq!(fs.database_id(), "(default)");
+    }
+
+    #[tokio::test]
+    async fn test_get_firestore_returns_same_instance() {
+        let fs1 = Firestore::get_firestore("test-project-2").await.unwrap();
+        let fs2 = Firestore::get_firestore("test-project-2").await.unwrap();
+
+        // Should return same instance (same Arc pointer)
+        assert!(Arc::ptr_eq(&fs1.inner, &fs2.inner));
+    }
+
+    #[tokio::test]
+    async fn test_get_firestore_empty_project_error() {
+        let result = Firestore::get_firestore("").await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_different_projects_different_instances() {
+        let fs1 = Firestore::get_firestore("project-a").await.unwrap();
+        let fs2 = Firestore::get_firestore("project-b").await.unwrap();
+
+        // Should be different instances
+        assert!(!Arc::ptr_eq(&fs1.inner, &fs2.inner));
+        assert_eq!(fs1.project_id(), "project-a");
+        assert_eq!(fs2.project_id(), "project-b");
+    }
+
+    #[tokio::test]
+    async fn test_different_databases_different_instances() {
+        let fs1 = Firestore::get_firestore_with_database("project-c", "(default)")
+            .await
+            .unwrap();
+        let fs2 = Firestore::get_firestore_with_database("project-c", "custom-db")
+            .await
+            .unwrap();
+
+        // Should be different instances even with same project
+        assert!(!Arc::ptr_eq(&fs1.inner, &fs2.inner));
+        assert_eq!(fs1.database_id(), "(default)");
+        assert_eq!(fs2.database_id(), "custom-db");
+    }
+
+    #[tokio::test]
+    async fn test_collection_reference() {
+        let fs = Firestore::get_firestore("test-project-3").await.unwrap();
+        let users = fs.collection("users");
+
+        assert_eq!(users.path(), "users");
+        assert_eq!(users.id(), "users");
+    }
+
+    #[tokio::test]
+    async fn test_collection_document() {
+        let fs = Firestore::get_firestore("test-project-4").await.unwrap();
+        let users = fs.collection("users");
+        let alice = users.document("alice");
+
+        assert_eq!(alice.path, "users/alice");
+        assert_eq!(alice.id(), "alice");
+    }
+
+    #[tokio::test]
+    async fn test_document_reference() {
+        let fs = Firestore::get_firestore("test-project-5").await.unwrap();
+        let doc = fs.document("users/bob");
+
+        assert_eq!(doc.path, "users/bob");
+        assert_eq!(doc.id(), "bob");
+    }
+
+    #[tokio::test]
+    async fn test_nested_collection_reference() {
+        let fs = Firestore::get_firestore("test-project-6").await.unwrap();
+        let posts = fs.collection("users/alice/posts");
+
+        assert_eq!(posts.path(), "users/alice/posts");
+        assert_eq!(posts.id(), "posts");
+    }
+}
