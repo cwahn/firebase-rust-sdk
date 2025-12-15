@@ -4,7 +4,7 @@
 //! - `firestore/src/include/firebase/firestore.h:91` - Firestore class
 
 use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata};
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, Settings, Source};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -34,6 +34,7 @@ struct FirestoreInner {
     database_id: String,
     api_key: String,
     http_client: reqwest::Client,
+    settings: RwLock<Settings>,
 }
 
 impl Firestore {
@@ -119,6 +120,7 @@ impl Firestore {
                 database_id,
                 api_key,
                 http_client,
+                settings: RwLock::new(Settings::default()),
             }),
         };
 
@@ -189,6 +191,179 @@ impl Firestore {
     /// Internal: Get HTTP client
     pub(crate) fn http_client(&self) -> &reqwest::Client {
         &self.inner.http_client
+    }
+
+    /// Get current Firestore settings
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:182` - settings()
+    ///
+    /// Returns a copy of the current Firestore settings.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let settings = firestore.settings().await;
+    /// println!("Persistence enabled: {}", settings.persistence_enabled);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn settings(&self) -> Settings {
+        self.inner.settings.read().await.clone()
+    }
+
+    /// Set Firestore settings
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:197` - set_settings()
+    ///
+    /// Configure Firestore behavior including persistence and caching.
+    /// Must be called before any other Firestore operation.
+    ///
+    /// # Arguments
+    /// * `settings` - The settings to apply
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::{Firestore, types::Settings};
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// 
+    /// let mut settings = Settings::new();
+    /// settings.persistence_enabled = true;
+    /// settings.cache_size_bytes = Settings::CACHE_SIZE_UNLIMITED;
+    /// 
+    /// firestore.set_settings(settings).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn set_settings(&self, settings: Settings) -> Result<(), FirebaseError> {
+        // TODO: Implement persistence backend initialization when settings.persistence_enabled = true
+        // - For native: Initialize REDB/SQLite at settings.cache_directory
+        // - For WASM: Initialize IndexedDB connection
+        // - Create cache tables/collections if needed
+        // - Set up TTL/eviction policies based on cache_size_bytes
+        
+        *self.inner.settings.write().await = settings;
+        todo!("Persistence backend initialization not yet implemented. See PERSISTENCE_DESIGN.md for architecture.")
+    }
+
+    /// Enable network access for this Firestore instance
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:285` - EnableNetwork()
+    ///
+    /// Re-enables network usage for this Firestore instance after a prior call to DisableNetwork().
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// firestore.enable_network().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn enable_network(&self) -> Result<(), FirebaseError> {
+        // TODO: Implement network enable
+        // - Resume snapshot listeners
+        // - Flush pending writes queue
+        // - Resume automatic sync
+        todo!("Network enable not yet implemented")
+    }
+
+    /// Disable network access for this Firestore instance
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:270` - DisableNetwork()
+    ///
+    /// Disables network usage for this Firestore instance. It can be re-enabled via EnableNetwork().
+    /// While the network is disabled, any snapshot listeners or get() calls will return results from cache,
+    /// and any write operations will be queued until the network is restored.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// firestore.disable_network().await?;
+    /// // All subsequent operations will use cache only
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn disable_network(&self) -> Result<(), FirebaseError> {
+        // TODO: Implement network disable
+        // - Pause all snapshot listeners
+        // - Queue all writes instead of sending immediately
+        // - Set flag to use cache-only reads
+        todo!("Network disable not yet implemented")
+    }
+
+    /// Clear the persistence cache
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:309` - ClearPersistence()
+    ///
+    /// Clears the persistent storage. This includes pending writes and cached documents.
+    /// Must be called while the Firestore instance is not started (after initialization but before any operations).
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// firestore.clear_persistence().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn clear_persistence(&self) -> Result<(), FirebaseError> {
+        // TODO: Implement persistence clearing
+        // - Delete all cached documents
+        // - Clear pending writes queue
+        // - Reset metadata (timestamps, versions)
+        // - For REDB: db.clear_all_tables()
+        // - For IndexedDB: indexedDB.deleteDatabase()
+        todo!("Clear persistence not yet implemented")
+    }
+
+    /// Wait for pending writes to complete
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore.h:329` - WaitForPendingWrites()
+    ///
+    /// Waits until all currently pending writes for the active user have been acknowledged by the backend.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// 
+    /// // Queue some writes
+    /// firestore.set_document("users/alice", json!({"name": "Alice"})).await?;
+    /// firestore.set_document("users/bob", json!({"name": "Bob"})).await?;
+    /// 
+    /// // Wait for all writes to complete
+    /// firestore.wait_for_pending_writes().await?;
+    /// println!("All writes completed");
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn wait_for_pending_writes(&self) -> Result<(), FirebaseError> {
+        // TODO: Implement pending writes wait
+        // - Check pending writes queue
+        // - Wait for all items to be synced
+        // - Return when queue is empty or after timeout
+        todo!("Wait for pending writes not yet implemented")
     }
     
     /// Get document data
@@ -2274,5 +2449,124 @@ mod tests {
         let json_or = Firestore::convert_filter_to_json(&single_or);
         assert!(json_or["fieldFilter"].is_object());
         assert!(!json_or["compositeFilter"].is_object());
+    }
+
+    // ========================================================================
+    // Persistence API Tests
+    // ========================================================================
+
+    #[tokio::test]
+    async fn test_settings_default() {
+        use crate::firestore::types::Settings;
+        
+        let settings = Settings::default();
+        
+        assert_eq!(settings.host, "firestore.googleapis.com");
+        assert!(settings.ssl_enabled);
+        assert!(settings.persistence_enabled);
+        assert_eq!(settings.cache_size_bytes, 100 * 1024 * 1024); // 100 MB
+        assert!(settings.cache_directory.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_settings_unlimited_cache() {
+        use crate::firestore::types::Settings;
+        
+        let mut settings = Settings::new();
+        settings.cache_size_bytes = Settings::CACHE_SIZE_UNLIMITED;
+        
+        assert_eq!(settings.cache_size_bytes, -1);
+    }
+
+    #[tokio::test]
+    async fn test_settings_get() {
+        let firestore = Firestore::get_firestore("test-settings-get").await.unwrap();
+        
+        let settings = firestore.settings().await;
+        assert!(settings.persistence_enabled);
+        assert_eq!(settings.host, "firestore.googleapis.com");
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "not yet implemented")]
+    async fn test_settings_set_persistence() {
+        use crate::firestore::types::Settings;
+        
+        let firestore = Firestore::get_firestore("test-settings-set").await.unwrap();
+        
+        let mut settings = Settings::new();
+        settings.persistence_enabled = true;
+        settings.cache_size_bytes = 50 * 1024 * 1024; // 50 MB
+        
+        // TODO: This will panic with todo!() until persistence is implemented
+        firestore.set_settings(settings).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_source_enum() {
+        use crate::firestore::types::Source;
+        
+        assert_eq!(Source::default(), Source::Default);
+        
+        let sources = vec![Source::Default, Source::Server, Source::Cache];
+        assert_eq!(sources.len(), 3);
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "not yet implemented")]
+    async fn test_enable_network() {
+        let firestore = Firestore::get_firestore("test-enable-network").await.unwrap();
+        
+        // TODO: This will panic with todo!() until network control is implemented
+        firestore.enable_network().await.unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "not yet implemented")]
+    async fn test_disable_network() {
+        let firestore = Firestore::get_firestore("test-disable-network").await.unwrap();
+        
+        // TODO: This will panic with todo!() until network control is implemented
+        firestore.disable_network().await.unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "not yet implemented")]
+    async fn test_clear_persistence() {
+        let firestore = Firestore::get_firestore("test-clear-persistence").await.unwrap();
+        
+        // TODO: This will panic with todo!() until persistence clearing is implemented
+        firestore.clear_persistence().await.unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "not yet implemented")]
+    async fn test_wait_for_pending_writes() {
+        let firestore = Firestore::get_firestore("test-pending-writes").await.unwrap();
+        
+        // TODO: This will panic with todo!() until pending writes queue is implemented
+        firestore.wait_for_pending_writes().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_settings_custom_cache_directory() {
+        use crate::firestore::types::Settings;
+        use std::path::PathBuf;
+        
+        let mut settings = Settings::new();
+        settings.cache_directory = Some(PathBuf::from("/tmp/firebase_cache"));
+        settings.persistence_enabled = true;
+        
+        assert_eq!(settings.cache_directory, Some(PathBuf::from("/tmp/firebase_cache")));
+    }
+
+    #[tokio::test]
+    async fn test_settings_disable_persistence() {
+        use crate::firestore::types::Settings;
+        
+        let mut settings = Settings::new();
+        settings.persistence_enabled = false;
+        
+        assert!(!settings.persistence_enabled);
     }
 }

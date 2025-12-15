@@ -47,7 +47,7 @@ pub mod firestore {
     pub use types::{
         DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, 
         GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
-        DocumentChangeType, ListenerRegistration
+        DocumentChangeType, ListenerRegistration, Settings, Source
     };
 }
 
