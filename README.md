@@ -29,8 +29,9 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - **Transactions for atomic read-modify-write operations**
 - **Real-time snapshot listeners for documents and queries**
 - **OAuth authentication providers (Google, Facebook, GitHub)**
+- **Custom token authentication**
 
-**Tests:** 83 tests passing (+5 OAuth provider tests)
+**Tests:** 85 tests passing (+2 custom token tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -83,6 +84,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         raw_nonce: Some("nonce".to_string()),
     };
     let result = auth.sign_in_with_credential(oauth_credential).await?;
+    
+    // Custom token (server-generated JWT)
+    let custom_result = auth.sign_in_with_custom_token("your_server_jwt_token").await?;
+    println!("Custom token user: {}", custom_result.user.uid);
     
     // Send password reset email
     auth.send_password_reset_email("user@example.com").await?;
