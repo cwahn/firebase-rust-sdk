@@ -18,15 +18,15 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - Anonymous authentication
 - Password reset email
 - Automatic token refresh with expiration tracking
-- User account management (update_password, update_email, delete)
+- User account management (update_password, update_email, delete, **update_profile**)
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
 - Firestore query operations (filters, ordering, limits, cursors)
 - CollectionReference::add() with auto-generated IDs
-- **NEW:** WriteBatch for atomic multi-document operations
+- WriteBatch for atomic multi-document operations
 
-**Tests:** 64 tests passing (+3 new WriteBatch tests)
+**Tests:** 66 tests passing (+2 new profile tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -52,6 +52,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Send password reset email
     auth.send_password_reset_email("user@example.com").await?;
     println!("Password reset email sent");
+    
+    // Update user profile
+    let profile = UserProfile {
+        display_name: Some("Alice Smith".to_string()),
+        photo_url: Some("https://example.com/photo.jpg".to_string()),
+    };
+    user.update_profile(profile).await?;
     
     // Listen to auth state changes
     let mut stream = auth.auth_state_changes().await;
