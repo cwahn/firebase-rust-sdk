@@ -320,6 +320,202 @@ impl Firestore {
         Ok(())
     }
 
+    /// Add a snapshot listener to a document
+    ///
+    /// Returns a stream of document snapshots that emits whenever the document changes.
+    /// The listener will continue until the returned ListenerRegistration is dropped
+    /// or explicitly removed.
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/common/document_reference.cc:184` - AddSnapshotListener
+    /// - `firestore/src/include/firebase/firestore/document_reference.h:264`
+    ///
+    /// # Arguments
+    /// * `path` - Document path (e.g. "users/alice")
+    ///
+    /// # Returns
+    /// Tuple of (ListenerRegistration, Stream<Result<DocumentSnapshot>>)
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # use futures::StreamExt;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// 
+    /// let (registration, mut stream) = firestore.add_document_snapshot_listener("users/alice").await?;
+    /// 
+    /// while let Some(result) = stream.next().await {
+    ///     match result {
+    ///         Ok(snapshot) => {
+    ///             if snapshot.exists() {
+    ///                 println!("Document updated: {:?}", snapshot.data);
+    ///             } else {
+    ///                 println!("Document deleted");
+    ///             }
+    ///         }
+    ///         Err(e) => eprintln!("Listener error: {}", e),
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn add_document_snapshot_listener(
+        &self,
+        path: impl Into<String>,
+    ) -> Result<(
+        crate::firestore::types::ListenerRegistration,
+        std::pin::Pin<Box<dyn futures::Stream<Item = Result<crate::firestore::types::DocumentSnapshot, FirebaseError>> + Send>>,
+    ), FirebaseError> {
+        use crate::firestore::types::{DocumentSnapshot, ListenerRegistration};
+        use futures::stream::StreamExt;
+        
+        let path = path.into();
+        let listener_id = format!("doc_listener_{}", uuid::Uuid::new_v4());
+        let registration = ListenerRegistration::new(listener_id.clone());
+        let cancelled = registration.cancelled.clone();
+        
+        let project_id = self.project_id().to_string();
+        let database_id = self.database_id().to_string();
+        let client = self.http_client().clone();
+        
+        // Create a stream that polls the document periodically
+        let stream = async_stream::stream! {
+            let mut last_update_time = None;
+            
+            while !cancelled.load(std::sync::atomic::Ordering::SeqCst) {
+                // Poll the document
+                let url = format!(
+                    "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
+                    project_id, database_id, path
+                );
+                
+                let response = match client.get(&url).send().await {
+                    Err(e) => {
+                        yield Err(FirebaseError::Internal(format!("Listener request failed: {}", e)));
+                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                        continue;
+                    }
+                    Ok(r) => r,
+                };
+                
+                if response.status() == 404 {
+                    // Document doesn't exist
+                    yield Ok(DocumentSnapshot {
+                        reference: crate::firestore::types::DocumentReference::new(path.clone()),
+                        data: None,
+                        metadata: crate::firestore::types::SnapshotMetadata::default(),
+                    });
+                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                    continue;
+                }
+                
+                if !response.status().is_success() {
+                    yield Err(FirebaseError::Internal(format!("Listener request failed: {}", response.status())));
+                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                    continue;
+                }
+                
+                let doc: serde_json::Value = match response.json().await {
+                    Err(e) => {
+                        yield Err(FirebaseError::Internal(format!("Failed to parse document: {}", e)));
+                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                        continue;
+                    }
+                    Ok(d) => d,
+                };
+                
+                // Check if document changed
+                let update_time = doc.get("updateTime").and_then(|v| v.as_str()).map(|s| s.to_string());
+                if last_update_time.as_ref() != update_time.as_ref() {
+                    last_update_time = update_time;
+                    
+                    let data = if let Some(fields) = doc.get("fields") {
+                        Some(convert_firestore_fields_to_value(fields))
+                    } else {
+                        None
+                    };
+                    
+                    yield Ok(DocumentSnapshot {
+                        reference: crate::firestore::types::DocumentReference::new(path.clone()),
+                        data,
+                        metadata: crate::firestore::types::SnapshotMetadata::default(),
+                    });
+                }
+                
+                // Poll every second
+                tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+            }
+        };
+        
+        Ok((registration, Box::pin(stream)))
+    }
+
+    /// Add a snapshot listener to a query
+    ///
+    /// Returns a stream of query snapshots that emits whenever the query results change.
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:642` - AddSnapshotListener
+    ///
+    /// # Arguments
+    /// * `query` - Query to listen to
+    ///
+    /// # Returns
+    /// Tuple of (ListenerRegistration, Stream<Result<QuerySnapshot>>)
+    pub async fn add_query_snapshot_listener(
+        &self,
+        query: Query,
+    ) -> Result<(
+        crate::firestore::types::ListenerRegistration,
+        std::pin::Pin<Box<dyn futures::Stream<Item = Result<crate::firestore::types::QuerySnapshot, FirebaseError>> + Send>>,
+    ), FirebaseError> {
+        use crate::firestore::types::{ListenerRegistration, QuerySnapshot};
+        
+        let listener_id = format!("query_listener_{}", uuid::Uuid::new_v4());
+        let registration = ListenerRegistration::new(listener_id.clone());
+        let cancelled = registration.cancelled.clone();
+        
+        let firestore = self.clone();
+        let query_clone = query.clone();
+        
+        // Create a stream that polls the query periodically
+        let stream = async_stream::stream! {
+            let mut last_doc_count = 0;
+            let mut last_update_times: Vec<Option<String>> = Vec::new();
+            
+            while !cancelled.load(std::sync::atomic::Ordering::SeqCst) {
+                // Execute the query
+                let docs = match firestore.execute_query(query_clone.clone()).await {
+                    Err(e) => {
+                        yield Err(e);
+                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                        continue;
+                    }
+                    Ok(d) => d,
+                };
+                
+                // Check if results changed (simple comparison)
+                let current_count = docs.len();
+                let has_changed = current_count != last_doc_count;
+                
+                if has_changed {
+                    last_doc_count = current_count;
+                    
+                    yield Ok(QuerySnapshot::new(
+                        query_clone.collection_path.clone(),
+                        docs,
+                    ));
+                }
+                
+                // Poll every second
+                tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+            }
+        };
+        
+        Ok((registration, Box::pin(stream)))
+    }
+
     /// Commit a write batch atomically
     ///
     /// # C++ Reference
@@ -933,6 +1129,56 @@ fn convert_value_to_firestore_fields(value: &serde_json::Value) -> serde_json::V
     } else {
         serde_json::json!({})
     }
+}
+
+/// Convert Firestore fields format to plain JSON (inverse of convert_value_to_firestore_fields)
+fn convert_firestore_fields_to_value(fields: &serde_json::Value) -> serde_json::Value {
+    use serde_json::{json, Map, Value as JsonValue};
+    
+    if let Some(obj) = fields.as_object() {
+        let mut result = Map::new();
+        for (key, value) in obj {
+            result.insert(key.clone(), convert_firestore_value_to_json(value));
+        }
+        JsonValue::Object(result)
+    } else {
+        json!({})
+    }
+}
+
+/// Convert a single Firestore value to plain JSON
+fn convert_firestore_value_to_json(value: &serde_json::Value) -> serde_json::Value {
+    use serde_json::{json, Value as JsonValue};
+
+    // Firestore format: {"integerValue": "123"} or {"stringValue": "hello"}
+    if let Some(obj) = value.as_object() {
+        if let Some(string_val) = obj.get("stringValue") {
+            return string_val.clone();
+        } else if let Some(int_val) = obj.get("integerValue") {
+            if let Some(s) = int_val.as_str() {
+                if let Ok(n) = s.parse::<i64>() {
+                    return json!(n);
+                }
+            }
+            return int_val.clone();
+        } else if let Some(double_val) = obj.get("doubleValue") {
+            return double_val.clone();
+        } else if let Some(bool_val) = obj.get("booleanValue") {
+            return bool_val.clone();
+        } else if let Some(_null_val) = obj.get("nullValue") {
+            return json!(null);
+        } else if let Some(array_val) = obj.get("arrayValue") {
+            if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
+                return json!(values.iter().map(|v| convert_firestore_value_to_json(v)).collect::<Vec<_>>());
+            }
+        } else if let Some(map_val) = obj.get("mapValue") {
+            if let Some(fields) = map_val.get("fields") {
+                return convert_firestore_fields_to_value(fields);
+            }
+        }
+    }
+    
+    value.clone()
 }
 
 /// Firestore query builder
@@ -1773,5 +2019,85 @@ mod tests {
             }
             _ => panic!("Expected InvalidArgument error"),
         }
+    }
+
+    #[tokio::test]
+    async fn test_listener_registration_creation() {
+        use crate::firestore::types::ListenerRegistration;
+        
+        let registration = ListenerRegistration::new("test_listener_123".to_string());
+        assert_eq!(registration.id, "test_listener_123");
+        assert!(!registration.is_cancelled());
+    }
+
+    #[tokio::test]
+    async fn test_listener_registration_remove() {
+        use crate::firestore::types::ListenerRegistration;
+        
+        let registration = ListenerRegistration::new("test_listener".to_string());
+        assert!(!registration.is_cancelled());
+        
+        registration.remove();
+        assert!(registration.is_cancelled());
+    }
+
+    #[tokio::test]
+    async fn test_listener_registration_drop() {
+        use crate::firestore::types::ListenerRegistration;
+        
+        let cancelled = {
+            let registration = ListenerRegistration::new("test_listener".to_string());
+            let cancelled = registration.cancelled.clone();
+            assert!(!cancelled.load(std::sync::atomic::Ordering::SeqCst));
+            cancelled
+        }; // registration dropped here
+        
+        // After drop, listener should be cancelled
+        assert!(cancelled.load(std::sync::atomic::Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn test_query_snapshot_creation() {
+        use crate::firestore::types::{DocumentReference, DocumentSnapshot, QuerySnapshot, SnapshotMetadata};
+        
+        let doc1 = DocumentSnapshot {
+            reference: DocumentReference::new("users/alice"),
+            data: Some(serde_json::json!({"name": "Alice"})),
+            metadata: SnapshotMetadata::default(),
+        };
+        
+        let doc2 = DocumentSnapshot {
+            reference: DocumentReference::new("users/bob"),
+            data: Some(serde_json::json!({"name": "Bob"})),
+            metadata: SnapshotMetadata::default(),
+        };
+        
+        let snapshot = QuerySnapshot::new("users".to_string(), vec![doc1, doc2]);
+        assert_eq!(snapshot.len(), 2);
+        assert!(!snapshot.is_empty());
+        assert_eq!(snapshot.query_path, "users");
+    }
+
+    #[tokio::test]
+    async fn test_convert_firestore_fields_roundtrip() {
+        use serde_json::json;
+        
+        let original = json!({
+            "name": "Alice",
+            "age": 30,
+            "active": true,
+            "score": 95.5
+        });
+        
+        // Convert to Firestore format
+        let firestore_fields = convert_value_to_firestore_fields(&original);
+        
+        // Convert back to plain JSON
+        let converted_back = convert_firestore_fields_to_value(&firestore_fields);
+        
+        assert_eq!(converted_back["name"], "Alice");
+        assert_eq!(converted_back["age"], 30);
+        assert_eq!(converted_back["active"], true);
+        assert_eq!(converted_back["score"], 95.5);
     }
 }

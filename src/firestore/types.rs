@@ -24,31 +24,31 @@ use serde_json::Value;
 pub enum FilterCondition {
     /// field == value
     Equal(String, Value),
-    
+
     /// field < value
     LessThan(String, Value),
-    
+
     /// field <= value
     LessThanOrEqual(String, Value),
-    
+
     /// field > value
     GreaterThan(String, Value),
-    
+
     /// field >= value
     GreaterThanOrEqual(String, Value),
-    
+
     /// field array contains value
     ArrayContains(String, Value),
-    
+
     /// field array contains any value from list
     ArrayContainsAny(String, Vec<Value>),
-    
+
     /// field value is in list
     In(String, Vec<Value>),
-    
+
     /// field != value
     NotEqual(String, Value),
-    
+
     /// field not in list
     NotIn(String, Vec<Value>),
 }
@@ -107,7 +107,7 @@ pub enum OrderDirection {
 pub struct Timestamp {
     /// Seconds since Unix epoch
     pub seconds: i64,
-    
+
     /// Nanoseconds component (0-999,999,999)
     pub nanoseconds: i32,
 }
@@ -119,12 +119,16 @@ impl Timestamp {
     /// - `firestore/src/include/firebase/firestore/timestamp.h:73`
     pub fn new(seconds: i64, nanoseconds: i32) -> Result<Self, FirestoreError> {
         if nanoseconds < 0 || nanoseconds >= 1_000_000_000 {
-            return Err(FirestoreError::InvalidArgument(
-                format!("nanoseconds must be in range [0, 999999999], got {}", nanoseconds)
-            ));
+            return Err(FirestoreError::InvalidArgument(format!(
+                "nanoseconds must be in range [0, 999999999], got {}",
+                nanoseconds
+            )));
         }
-        
-        Ok(Self { seconds, nanoseconds })
+
+        Ok(Self {
+            seconds,
+            nanoseconds,
+        })
     }
 
     /// Get current timestamp
@@ -142,8 +146,10 @@ impl Timestamp {
 
     /// Convert to DateTime
     pub fn to_datetime(&self) -> DateTime<Utc> {
-        DateTime::from_timestamp(self.seconds, self.nanoseconds as u32)
-            .unwrap_or_else(|| Utc::now())
+        match DateTime::from_timestamp(self.seconds, self.nanoseconds as u32) {
+            None => Utc::now(),
+            Some(dt) => dt,
+        }
     }
 
     /// Convert to serde_json::Value for use in documents
@@ -163,7 +169,7 @@ impl Timestamp {
 pub struct GeoPoint {
     /// Latitude in degrees (range: -90 to 90)
     pub latitude: f64,
-    
+
     /// Longitude in degrees (range: -180 to 180)
     pub longitude: f64,
 }
@@ -176,19 +182,24 @@ impl GeoPoint {
     pub fn new(latitude: f64, longitude: f64) -> Result<Self, FirestoreError> {
         // Validate latitude (error cases first)
         if latitude < -90.0 || latitude > 90.0 {
-            return Err(FirestoreError::InvalidArgument(
-                format!("latitude must be in range [-90, 90], got {}", latitude)
-            ));
+            return Err(FirestoreError::InvalidArgument(format!(
+                "latitude must be in range [-90, 90], got {}",
+                latitude
+            )));
         }
-        
+
         // Validate longitude (error cases first)
         if longitude < -180.0 || longitude > 180.0 {
-            return Err(FirestoreError::InvalidArgument(
-                format!("longitude must be in range [-180, 180], got {}", longitude)
-            ));
+            return Err(FirestoreError::InvalidArgument(format!(
+                "longitude must be in range [-180, 180], got {}",
+                longitude
+            )));
         }
-        
-        Ok(Self { latitude, longitude })
+
+        Ok(Self {
+            latitude,
+            longitude,
+        })
     }
 
     /// Convert to serde_json::Value for use in documents
@@ -213,9 +224,7 @@ pub struct DocumentReference {
 impl DocumentReference {
     /// Create a new document reference
     pub fn new(path: impl Into<String>) -> Self {
-        Self {
-            path: path.into(),
-        }
+        Self { path: path.into() }
     }
 
     /// Get the document ID (last segment of path)
@@ -237,10 +246,10 @@ impl DocumentReference {
 pub struct DocumentSnapshot {
     /// Document reference
     pub reference: DocumentReference,
-    
+
     /// Document data (None if document doesn't exist)
     pub data: Option<Value>,
-    
+
     /// Document metadata
     pub metadata: SnapshotMetadata,
 }
@@ -273,7 +282,7 @@ impl DocumentSnapshot {
 pub struct SnapshotMetadata {
     /// Whether the snapshot contains pending writes
     pub has_pending_writes: bool,
-    
+
     /// Whether the data came from cache
     pub is_from_cache: bool,
 }
@@ -284,6 +293,124 @@ impl Default for SnapshotMetadata {
             has_pending_writes: false,
             is_from_cache: false,
         }
+    }
+}
+
+/// Query snapshot containing multiple documents
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/query_snapshot.h:55`
+#[derive(Debug, Clone)]
+pub struct QuerySnapshot {
+    /// The query that produced this snapshot
+    pub query_path: String,
+    
+    /// Documents in the query result
+    pub documents: Vec<DocumentSnapshot>,
+    
+    /// Metadata about this snapshot
+    pub metadata: SnapshotMetadata,
+    
+    /// Document changes since last snapshot (for listeners)
+    pub document_changes: Vec<DocumentChange>,
+}
+
+impl QuerySnapshot {
+    /// Create a new query snapshot
+    pub fn new(query_path: String, documents: Vec<DocumentSnapshot>) -> Self {
+        Self {
+            query_path,
+            documents,
+            metadata: SnapshotMetadata::default(),
+            document_changes: Vec::new(),
+        }
+    }
+    
+    /// Check if the query result is empty
+    pub fn is_empty(&self) -> bool {
+        self.documents.is_empty()
+    }
+    
+    /// Get the number of documents in the snapshot
+    pub fn len(&self) -> usize {
+        self.documents.len()
+    }
+}
+
+/// Document change type for snapshot listeners
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/document_change.h:36`
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DocumentChangeType {
+    /// Document was added
+    Added,
+    /// Document was modified
+    Modified,
+    /// Document was removed
+    Removed,
+}
+
+/// Represents a change to a document in a query snapshot
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/document_change.h:48`
+#[derive(Debug, Clone)]
+pub struct DocumentChange {
+    /// Type of change
+    pub change_type: DocumentChangeType,
+    
+    /// The document that changed
+    pub document: DocumentSnapshot,
+    
+    /// The old index of the document (-1 if added)
+    pub old_index: i32,
+    
+    /// The new index of the document (-1 if removed)
+    pub new_index: i32,
+}
+
+/// Listener registration handle for snapshot listeners
+///
+/// Dropping this handle will automatically unregister the listener.
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/listener_registration.h:42`
+#[derive(Debug)]
+pub struct ListenerRegistration {
+    /// Internal ID for the listener
+    pub(crate) id: String,
+    
+    /// Cancellation flag
+    pub(crate) cancelled: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
+impl ListenerRegistration {
+    /// Create a new listener registration
+    pub(crate) fn new(id: String) -> Self {
+        Self {
+            id,
+            cancelled: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+        }
+    }
+    
+    /// Remove the listener
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/listener_registration.h:66`
+    pub fn remove(&self) {
+        self.cancelled.store(true, std::sync::atomic::Ordering::SeqCst);
+    }
+    
+    /// Check if the listener has been cancelled
+    pub(crate) fn is_cancelled(&self) -> bool {
+        self.cancelled.load(std::sync::atomic::Ordering::SeqCst)
+    }
+}
+
+impl Drop for ListenerRegistration {
+    fn drop(&mut self) {
+        self.remove();
     }
 }
 
@@ -329,9 +456,8 @@ impl WriteBatch {
 
     /// Delete document
     pub fn delete(&mut self, path: impl Into<String>) -> &mut Self {
-        self.operations.push(WriteOperation::Delete {
-            path: path.into(),
-        });
+        self.operations
+            .push(WriteOperation::Delete { path: path.into() });
         self
     }
 
@@ -393,7 +519,7 @@ impl WriteBatch {
 /// # use firebase_rust_sdk::firestore::Firestore;
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let firestore = Firestore::new("my-project", "my-key", "(default)").await?;
-/// 
+///
 /// firestore.run_transaction(|txn| async move {
 ///     // All reads must happen first
 ///     let doc = txn.get("users/alice").await?;
@@ -410,19 +536,19 @@ impl WriteBatch {
 pub struct Transaction {
     /// Transaction ID from Firestore
     pub(crate) id: Option<String>,
-    
+
     /// Project ID
     pub(crate) project_id: String,
-    
+
     /// Database ID
     pub(crate) database_id: String,
-    
+
     /// API key for authentication
     pub(crate) api_key: String,
-    
+
     /// Write operations accumulated during transaction
     pub(crate) operations: Vec<WriteOperation>,
-    
+
     /// Documents read during this transaction (for validation)
     pub(crate) reads: Vec<String>,
 }
@@ -495,9 +621,8 @@ impl Transaction {
     /// # Arguments
     /// * `path` - Document path (e.g. "users/alice")
     pub fn delete(&mut self, path: impl Into<String>) -> &mut Self {
-        self.operations.push(WriteOperation::Delete {
-            path: path.into(),
-        });
+        self.operations
+            .push(WriteOperation::Delete { path: path.into() });
         self
     }
 
@@ -519,16 +644,19 @@ impl Transaction {
     ///
     /// # Returns
     /// Document snapshot with the current document data
-    pub async fn get(&mut self, path: impl Into<String>) -> Result<DocumentSnapshot, crate::error::FirebaseError> {
+    pub async fn get(
+        &mut self,
+        path: impl Into<String>,
+    ) -> Result<DocumentSnapshot, crate::error::FirebaseError> {
         use crate::error::{FirebaseError, FirestoreError};
-        
+
         let path_string = path.into();
-        
+
         // Error-first: validate path
         if path_string.is_empty() {
-            return Err(FirebaseError::Firestore(
-                FirestoreError::InvalidArgument("Document path cannot be empty".to_string())
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::InvalidArgument(
+                "Document path cannot be empty".to_string(),
+            )));
         }
 
         // Track this read
@@ -537,9 +665,7 @@ impl Transaction {
         // Build document URL
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
-            self.project_id,
-            self.database_id,
-            path_string
+            self.project_id, self.database_id, path_string
         );
 
         // Make request
@@ -551,12 +677,14 @@ impl Transaction {
             request = request.query(&[("transaction", txn_id)]);
         }
 
-        let response = request
-            .send()
-            .await
-            .map_err(|e| FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Get document failed: {}", e))
-            ))?;
+        let response = match request.send().await {
+            Err(err) => {
+                return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                    "Get document failed: {err}"
+                ))))
+            }
+            Ok(resp) => resp,
+        };
 
         // Store transaction ID from response if this is the first read
         if self.id.is_none() {
@@ -576,31 +704,31 @@ impl Transaction {
                     metadata: SnapshotMetadata::default(),
                 });
             }
-            
+
             let status = response.status();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Get document failed: {} - {}", status, error_text))
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                "Get document failed: {status} - {error_text}",
+            ))));
         }
 
-        let doc: serde_json::Value = response.json().await
-            .map_err(|e| FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Failed to parse document: {}", e))
-            ))?;
+        let doc = match response.json::<serde_json::Value>().await {
+            Err(err) => {
+                return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                    "Failed to parse document: {err}"
+                ))))
+            }
+            Ok(d) => d,
+        };
 
         // Parse document fields
-        let data = if let Some(fields) = doc.get("fields") {
-            // Convert Firestore field format to plain JSON
-            Some(Self::convert_firestore_fields(fields))
-        } else {
-            None
+        let data = match doc.get("fields") {
+            None => None,
+            Some(fields) => Some(Self::convert_firestore_fields(fields)),
         };
 
         Ok(DocumentSnapshot {
-            reference: DocumentReference {
-                path: path_string,
-            },
+            reference: DocumentReference { path: path_string },
             data,
             metadata: SnapshotMetadata::default(),
         })
@@ -609,7 +737,7 @@ impl Transaction {
     /// Convert Firestore fields format to plain JSON (internal helper)
     fn convert_firestore_fields(fields: &serde_json::Value) -> serde_json::Value {
         use serde_json::{json, Map, Value as JsonValue};
-        
+
         if let Some(obj) = fields.as_object() {
             let mut result = Map::new();
             for (key, value) in obj {
@@ -644,7 +772,10 @@ impl Transaction {
                 return json!(null);
             } else if let Some(array_val) = obj.get("arrayValue") {
                 if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
-                    return json!(values.iter().map(|v| Self::convert_firestore_value(v)).collect::<Vec<_>>());
+                    return json!(values
+                        .iter()
+                        .map(|v| Self::convert_firestore_value(v))
+                        .collect::<Vec<_>>());
                 }
             } else if let Some(map_val) = obj.get("mapValue") {
                 if let Some(fields) = map_val.get("fields") {
@@ -652,7 +783,7 @@ impl Transaction {
                 }
             }
         }
-        
+
         value.clone()
     }
 }
@@ -666,16 +797,16 @@ mod tests {
     fn test_value_types() {
         let null_val = Value::Null;
         assert!(null_val.is_null());
-        
+
         let bool_val = json!(true);
         assert_eq!(bool_val.as_bool(), Some(true));
-        
+
         let int_val = json!(42);
         assert_eq!(int_val.as_i64(), Some(42));
-        
+
         let double_val = json!(3.14);
         assert_eq!(double_val.as_f64(), Some(3.14));
-        
+
         let str_val = json!("hello");
         assert_eq!(str_val.as_str(), Some("hello"));
     }
@@ -685,7 +816,7 @@ mod tests {
         let ts = Timestamp::new(1234567890, 123456789).unwrap();
         assert_eq!(ts.seconds, 1234567890);
         assert_eq!(ts.nanoseconds, 123456789);
-        
+
         // Invalid nanoseconds
         assert!(Timestamp::new(0, -1).is_err());
         assert!(Timestamp::new(0, 1_000_000_000).is_err());
@@ -696,7 +827,7 @@ mod tests {
         let now = Utc::now();
         let ts = Timestamp::from_datetime(now);
         let dt = ts.to_datetime();
-        
+
         // Should be approximately equal (within 1 second)
         assert!((dt.timestamp() - now.timestamp()).abs() <= 1);
     }
@@ -705,7 +836,7 @@ mod tests {
     fn test_timestamp_to_value() {
         let ts = Timestamp::new(1234567890, 123456789).unwrap();
         let value = ts.to_value();
-        
+
         assert_eq!(value["seconds"], 1234567890);
         assert_eq!(value["nanoseconds"], 123456789);
     }
@@ -716,11 +847,11 @@ mod tests {
         assert!(GeoPoint::new(0.0, 0.0).is_ok());
         assert!(GeoPoint::new(90.0, 180.0).is_ok());
         assert!(GeoPoint::new(-90.0, -180.0).is_ok());
-        
+
         // Invalid latitude
         assert!(GeoPoint::new(91.0, 0.0).is_err());
         assert!(GeoPoint::new(-91.0, 0.0).is_err());
-        
+
         // Invalid longitude
         assert!(GeoPoint::new(0.0, 181.0).is_err());
         assert!(GeoPoint::new(0.0, -181.0).is_err());
@@ -730,7 +861,7 @@ mod tests {
     fn test_geo_point_to_value() {
         let gp = GeoPoint::new(37.7749, -122.4194).unwrap();
         let value = gp.to_value();
-        
+
         assert_eq!(value["latitude"], 37.7749);
         assert_eq!(value["longitude"], -122.4194);
     }
@@ -740,7 +871,7 @@ mod tests {
         let doc_ref = DocumentReference::new("users/alice");
         assert_eq!(doc_ref.id(), "alice");
         assert_eq!(doc_ref.parent_path(), Some("users"));
-        
+
         let root_ref = DocumentReference::new("single");
         assert_eq!(root_ref.id(), "single");
         assert_eq!(root_ref.parent_path(), None);
@@ -752,13 +883,13 @@ mod tests {
             "name": "Alice",
             "age": 30
         });
-        
+
         let snapshot = DocumentSnapshot {
             reference: DocumentReference::new("users/alice"),
             data: Some(data),
             metadata: SnapshotMetadata::default(),
         };
-        
+
         assert!(snapshot.exists());
         assert_eq!(snapshot.id(), "alice");
         assert_eq!(snapshot.get("name").and_then(|v| v.as_str()), Some("Alice"));
@@ -771,11 +902,12 @@ mod tests {
         let data = json!({
             "name": "Bob"
         });
-        
-        batch.set("users/bob", data.clone())
-             .update("users/alice", data)
-             .delete("users/charlie");
-        
+
+        batch
+            .set("users/bob", data.clone())
+            .update("users/alice", data)
+            .delete("users/charlie");
+
         assert_eq!(batch.operations.len(), 3);
     }
 
@@ -784,7 +916,7 @@ mod tests {
         let value = json!("test");
         let json_str = serde_json::to_string(&value).unwrap();
         assert!(json_str.contains("test"));
-        
+
         let array = json!([1, 2]);
         let json_str = serde_json::to_string(&array).unwrap();
         assert!(json_str.contains("1"));
@@ -795,7 +927,7 @@ mod tests {
     fn test_complex_document() {
         let ts = Timestamp::new(1234567890, 0).unwrap();
         let gp = GeoPoint::new(37.7749, -122.4194).unwrap();
-        
+
         let doc = json!({
             "name": "San Francisco Office",
             "location": gp.to_value(),
@@ -803,7 +935,7 @@ mod tests {
             "active": true,
             "employees": 150
         });
-        
+
         assert_eq!(doc["name"], "San Francisco Office");
         assert_eq!(doc["location"]["latitude"], 37.7749);
         assert_eq!(doc["created"]["seconds"], 1234567890);

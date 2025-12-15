@@ -43,7 +43,11 @@ pub mod firestore {
     pub mod firestore;
     
     pub use firestore::{Firestore, CollectionReference, Query};
-    pub use types::{DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, GeoPoint, Timestamp, SnapshotMetadata};
+    pub use types::{
+        DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, 
+        GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
+        DocumentChangeType, ListenerRegistration
+    };
 }
 
 // Re-exports for convenience

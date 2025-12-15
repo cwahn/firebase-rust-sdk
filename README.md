@@ -27,8 +27,9 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - CollectionReference::add() with auto-generated IDs
 - WriteBatch for atomic multi-document operations
 - **Transactions for atomic read-modify-write operations**
+- **Real-time snapshot listeners for documents and queries**
 
-**Tests:** 73 tests passing (+3 new transaction tests)
+**Tests:** 78 tests passing (+5 new snapshot listener tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -176,6 +177,65 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         
         Ok(())
     }, 10).await?; // Retry up to 10 times
+    
+    Ok(())
+}
+```
+
+### Real-time Snapshot Listeners
+
+```rust
+use firebase_rust_sdk::firestore::Firestore;
+use futures::StreamExt;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let firestore = Firestore::get_firestore("my-project").await?;
+    
+    // Listen to a single document
+    let (registration, mut stream) = firestore
+        .add_document_snapshot_listener("users/alice")
+        .await?;
+    
+    tokio::spawn(async move {
+        while let Some(result) = stream.next().await {
+            match result {
+                Ok(snapshot) => {
+                    if snapshot.exists() {
+                        println!("Document updated: {:?}", snapshot.data);
+                    } else {
+                        println!("Document deleted");
+                    }
+                }
+                Err(e) => eprintln!("Listener error: {}", e),
+            }
+        }
+    });
+    
+    // Listen to a query
+    let query = firestore.collection("users")
+        .query()
+        .where_filter(FilterCondition::Equal("active".to_string(), json!(true)))
+        .order_by("name", OrderDirection::Ascending);
+    
+    let (query_registration, mut query_stream) = firestore
+        .add_query_snapshot_listener(query)
+        .await?;
+    
+    while let Some(result) = query_stream.next().await {
+        match result {
+            Ok(snapshot) => {
+                println!("Query updated: {} documents", snapshot.len());
+                for doc in snapshot.documents {
+                    println!("  - {}: {:?}", doc.reference.id(), doc.data);
+                }
+            }
+            Err(e) => eprintln!("Query listener error: {}", e),
+        }
+    }
+    
+    // Remove listener explicitly (or drop registration to auto-remove)
+    registration.remove();
     
     Ok(())
 }
