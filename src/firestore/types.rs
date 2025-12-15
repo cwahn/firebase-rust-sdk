@@ -20,6 +20,8 @@ use serde_json::Value;
 ///
 /// # C++ Reference
 /// - `firestore/src/include/firebase/firestore/query.h:142` (Filter)
+/// - `firestore/src/include/firebase/firestore/filter.h:268` (And)
+/// - `firestore/src/include/firebase/firestore/filter.h:308` (Or)
 #[derive(Debug, Clone, PartialEq)]
 pub enum FilterCondition {
     /// field == value
@@ -51,10 +53,32 @@ pub enum FilterCondition {
 
     /// field not in list
     NotIn(String, Vec<Value>),
+
+    /// Conjunction of multiple filters (all must match)
+    /// 
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/filter.h:268` - And(filters)
+    /// 
+    /// A document matches this filter if it matches all the provided filters.
+    /// If the vector is empty, it acts as a no-op. If only one filter is provided,
+    /// it behaves the same as that filter alone.
+    And(Vec<FilterCondition>),
+
+    /// Disjunction of multiple filters (any must match)
+    /// 
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/filter.h:308` - Or(filters)
+    /// 
+    /// A document matches this filter if it matches any of the provided filters.
+    /// If the vector is empty, it acts as a no-op. If only one filter is provided,
+    /// it behaves the same as that filter alone.
+    Or(Vec<FilterCondition>),
 }
 
 impl FilterCondition {
     /// Get the field path for this filter
+    /// 
+    /// For compound filters (And/Or), returns empty string as they don't have a single field path
     pub fn field_path(&self) -> &str {
         match self {
             FilterCondition::Equal(field, _) => field,
@@ -67,6 +91,7 @@ impl FilterCondition {
             FilterCondition::In(field, _) => field,
             FilterCondition::NotEqual(field, _) => field,
             FilterCondition::NotIn(field, _) => field,
+            FilterCondition::And(_) | FilterCondition::Or(_) => "",
         }
     }
 
@@ -83,6 +108,8 @@ impl FilterCondition {
             FilterCondition::In(_, _) => "IN",
             FilterCondition::NotEqual(_, _) => "NOT_EQUAL",
             FilterCondition::NotIn(_, _) => "NOT_IN",
+            FilterCondition::And(_) => "AND",
+            FilterCondition::Or(_) => "OR",
         }
     }
 }

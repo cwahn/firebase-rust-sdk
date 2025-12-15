@@ -848,6 +848,154 @@ impl Firestore {
         Ok(())
     }
 
+    /// Convert a single filter to Firestore REST API format
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/filter.h:268` - And(filters)
+    /// - `firestore/src/include/firebase/firestore/filter.h:308` - Or(filters)
+    fn convert_filter_to_json(filter: &crate::firestore::types::FilterCondition) -> serde_json::Value {
+        use crate::firestore::types::FilterCondition;
+
+        match filter {
+            // Compound filters (recursive)
+            FilterCondition::And(filters) => {
+                // Error-first: empty And is a no-op
+                if filters.is_empty() {
+                    return serde_json::json!(null);
+                }
+                // Single filter acts as that filter
+                if filters.len() == 1 {
+                    return Self::convert_filter_to_json(&filters[0]);
+                }
+                serde_json::json!({
+                    "compositeFilter": {
+                        "op": "AND",
+                        "filters": filters.iter().map(|f| Self::convert_filter_to_json(f)).collect::<Vec<_>>()
+                    }
+                })
+            }
+            FilterCondition::Or(filters) => {
+                // Error-first: empty Or is a no-op
+                if filters.is_empty() {
+                    return serde_json::json!(null);
+                }
+                // Single filter acts as that filter
+                if filters.len() == 1 {
+                    return Self::convert_filter_to_json(&filters[0]);
+                }
+                serde_json::json!({
+                    "compositeFilter": {
+                        "op": "OR",
+                        "filters": filters.iter().map(|f| Self::convert_filter_to_json(f)).collect::<Vec<_>>()
+                    }
+                })
+            }
+            // Field filters
+            FilterCondition::Equal(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "EQUAL",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::LessThan(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "LESS_THAN",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::LessThanOrEqual(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "LESS_THAN_OR_EQUAL",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::GreaterThan(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "GREATER_THAN",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::GreaterThanOrEqual(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "GREATER_THAN_OR_EQUAL",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::ArrayContains(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "ARRAY_CONTAINS",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::ArrayContainsAny(field, vals) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "ARRAY_CONTAINS_ANY",
+                        "value": {
+                            "arrayValue": {
+                                "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                            }
+                        }
+                    }
+                })
+            }
+            FilterCondition::In(field, vals) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "IN",
+                        "value": {
+                            "arrayValue": {
+                                "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                            }
+                        }
+                    }
+                })
+            }
+            FilterCondition::NotEqual(field, val) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "NOT_EQUAL",
+                        "value": convert_value_to_firestore(val.clone())
+                    }
+                })
+            }
+            FilterCondition::NotIn(field, vals) => {
+                serde_json::json!({
+                    "fieldFilter": {
+                        "field": {"fieldPath": field},
+                        "op": "NOT_IN",
+                        "value": {
+                            "arrayValue": {
+                                "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
     /// Execute a query (internal method)
     ///
     /// # C++ Reference
@@ -868,115 +1016,11 @@ impl Firestore {
             }]
         });
 
-        // Add filters
+        // Add filters using convert_filter_to_json helper
         if !query.filters.is_empty() {
-            let filters: Vec<serde_json::Value> = query.filters.iter().map(|filter| {
-                let field_path = filter.field_path();
-                match filter {
-                    FilterCondition::Equal(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "EQUAL",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::LessThan(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "LESS_THAN",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::LessThanOrEqual(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "LESS_THAN_OR_EQUAL",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::GreaterThan(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "GREATER_THAN",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::GreaterThanOrEqual(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "GREATER_THAN_OR_EQUAL",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::ArrayContains(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "ARRAY_CONTAINS",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::ArrayContainsAny(_, vals) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "ARRAY_CONTAINS_ANY",
-                                "value": {
-                                    "arrayValue": {
-                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
-                                    }
-                                }
-                            }
-                        })
-                    }
-                    FilterCondition::In(_, vals) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "IN",
-                                "value": {
-                                    "arrayValue": {
-                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
-                                    }
-                                }
-                            }
-                        })
-                    }
-                    FilterCondition::NotEqual(_, val) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "NOT_EQUAL",
-                                "value": convert_value_to_firestore(val.clone())
-                            }
-                        })
-                    }
-                    FilterCondition::NotIn(_, vals) => {
-                        serde_json::json!({
-                            "fieldFilter": {
-                                "field": {"fieldPath": field_path},
-                                "op": "NOT_IN",
-                                "value": {
-                                    "arrayValue": {
-                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
-                                    }
-                                }
-                            }
-                        })
-                    }
-                }
-            }).collect();
+            let filters: Vec<serde_json::Value> = query.filters.iter()
+                .map(|filter| Self::convert_filter_to_json(filter))
+                .collect();
 
             if filters.len() == 1 {
                 structured_query["where"] = filters.into_iter().next().unwrap();
@@ -2099,5 +2143,136 @@ mod tests {
         assert_eq!(converted_back["age"], 30);
         assert_eq!(converted_back["active"], true);
         assert_eq!(converted_back["score"], 95.5);
+    }
+
+    #[tokio::test]
+    async fn test_compound_filter_and() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+        
+        let firestore = Firestore::get_firestore("test-compound-and").await.unwrap();
+        
+        // Create compound And filter
+        let and_filter = FilterCondition::And(vec![
+            FilterCondition::GreaterThan("age".to_string(), json!(18)),
+            FilterCondition::LessThan("age".to_string(), json!(65)),
+            FilterCondition::Equal("active".to_string(), json!(true)),
+        ]);
+        
+        let query = firestore.collection("users")
+            .query()
+            .where_filter(and_filter);
+        
+        assert_eq!(query.filters.len(), 1);
+        
+        // Verify it's an And filter
+        match &query.filters[0] {
+            FilterCondition::And(filters) => {
+                assert_eq!(filters.len(), 3);
+            }
+            _ => panic!("Expected And filter"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_compound_filter_or() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+        
+        let firestore = Firestore::get_firestore("test-compound-or").await.unwrap();
+        
+        // Create compound Or filter
+        let or_filter = FilterCondition::Or(vec![
+            FilterCondition::Equal("status".to_string(), json!("active")),
+            FilterCondition::Equal("status".to_string(), json!("pending")),
+        ]);
+        
+        let query = firestore.collection("orders")
+            .query()
+            .where_filter(or_filter);
+        
+        assert_eq!(query.filters.len(), 1);
+        
+        // Verify it's an Or filter
+        match &query.filters[0] {
+            FilterCondition::Or(filters) => {
+                assert_eq!(filters.len(), 2);
+            }
+            _ => panic!("Expected Or filter"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_compound_filter_nested() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+        
+        let firestore = Firestore::get_firestore("test-compound-nested").await.unwrap();
+        
+        // Create nested compound filter: (age > 18 AND age < 65) OR (status = "vip")
+        let nested_filter = FilterCondition::Or(vec![
+            FilterCondition::And(vec![
+                FilterCondition::GreaterThan("age".to_string(), json!(18)),
+                FilterCondition::LessThan("age".to_string(), json!(65)),
+            ]),
+            FilterCondition::Equal("status".to_string(), json!("vip")),
+        ]);
+        
+        let query = firestore.collection("users")
+            .query()
+            .where_filter(nested_filter);
+        
+        assert_eq!(query.filters.len(), 1);
+        
+        // Verify nested structure
+        match &query.filters[0] {
+            FilterCondition::Or(or_filters) => {
+                assert_eq!(or_filters.len(), 2);
+                match &or_filters[0] {
+                    FilterCondition::And(and_filters) => {
+                        assert_eq!(and_filters.len(), 2);
+                    }
+                    _ => panic!("Expected And filter in Or"),
+                }
+            }
+            _ => panic!("Expected Or filter"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_compound_filter_empty_is_noop() {
+        use crate::firestore::types::FilterCondition;
+        
+        // Empty And filter
+        let empty_and = FilterCondition::And(vec![]);
+        let json = Firestore::convert_filter_to_json(&empty_and);
+        assert!(json.is_null());
+        
+        // Empty Or filter
+        let empty_or = FilterCondition::Or(vec![]);
+        let json = Firestore::convert_filter_to_json(&empty_or);
+        assert!(json.is_null());
+    }
+
+    #[tokio::test]
+    async fn test_compound_filter_single_unwraps() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+        
+        // Single filter in And should behave as that filter
+        let single_and = FilterCondition::And(vec![
+            FilterCondition::Equal("name".to_string(), json!("Alice")),
+        ]);
+        let json_and = Firestore::convert_filter_to_json(&single_and);
+        assert!(json_and["fieldFilter"].is_object());
+        assert!(!json_and["compositeFilter"].is_object());
+        
+        // Single filter in Or should behave as that filter
+        let single_or = FilterCondition::Or(vec![
+            FilterCondition::Equal("name".to_string(), json!("Bob")),
+        ]);
+        let json_or = Firestore::convert_filter_to_json(&single_or);
+        assert!(json_or["fieldFilter"].is_object());
+        assert!(!json_or["compositeFilter"].is_object());
     }
 }
