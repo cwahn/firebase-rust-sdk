@@ -400,6 +400,134 @@ impl Auth {
         })
     }
 
+    /// Sign in with OAuth credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/desktop/auth_desktop.cc:439` - SignInAndRetrieveDataWithCredential
+    /// - `auth/src/desktop/credential_impl.cc` - Credential implementation
+    ///
+    /// Signs in using a credential from an OAuth provider (Google, Facebook, GitHub, etc.)
+    ///
+    /// # Arguments
+    /// * `credential` - OAuth credential from provider
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::Auth;
+    /// use firebase_rust_sdk::auth::types::Credential;
+    ///
+    /// let auth = Auth::get_auth("YOUR_API_KEY").await?;
+    /// 
+    /// // Google Sign-In
+    /// let credential = Credential::Google {
+    ///     id_token: Some("google_id_token".to_string()),
+    ///     access_token: Some("google_access_token".to_string()),
+    /// };
+    /// let result = auth.sign_in_with_credential(credential).await?;
+    /// println!("Signed in: {}", result.user.uid);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn sign_in_with_credential(&self, credential: crate::auth::types::Credential) -> Result<AuthResult, FirebaseError> {
+        use crate::auth::types::Credential;
+        use crate::error::AuthError;
+        
+        // Build request based on credential type
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key={}",
+            self.inner.api_key
+        );
+        
+        let (provider_id, token, id_token, access_token): (String, Option<String>, Option<String>, Option<String>) = match credential {
+            // Error-first: unsupported credential types
+            Credential::EmailPassword { .. } => {
+                return Err(FirebaseError::Auth(
+                    AuthError::InvalidCredential("Use sign_in_with_email_and_password() for email/password auth".to_string())
+                ));
+            }
+            Credential::Anonymous => {
+                return Err(FirebaseError::Auth(
+                    AuthError::InvalidCredential("Use sign_in_anonymously() for anonymous auth".to_string())
+                ));
+            }
+            Credential::CustomToken { .. } => {
+                return Err(FirebaseError::Auth(
+                    AuthError::InvalidCredential("Custom token sign-in not yet implemented".to_string())
+                ));
+            }
+            // OAuth providers
+            Credential::Google { id_token, access_token } => {
+                // Error-first: validate at least one token provided
+                if id_token.is_none() && access_token.is_none() {
+                    return Err(FirebaseError::Auth(
+                        AuthError::InvalidCredential("Google credential requires id_token or access_token".to_string())
+                    ));
+                }
+                ("google.com".to_string(), access_token.clone(), id_token, access_token)
+            }
+            Credential::Facebook { access_token } => {
+                ("facebook.com".to_string(), Some(access_token.clone()), None, Some(access_token))
+            }
+            Credential::GitHub { token } => {
+                ("github.com".to_string(), Some(token.clone()), None, Some(token))
+            }
+            Credential::OAuth { provider_id, id_token, access_token, .. } => {
+                // Error-first: validate at least one token provided
+                if id_token.is_none() && access_token.is_none() {
+                    return Err(FirebaseError::Auth(
+                        AuthError::InvalidCredential("OAuth credential requires id_token or access_token".to_string())
+                    ));
+                }
+                (provider_id.clone(), access_token.clone(), id_token, access_token)
+            }
+        };
+        
+        let mut post_body = format!("providerId={}", provider_id);
+        if let Some(id_token_val) = id_token {
+            post_body.push_str(&format!("&id_token={}", id_token_val));
+        }
+        if let Some(access_token_val) = access_token {
+            post_body.push_str(&format!("&access_token={}", access_token_val));
+        }
+        
+        let response = self.inner.http_client
+            .post(&url)
+            .json(&serde_json::json!({
+                "postBody": post_body,
+                "requestUri": "http://localhost",
+                "returnSecureToken": true,
+                "returnIdpCredential": true
+            }))
+            .send()
+            .await?;
+
+        // Error-first: handle error responses
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("UNKNOWN_ERROR");
+            return Err(AuthError::from_error_code(error_message).into());
+        }
+
+        // Parse successful response
+        let user_data: SignInResponse = response.json().await?;
+        let user = Arc::new(user_data.into_user(self.inner.api_key.clone()));
+
+        // Update current user
+        self.set_current_user(Some(Arc::clone(&user))).await;
+
+        Ok(AuthResult {
+            user,
+            additional_user_info: Some(crate::auth::types::AdditionalUserInfo {
+                provider_id: provider_id.to_string(),
+                is_new_user: false, // Would need to check providerUserInfo to determine
+                profile: None,
+            }),
+        })
+    }
+
     /// Send password reset email
     ///
     /// # C++ Reference
@@ -805,5 +933,96 @@ mod tests {
         let next = stream.next().await;
         assert!(next.is_some());
         assert!(next.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_sign_in_with_google_credential() {
+        use crate::auth::types::Credential;
+        use crate::error::AuthError;
+        
+        let auth = Auth::get_auth("test_google_key").await.unwrap();
+        
+        // Test with invalid credential (no tokens)
+        let invalid_cred = Credential::Google {
+            id_token: None,
+            access_token: None,
+        };
+        let result = auth.sign_in_with_credential(invalid_cred).await;
+        assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidCredential(_)))));
+        
+        // Test with valid credential (would fail without real Firebase project, but validates structure)
+        let valid_cred = Credential::Google {
+            id_token: Some("test_id_token".to_string()),
+            access_token: Some("test_access_token".to_string()),
+        };
+        assert_eq!(valid_cred.provider_id(), "google.com");
+    }
+
+    #[tokio::test]
+    async fn test_sign_in_with_facebook_credential() {
+        use crate::auth::types::Credential;
+        
+        let cred = Credential::Facebook {
+            access_token: "test_facebook_token".to_string(),
+        };
+        assert_eq!(cred.provider_id(), "facebook.com");
+    }
+
+    #[tokio::test]
+    async fn test_sign_in_with_github_credential() {
+        use crate::auth::types::Credential;
+        
+        let cred = Credential::GitHub {
+            token: "test_github_token".to_string(),
+        };
+        assert_eq!(cred.provider_id(), "github.com");
+    }
+
+    #[tokio::test]
+    async fn test_sign_in_with_oauth_credential() {
+        use crate::auth::types::Credential;
+        use crate::error::AuthError;
+        
+        let auth = Auth::get_auth("test_oauth_key").await.unwrap();
+        
+        // Test with invalid OAuth credential (no tokens)
+        let invalid_cred = Credential::OAuth {
+            provider_id: "apple.com".to_string(),
+            id_token: None,
+            access_token: None,
+            raw_nonce: None,
+        };
+        let result = auth.sign_in_with_credential(invalid_cred).await;
+        assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidCredential(_)))));
+        
+        // Test with valid OAuth credential
+        let valid_cred = Credential::OAuth {
+            provider_id: "apple.com".to_string(),
+            id_token: Some("test_id_token".to_string()),
+            access_token: None,
+            raw_nonce: None,
+        };
+        assert_eq!(valid_cred.provider_id(), "apple.com");
+    }
+
+    #[tokio::test]
+    async fn test_credential_type_validation() {
+        use crate::auth::types::Credential;
+        use crate::error::AuthError;
+        
+        let auth = Auth::get_auth("test_validation_key").await.unwrap();
+        
+        // Email/password should use dedicated method
+        let email_cred = Credential::EmailPassword {
+            email: "test@example.com".to_string(),
+            password: "password".to_string(),
+        };
+        let result = auth.sign_in_with_credential(email_cred).await;
+        assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidCredential(_)))));
+        
+        // Anonymous should use dedicated method
+        let anon_cred = Credential::Anonymous;
+        let result = auth.sign_in_with_credential(anon_cred).await;
+        assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidCredential(_)))));
     }
 }

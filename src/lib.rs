@@ -33,6 +33,7 @@ pub mod auth {
     // pub mod providers;
     
     pub use auth::Auth;
+    pub use types::{User, UserInfo, Credential, AuthResult, AdditionalUserInfo, UserProfile};
 }
 
 // Firestore module  

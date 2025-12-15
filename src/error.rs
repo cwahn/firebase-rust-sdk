@@ -104,8 +104,8 @@ pub enum AuthError {
     OperationNotAllowed,
 
     /// Invalid credential
-    #[error("Invalid credential")]
-    InvalidCredential,
+    #[error("Invalid credential: {0}")]
+    InvalidCredential(String),
 
     /// User token has expired
     #[error("User token expired")]

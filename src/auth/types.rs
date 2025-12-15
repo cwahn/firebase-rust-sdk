@@ -47,6 +47,92 @@ pub struct UserInfo {
     pub provider_id: String,
 }
 
+/// Authentication credential
+///
+/// # C++ Reference
+/// - `auth/src/include/firebase/auth/credential.h:77`
+#[derive(Debug, Clone)]
+pub enum Credential {
+    /// Email and password credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/credential.h:192` - EmailAuthProvider::GetCredential
+    EmailPassword {
+        /// Email address
+        email: String,
+        /// Password
+        password: String,
+    },
+    
+    /// Google OAuth credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/credential.h:257` - GoogleAuthProvider::GetCredential
+    Google {
+        /// Google Sign-In ID token
+        id_token: Option<String>,
+        /// Google Sign-In access token
+        access_token: Option<String>,
+    },
+    
+    /// Facebook OAuth credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/credential.h:206` - FacebookAuthProvider::GetCredential
+    Facebook {
+        /// Facebook access token
+        access_token: String,
+    },
+    
+    /// GitHub OAuth credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/credential.h:242` - GitHubAuthProvider::GetCredential
+    GitHub {
+        /// GitHub OAuth access token
+        token: String,
+    },
+    
+    /// Generic OAuth2 credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/credential.h:275` - OAuthProvider::GetCredential
+    OAuth {
+        /// Provider ID (e.g., "apple.com", "microsoft.com")
+        provider_id: String,
+        /// ID token (OIDC)
+        id_token: Option<String>,
+        /// Access token
+        access_token: Option<String>,
+        /// Raw nonce
+        raw_nonce: Option<String>,
+    },
+    
+    /// Anonymous credential
+    Anonymous,
+    
+    /// Custom token credential
+    CustomToken {
+        /// Custom JWT token
+        token: String,
+    },
+}
+
+impl Credential {
+    /// Get the provider ID for this credential
+    pub fn provider_id(&self) -> &str {
+        match self {
+            Credential::EmailPassword { .. } => "password",
+            Credential::Google { .. } => "google.com",
+            Credential::Facebook { .. } => "facebook.com",
+            Credential::GitHub { .. } => "github.com",
+            Credential::OAuth { provider_id, .. } => provider_id,
+            Credential::Anonymous => "anonymous",
+            Credential::CustomToken { .. } => "custom",
+        }
+    }
+}
+
 /// Firebase user account
 ///
 /// # C++ Reference
@@ -486,77 +572,6 @@ impl UserProfile {
     }
 }
 
-/// Authentication credential
-///
-/// # C++ Reference
-/// - `auth/src/include/firebase/auth/credential.h:57`
-///
-/// Represents an authentication credential for various providers.
-#[derive(Debug, Clone)]
-pub enum Credential {
-    /// Email and password credential
-    EmailPassword {
-        /// Email address
-        email: String,
-        /// Password
-        password: String,
-    },
-    
-    /// OAuth credential (Google, Facebook, etc.)
-    OAuth {
-        /// Provider ID (e.g., "google.com")
-        provider_id: String,
-        /// ID token
-        id_token: Option<String>,
-        /// Access token
-        access_token: Option<String>,
-    },
-    
-    /// Anonymous credential
-    Anonymous,
-    
-    /// Custom token credential
-    CustomToken {
-        /// Custom JWT token
-        token: String,
-    },
-}
-
-impl Credential {
-    /// Create email/password credential
-    ///
-    /// # C++ Reference
-    /// - `auth/src/include/firebase/auth/credential.h:109`
-    pub fn email_password(email: impl Into<String>, password: impl Into<String>) -> Self {
-        Self::EmailPassword {
-            email: email.into(),
-            password: password.into(),
-        }
-    }
-
-    /// Create Google OAuth credential
-    ///
-    /// # C++ Reference
-    /// - `auth/src/include/firebase/auth/credential.h:145`
-    pub fn google(id_token: Option<String>, access_token: Option<String>) -> Self {
-        Self::OAuth {
-            provider_id: "google.com".to_string(),
-            id_token,
-            access_token,
-        }
-    }
-
-    /// Get provider ID
-    pub fn provider_id(&self) -> &str {
-        match self {
-            Self::EmailPassword { .. } => "password",
-            Self::OAuth { provider_id, .. } => provider_id,
-            Self::Anonymous => "anonymous",
-            Self::CustomToken { .. } => "custom",
-        }
-    }
-}
-
 /// Authentication result
 ///
 /// Returned from sign-in operations.
@@ -614,7 +629,10 @@ mod tests {
 
     #[test]
     fn test_credential_email_password() {
-        let cred = Credential::email_password("test@example.com", "password123");
+        let cred = Credential::EmailPassword {
+            email: "test@example.com".to_string(),
+            password: "password123".to_string(),
+        };
         let provider = cred.provider_id();
         
         match &cred {
@@ -630,15 +648,17 @@ mod tests {
 
     #[test]
     fn test_credential_google() {
-        let cred = Credential::google(Some("id_token".to_string()), None);
+        let cred = Credential::Google {
+            id_token: Some("id_token".to_string()),
+            access_token: None,
+        };
         let provider = cred.provider_id();
         
         match &cred {
-            Credential::OAuth { provider_id, id_token, .. } => {
-                assert_eq!(provider_id, "google.com");
+            Credential::Google { id_token, .. } => {
                 assert_eq!(id_token.as_deref(), Some("id_token"));
             }
-            _ => panic!("Expected OAuth credential"),
+            _ => panic!("Expected Google credential"),
         }
         
         assert_eq!(provider, "google.com");
