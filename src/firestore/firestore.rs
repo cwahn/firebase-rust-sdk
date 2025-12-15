@@ -4,7 +4,7 @@
 //! - `firestore/src/include/firebase/firestore.h:91` - Firestore class
 
 use crate::error::FirebaseError;
-use crate::firestore::types::DocumentReference;
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -166,6 +166,135 @@ impl Firestore {
     /// Internal: Get HTTP client
     pub(crate) fn http_client(&self) -> &reqwest::Client {
         &self.inner.http_client
+    }
+    
+    /// Get document data
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_reference.h:193` - Get()
+    pub async fn get_document(&self, path: impl AsRef<str>) -> Result<DocumentSnapshot, FirebaseError> {
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
+            self.project_id(),
+            self.database_id(),
+            path.as_ref()
+        );
+        
+        let response = self.http_client()
+            .get(&url)
+            .send()
+            .await?;
+        
+        // Handle 404 (document not found)
+        if response.status() == 404 {
+            return Ok(DocumentSnapshot {
+                reference: DocumentReference::new(path.as_ref()),
+                data: None,
+                metadata: SnapshotMetadata::default(),
+            });
+        }
+        
+        // Handle other errors
+        if !response.status().is_success() {
+            return Err(FirebaseError::Internal(format!("Get failed: {}", response.status())));
+        }
+        
+        let doc_data: serde_json::Value = response.json().await?;
+        let fields = doc_data.get("fields").cloned();
+        
+        Ok(DocumentSnapshot {
+            reference: DocumentReference::new(path.as_ref()),
+            data: fields,
+            metadata: SnapshotMetadata {
+                has_pending_writes: false,
+                is_from_cache: false,
+            },
+        })
+    }
+    
+    /// Set (write/overwrite) document data
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_reference.h:206` - Set()
+    pub async fn set_document(&self, path: impl AsRef<str>, data: serde_json::Value) -> Result<(), FirebaseError> {
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
+            self.project_id(),
+            self.database_id(),
+            path.as_ref()
+        );
+        
+        let doc = serde_json::json!({ "fields": data });
+        
+        let response = self.http_client()
+            .patch(&url)
+            .json(&doc)
+            .send()
+            .await?;
+        
+        if !response.status().is_success() {
+            return Err(FirebaseError::Internal(format!("Set failed: {}", response.status())));
+        }
+        
+        Ok(())
+    }
+    
+    /// Update specific fields in document
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_reference.h:219` - Update()
+    pub async fn update_document(&self, path: impl AsRef<str>, data: serde_json::Value) -> Result<(), FirebaseError> {
+        let mut update_mask = Vec::new();
+        if let Some(obj) = data.as_object() {
+            update_mask.extend(obj.keys().map(|k| k.as_str()));
+        }
+        
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}?updateMask.fieldPaths={}",
+            self.project_id(),
+            self.database_id(),
+            path.as_ref(),
+            update_mask.join("&updateMask.fieldPaths=")
+        );
+        
+        let doc = serde_json::json!({ "fields": data });
+        
+        let response = self.http_client()
+            .patch(&url)
+            .json(&doc)
+            .send()
+            .await?;
+        
+        if !response.status().is_success() {
+            return Err(FirebaseError::Internal(format!("Update failed: {}", response.status())));
+        }
+        
+        Ok(())
+    }
+    
+    /// Delete document
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_reference.h:243` - Delete()
+    pub async fn delete_document(&self, path: impl AsRef<str>) -> Result<(), FirebaseError> {
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
+            self.project_id(),
+            self.database_id(),
+            path.as_ref()
+        );
+        
+        let response = self.http_client()
+            .delete(&url)
+            .send()
+            .await?;
+        
+        // 404 is acceptable for delete
+        if !response.status().is_success() && response.status() != 404 {
+            return Err(FirebaseError::Internal(format!("Delete failed: {}", response.status())));
+        }
+        
+        Ok(())
     }
 }
 
