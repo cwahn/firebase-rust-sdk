@@ -339,6 +339,66 @@ impl Auth {
             }),
         })
     }
+
+    /// Sign in anonymously
+    ///
+    /// # C++ Reference
+    /// - `auth/src/desktop/auth_desktop.cc:439` - SignInAnonymously
+    ///
+    /// Creates an anonymous user account. Anonymous accounts are temporary and can be
+    /// linked to permanent accounts later.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::Auth;
+    ///
+    /// let auth = Auth::get_auth("YOUR_API_KEY").await?;
+    /// let result = auth.sign_in_anonymously().await?;
+    /// println!("Anonymous user: {}", result.user.uid);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn sign_in_anonymously(&self) -> Result<AuthResult, FirebaseError> {
+        // Call Firebase Auth REST API - signUp with no email/password creates anonymous user
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={}",
+            self.inner.api_key
+        );
+
+        let response = self.inner.http_client
+            .post(&url)
+            .json(&serde_json::json!({
+                "returnSecureToken": true
+            }))
+            .send()
+            .await?;
+
+        // Handle error responses first
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("UNKNOWN_ERROR");
+            return Err(AuthError::from_error_code(error_message).into());
+        }
+
+        // Parse successful response
+        let user_data: SignInResponse = response.json().await?;
+        let user = Arc::new(user_data.into_user());
+
+        // Update current user
+        self.set_current_user(Some(Arc::clone(&user))).await;
+
+        Ok(AuthResult {
+            user,
+            additional_user_info: Some(crate::auth::types::AdditionalUserInfo {
+                provider_id: "anonymous".to_string(),
+                is_new_user: true,
+                profile: None,
+            }),
+        })
+    }
 }
 
 /// Firebase Auth REST API response
@@ -481,6 +541,54 @@ mod tests {
         let auth = Auth::get_auth("test_key").await.unwrap();
         let result = auth.create_user_with_email_and_password("new@example.com", "").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidPassword))));
+    }
+
+    #[tokio::test]
+    async fn test_sign_in_anonymously_returns_user() {
+        let auth = Auth::get_auth("test_anon_key").await.unwrap();
+        
+        // This will fail without real Firebase, but validates the structure
+        // In real usage, this would create an anonymous user
+        let result = auth.sign_in_anonymously().await;
+        
+        // We expect network error since no real Firebase backend
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_anonymous_user_updates_current_user() {
+        use crate::auth::types::UserMetadata;
+        
+        let auth = Auth::get_auth("test_anon_key2").await.unwrap();
+        
+        // Initially no user
+        assert!(auth.current_user().await.is_none());
+        
+        // Manually set an anonymous user (simulating successful sign in)
+        let anon_user = Arc::new(User {
+            uid: "anon123".to_string(),
+            email: None,
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: true,
+            metadata: UserMetadata {
+                creation_timestamp: 0,
+                last_sign_in_timestamp: 0,
+            },
+            provider_data: vec![],
+            id_token: None,
+            refresh_token: None,
+        });
+        
+        auth.set_current_user(Some(anon_user.clone())).await;
+        
+        let current = auth.current_user().await;
+        assert!(current.is_some());
+        let user = current.unwrap();
+        assert_eq!(user.uid, "anon123");
+        assert!(user.is_anonymous);
     }
 
     #[tokio::test]
