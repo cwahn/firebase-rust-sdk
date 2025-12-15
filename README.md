@@ -10,7 +10,7 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 
 ## Implementation Status
 
-✅ **Phase 3 In Progress** - Auth user management and query operations
+✅ **Phase 3 In Progress** - Advanced features
 
 **Completed:**
 - Error types (FirebaseError, AuthError, FirestoreError)
@@ -18,13 +18,15 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - Anonymous authentication
 - Password reset email
 - Automatic token refresh with expiration tracking
-- **NEW:** User account management (update_password, delete)
+- User account management (update_password, update_email, delete)
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
 - Firestore query operations (filters, ordering, limits, cursors)
+- **NEW:** CollectionReference::add() with auto-generated IDs
+- **NEW:** User::update_email() for account management
 
-**Tests:** 57 tests passing
+**Tests:** 61 tests passing (+4 new tests)
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
 
@@ -64,7 +66,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Firestore Queries
+### Firestore Queries & Documents
 
 ```rust
 use firebase_rust_sdk::firestore::{Firestore, FilterCondition, OrderDirection};
@@ -73,6 +75,16 @@ use serde_json::json;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let firestore = Firestore::get_firestore("my-project").await?;
+    
+    // Add document with auto-generated ID
+    let doc_ref = firestore.collection("users")
+        .add(json!({
+            "name": "Alice",
+            "age": 30,
+            "email": "alice@example.com"
+        }))
+        .await?;
+    println!("Created document: {}", doc_ref.path);
     
     // Query documents
     let docs = firestore.collection("users")

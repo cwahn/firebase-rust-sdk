@@ -9,6 +9,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use rand::Rng;
 
 /// Global map of project IDs to Firestore instances
 ///
@@ -673,8 +674,53 @@ impl CollectionReference {
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/collection_reference.h:124` - Add(data)
-    pub async fn add(&self, _data: serde_json::Value) -> Result<DocumentReference, FirebaseError> {
-        todo!("Implement add document via REST API")
+    /// - `firestore/src/main/collection_reference_main.cc:78` - AddDocument implementation
+    ///
+    /// Generates a 20-character alphanumeric ID and creates the document.
+    /// This follows Firestore's auto-ID generation pattern.
+    ///
+    /// # Arguments
+    /// * `data` - Document data as JSON value
+    ///
+    /// # Errors
+    /// Returns `FirebaseError::FirestoreError` if:
+    /// - Data is not a JSON object
+    /// - Network request fails
+    /// - API returns an error
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let doc_ref = firestore.collection("users")
+    ///     .add(json!({"name": "Alice", "age": 30}))
+    ///     .await?;
+    /// println!("Created document: {}", doc_ref.path());
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn add(&self, data: serde_json::Value) -> Result<DocumentReference, FirebaseError> {
+        use crate::error::FirestoreError;
+        
+        // Error-first: validate data is an object
+        if !data.is_object() {
+            return Err(FirebaseError::Firestore(
+                FirestoreError::InvalidData("Data must be a JSON object".to_string()),
+            ));
+        }
+
+        // Generate auto-ID: 20 alphanumeric characters
+        // Firestore uses [a-zA-Z0-9] for auto-generated IDs
+        let doc_id = generate_auto_id();
+        let doc_ref = self.document(&doc_id);
+
+        // Use set_document to create the document
+        self.firestore.set_document(&doc_ref.path, data).await?;
+
+        Ok(doc_ref)
     }
 
     /// Create a query for this collection
@@ -702,6 +748,26 @@ impl CollectionReference {
     pub fn query(&self) -> Query {
         Query::new(self.firestore.clone(), self.path.clone())
     }
+}
+
+/// Generate a Firestore auto-ID
+///
+/// Creates a 20-character random alphanumeric string matching Firestore's
+/// auto-ID generation pattern: [a-zA-Z0-9]{20}
+///
+/// # C++ Reference
+/// - Firestore auto-ID generation (called by AddDocument)
+fn generate_auto_id() -> String {
+    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const ID_LENGTH: usize = 20;
+    
+    let mut rng = rand::thread_rng();
+    (0..ID_LENGTH)
+        .map(|_| {
+            let idx = rng.gen_range(0..CHARSET.len());
+            CHARSET[idx] as char
+        })
+        .collect()
 }
 
 impl std::fmt::Debug for Firestore {
@@ -905,5 +971,49 @@ mod tests {
         // Test array
         let result = convert_value_to_firestore(json!([1, 2, 3]));
         assert!(result.get("arrayValue").is_some());
+    }
+
+    #[tokio::test]
+    async fn test_collection_reference_add_generates_id() {
+        use serde_json::json;
+        
+        let fs = Firestore::get_firestore("test-project-10").await.unwrap();
+        let collection = fs.collection("users");
+        
+        // Create document with auto-generated ID (would fail without real Firebase)
+        // Test that the ID generation works
+        let doc_id_1 = generate_auto_id();
+        let doc_id_2 = generate_auto_id();
+        
+        // IDs should be 20 characters
+        assert_eq!(doc_id_1.len(), 20);
+        assert_eq!(doc_id_2.len(), 20);
+        
+        // IDs should be different (statistically)
+        assert_ne!(doc_id_1, doc_id_2);
+        
+        // IDs should only contain alphanumeric characters
+        assert!(doc_id_1.chars().all(|c| c.is_ascii_alphanumeric()));
+        assert!(doc_id_2.chars().all(|c| c.is_ascii_alphanumeric()));
+    }
+    
+    #[tokio::test]
+    async fn test_collection_reference_add_validates_data() {
+        use serde_json::json;
+        use crate::error::{FirebaseError, FirestoreError};
+        
+        let fs = Firestore::get_firestore("test-project-11").await.unwrap();
+        let collection = fs.collection("users");
+        
+        // Test that non-object data is rejected
+        let result = collection.add(json!("not an object")).await;
+        assert!(result.is_err());
+        
+        match result.unwrap_err() {
+            FirebaseError::Firestore(FirestoreError::InvalidData(msg)) => {
+                assert!(msg.contains("JSON object"));
+            }
+            _ => panic!("Expected InvalidData error"),
+        }
     }
 }

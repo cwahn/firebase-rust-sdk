@@ -180,6 +180,10 @@ pub enum FirestoreError {
     #[error("Invalid argument: {0}")]
     InvalidArgument(String),
 
+    /// Invalid data
+    #[error("Invalid data: {0}")]
+    InvalidData(String),
+
     /// Deadline exceeded
     #[error("Deadline exceeded")]
     DeadlineExceeded,
