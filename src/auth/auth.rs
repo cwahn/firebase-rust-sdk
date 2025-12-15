@@ -6,11 +6,13 @@
 
 use crate::auth::types::{User, AuthResult};
 use crate::error::{FirebaseError, AuthError};
+use async_stream::stream;
+use futures::Stream;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, broadcast};
 
 /// Global map of API keys to Auth instances
 /// 
@@ -34,6 +36,7 @@ struct AuthInner {
     api_key: String,
     current_user: RwLock<Option<Arc<User>>>,
     http_client: reqwest::Client,
+    state_tx: broadcast::Sender<Option<Arc<User>>>,
 }
 
 impl Auth {
@@ -76,11 +79,15 @@ impl Auth {
             .build()
             .map_err(|e| FirebaseError::Internal(format!("Failed to create HTTP client: {}", e)))?;
         
+        // Create broadcast channel for auth state changes (capacity: 16)
+        let (state_tx, _) = broadcast::channel(16);
+        
         let auth = Auth {
             inner: Arc::new(AuthInner {
                 api_key: api_key.clone(),
                 current_user: RwLock::new(None),
                 http_client,
+                state_tx,
             }),
         };
         
@@ -106,8 +113,7 @@ impl Auth {
     ///
     /// Always succeeds and clears the current user.
     pub async fn sign_out(&self) -> Result<(), FirebaseError> {
-        let mut user = self.inner.current_user.write().await;
-        *user = None;
+        self.set_current_user(None).await;
         Ok(())
     }
 
@@ -124,7 +130,62 @@ impl Auth {
     /// Internal: Set current user
     pub(crate) async fn set_current_user(&self, user: Option<Arc<User>>) {
         let mut current = self.inner.current_user.write().await;
-        *current = user;
+        *current = user.clone();
+        
+        // Broadcast state change (ignore error if no listeners)
+        let _ = self.inner.state_tx.send(user);
+    }
+
+    /// Subscribe to authentication state changes
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth.h:610` - AuthStateListener
+    ///
+    /// Returns a stream that yields the current user whenever:
+    /// - A user signs in
+    /// - A user signs out
+    /// - The current user changes
+    ///
+    /// The stream immediately yields the current user state upon subscription.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::Auth;
+    /// use futures::StreamExt;
+    ///
+    /// let auth = Auth::get_auth("YOUR_API_KEY").await?;
+    /// let mut stream = auth.auth_state_changes().await;
+    ///
+    /// while let Some(user) = stream.next().await {
+    ///     match user {
+    ///         Some(u) => println!("User signed in: {}", u.uid),
+    ///         None => println!("User signed out"),
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn auth_state_changes(&self) -> std::pin::Pin<Box<dyn Stream<Item = Option<Arc<User>>> + Send>> {
+        // Get current user immediately
+        let initial_user = self.current_user().await;
+        
+        // Subscribe to state changes
+        let mut rx = self.inner.state_tx.subscribe();
+        
+        Box::pin(stream! {
+            // Yield initial state first
+            yield initial_user;
+            
+            // Then yield all future state changes
+            loop {
+                let user = match rx.recv().await {
+                    Err(_) => break, // Channel closed
+                    Ok(u) => u,
+                };
+                yield user;
+            }
+        })
     }
 
     /// Sign in with email and password
@@ -420,5 +481,98 @@ mod tests {
         let auth = Auth::get_auth("test_key").await.unwrap();
         let result = auth.create_user_with_email_and_password("new@example.com", "").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidPassword))));
+    }
+
+    #[tokio::test]
+    async fn test_auth_state_changes_initial() {
+        use futures::StreamExt;
+        
+        let auth = Auth::get_auth("test_key_state1").await.unwrap();
+        let mut stream = auth.auth_state_changes().await;
+        
+        // Should immediately yield None (no user signed in)
+        let initial = stream.next().await;
+        assert!(initial.is_some());
+        assert!(initial.unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_auth_state_changes_on_sign_in() {
+        use futures::StreamExt;
+        use crate::auth::types::UserMetadata;
+        
+        let auth = Auth::get_auth("test_key_state2").await.unwrap();
+        let mut stream = auth.auth_state_changes().await;
+        
+        // Get initial state (None)
+        let _ = stream.next().await;
+        
+        // Sign in a user
+        let user = Arc::new(User {
+            uid: "test123".to_string(),
+            email: Some("test@example.com".to_string()),
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: false,
+            metadata: UserMetadata {
+                creation_timestamp: 0,
+                last_sign_in_timestamp: 0,
+            },
+            provider_data: vec![],
+            id_token: None,
+            refresh_token: None,
+        });
+        
+        auth.set_current_user(Some(user.clone())).await;
+        
+        // Should receive the new user
+        let next = stream.next().await;
+        assert!(next.is_some());
+        let received_user = next.unwrap();
+        assert!(received_user.is_some());
+        assert_eq!(received_user.as_ref().unwrap().uid, "test123");
+    }
+
+    #[tokio::test]
+    async fn test_auth_state_changes_on_sign_out() {
+        use futures::StreamExt;
+        use crate::auth::types::UserMetadata;
+        
+        let auth = Auth::get_auth("test_key_state3").await.unwrap();
+        
+        // Set initial user
+        let user = Arc::new(User {
+            uid: "test456".to_string(),
+            email: Some("test2@example.com".to_string()),
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: false,
+            metadata: UserMetadata {
+                creation_timestamp: 0,
+                last_sign_in_timestamp: 0,
+            },
+            provider_data: vec![],
+            id_token: None,
+            refresh_token: None,
+        });
+        auth.set_current_user(Some(user)).await;
+        
+        let mut stream = auth.auth_state_changes().await;
+        
+        // Get initial state (with user)
+        let initial = stream.next().await;
+        assert!(initial.unwrap().is_some());
+        
+        // Sign out
+        auth.sign_out().await.unwrap();
+        
+        // Should receive None
+        let next = stream.next().await;
+        assert!(next.is_some());
+        assert!(next.unwrap().is_none());
     }
 }
