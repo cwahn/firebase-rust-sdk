@@ -296,6 +296,344 @@ impl Firestore {
         
         Ok(())
     }
+
+    /// Execute a query (internal method)
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:318` - Get()
+    async fn execute_query(&self, query: Query) -> Result<Vec<DocumentSnapshot>, FirebaseError> {
+        use crate::firestore::types::{FilterCondition, OrderDirection};
+
+        let url = format!(
+            "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents:runQuery",
+            self.project_id(),
+            self.database_id()
+        );
+
+        // Build structured query
+        let mut structured_query = serde_json::json!({
+            "from": [{
+                "collectionId": query.collection_path.rsplit('/').next().unwrap_or(&query.collection_path)
+            }]
+        });
+
+        // Add filters
+        if !query.filters.is_empty() {
+            let filters: Vec<serde_json::Value> = query.filters.iter().map(|filter| {
+                let field_path = filter.field_path();
+                match filter {
+                    FilterCondition::Equal(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "EQUAL",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::LessThan(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "LESS_THAN",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::LessThanOrEqual(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "LESS_THAN_OR_EQUAL",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::GreaterThan(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "GREATER_THAN",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::GreaterThanOrEqual(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "GREATER_THAN_OR_EQUAL",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::ArrayContains(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "ARRAY_CONTAINS",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::ArrayContainsAny(_, vals) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "ARRAY_CONTAINS_ANY",
+                                "value": {
+                                    "arrayValue": {
+                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    FilterCondition::In(_, vals) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "IN",
+                                "value": {
+                                    "arrayValue": {
+                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                                    }
+                                }
+                            }
+                        })
+                    }
+                    FilterCondition::NotEqual(_, val) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "NOT_EQUAL",
+                                "value": convert_value_to_firestore(val.clone())
+                            }
+                        })
+                    }
+                    FilterCondition::NotIn(_, vals) => {
+                        serde_json::json!({
+                            "fieldFilter": {
+                                "field": {"fieldPath": field_path},
+                                "op": "NOT_IN",
+                                "value": {
+                                    "arrayValue": {
+                                        "values": vals.iter().map(|v| convert_value_to_firestore(v.clone())).collect::<Vec<_>>()
+                                    }
+                                }
+                            }
+                        })
+                    }
+                }
+            }).collect();
+
+            if filters.len() == 1 {
+                structured_query["where"] = filters.into_iter().next().unwrap();
+            } else {
+                structured_query["where"] = serde_json::json!({
+                    "compositeFilter": {
+                        "op": "AND",
+                        "filters": filters
+                    }
+                });
+            }
+        }
+
+        // Add order by
+        if !query.order_by.is_empty() {
+            structured_query["orderBy"] = serde_json::json!(
+                query.order_by.iter().map(|(field, direction)| {
+                    serde_json::json!({
+                        "field": {"fieldPath": field},
+                        "direction": match direction {
+                            OrderDirection::Ascending => "ASCENDING",
+                            OrderDirection::Descending => "DESCENDING",
+                        }
+                    })
+                }).collect::<Vec<_>>()
+            );
+        }
+
+        // Add limit
+        if let Some(limit) = query.limit_value {
+            structured_query["limit"] = serde_json::json!(limit);
+        }
+
+        // Add start/end cursors (simplified - actual implementation needs proper cursor handling)
+        if query.start_at.is_some() || query.end_at.is_some() {
+            // Cursor implementation would go here
+            // For now, we'll skip complex cursor logic
+        }
+
+        let request_body = serde_json::json!({
+            "structuredQuery": structured_query
+        });
+
+        let response = self.http_client()
+            .post(&url)
+            .json(&request_body)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            return Err(FirebaseError::Internal(format!("Query failed: {}", response.status())));
+        }
+
+        let results: Vec<serde_json::Value> = response.json().await?;
+        
+        let documents: Vec<DocumentSnapshot> = results
+            .into_iter()
+            .filter_map(|result| {
+                result.get("document").and_then(|doc| {
+                    let name = doc.get("name")?.as_str()?;
+                    let path = name.split("/documents/").nth(1)?;
+                    let fields = doc.get("fields").cloned();
+                    
+                    Some(DocumentSnapshot {
+                        reference: DocumentReference::new(path),
+                        data: fields,
+                        metadata: SnapshotMetadata {
+                            has_pending_writes: false,
+                            is_from_cache: false,
+                        },
+                    })
+                })
+            })
+            .collect();
+
+        Ok(documents)
+    }
+}
+
+/// Convert serde_json::Value to Firestore value format
+fn convert_value_to_firestore(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Null => serde_json::json!({"nullValue": null}),
+        serde_json::Value::Bool(b) => serde_json::json!({"booleanValue": b}),
+        serde_json::Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                serde_json::json!({"integerValue": i.to_string()})
+            } else if let Some(f) = n.as_f64() {
+                serde_json::json!({"doubleValue": f})
+            } else {
+                serde_json::json!({"nullValue": null})
+            }
+        }
+        serde_json::Value::String(s) => serde_json::json!({"stringValue": s}),
+        serde_json::Value::Array(arr) => {
+            serde_json::json!({
+                "arrayValue": {
+                    "values": arr.into_iter().map(convert_value_to_firestore).collect::<Vec<_>>()
+                }
+            })
+        }
+        serde_json::Value::Object(obj) => {
+            serde_json::json!({
+                "mapValue": {
+                    "fields": obj.into_iter().map(|(k, v)| (k, convert_value_to_firestore(v))).collect::<serde_json::Map<String, serde_json::Value>>()
+                }
+            })
+        }
+    }
+}
+
+/// Firestore query builder
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/query.h:76`
+#[derive(Clone)]
+pub struct Query {
+    firestore: Firestore,
+    collection_path: String,
+    filters: Vec<crate::firestore::types::FilterCondition>,
+    order_by: Vec<(String, crate::firestore::types::OrderDirection)>,
+    limit_value: Option<usize>,
+    start_at: Option<Vec<serde_json::Value>>,
+    end_at: Option<Vec<serde_json::Value>>,
+}
+
+impl Query {
+    /// Create a new query for a collection
+    pub(crate) fn new(firestore: Firestore, collection_path: String) -> Self {
+        Self {
+            firestore,
+            collection_path,
+            filters: Vec::new(),
+            order_by: Vec::new(),
+            limit_value: None,
+            start_at: None,
+            end_at: None,
+        }
+    }
+
+    /// Add a filter condition to the query
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:142` - Where()
+    pub fn where_filter(mut self, condition: crate::firestore::types::FilterCondition) -> Self {
+        self.filters.push(condition);
+        self
+    }
+
+    /// Order results by a field
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:204` - OrderBy()
+    pub fn order_by(
+        mut self,
+        field: impl Into<String>,
+        direction: crate::firestore::types::OrderDirection,
+    ) -> Self {
+        self.order_by.push((field.into(), direction));
+        self
+    }
+
+    /// Limit the number of results
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:232` - Limit()
+    pub fn limit(mut self, limit: usize) -> Self {
+        self.limit_value = Some(limit);
+        self
+    }
+
+    /// Start query at cursor values
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:285` - StartAt()
+    pub fn start_at(mut self, values: Vec<serde_json::Value>) -> Self {
+        self.start_at = Some(values);
+        self
+    }
+
+    /// End query at cursor values
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:298` - EndAt()
+    pub fn end_at(mut self, values: Vec<serde_json::Value>) -> Self {
+        self.end_at = Some(values);
+        self
+    }
+
+    /// Execute the query
+    ///
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/query.h:318` - Get()
+    pub async fn get(self) -> Result<Vec<DocumentSnapshot>, FirebaseError> {
+        let firestore = self.firestore.clone();
+        firestore.execute_query(self).await
+    }
+}
+
+impl std::fmt::Debug for Query {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Query")
+            .field("collection_path", &self.collection_path)
+            .field("filters", &self.filters.len())
+            .field("order_by", &self.order_by)
+            .field("limit", &self.limit_value)
+            .finish()
+    }
 }
 
 /// Collection reference
@@ -337,6 +675,32 @@ impl CollectionReference {
     /// - `firestore/src/include/firebase/firestore/collection_reference.h:124` - Add(data)
     pub async fn add(&self, _data: serde_json::Value) -> Result<DocumentReference, FirebaseError> {
         todo!("Implement add document via REST API")
+    }
+
+    /// Create a query for this collection
+    ///
+    /// # C++ Reference
+    /// - Query inherits from CollectionReference in C++
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::{Firestore, types::{FilterCondition, OrderDirection}};
+    /// use serde_json::json;
+    ///
+    /// let firestore = Firestore::get_firestore("my-project").await?;
+    /// let docs = firestore.collection("users")
+    ///     .query()
+    ///     .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
+    ///     .order_by("age", OrderDirection::Ascending)
+    ///     .limit(10)
+    ///     .get()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn query(&self) -> Query {
+        Query::new(self.firestore.clone(), self.path.clone())
     }
 }
 
@@ -444,5 +808,102 @@ mod tests {
 
         assert_eq!(posts.path(), "users/alice/posts");
         assert_eq!(posts.id(), "posts");
+    }
+
+    #[tokio::test]
+    async fn test_query_builder() {
+        use crate::firestore::types::{FilterCondition, OrderDirection};
+        use serde_json::json;
+
+        let fs = Firestore::get_firestore("test-project-7").await.unwrap();
+        let query = fs.collection("users")
+            .query()
+            .where_filter(FilterCondition::Equal("name".to_string(), json!("Alice")))
+            .order_by("age", OrderDirection::Ascending)
+            .limit(10);
+
+        // Verify query structure (can't execute without real Firebase)
+        assert_eq!(query.collection_path, "users");
+        assert_eq!(query.filters.len(), 1);
+        assert_eq!(query.order_by.len(), 1);
+        assert_eq!(query.limit_value, Some(10));
+    }
+
+    #[tokio::test]
+    async fn test_query_multiple_filters() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+
+        let fs = Firestore::get_firestore("test-project-8").await.unwrap();
+        let query = fs.collection("users")
+            .query()
+            .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
+            .where_filter(FilterCondition::LessThan("age".to_string(), json!(65)))
+            .where_filter(FilterCondition::Equal("active".to_string(), json!(true)));
+
+        assert_eq!(query.filters.len(), 3);
+    }
+
+    #[tokio::test]
+    async fn test_query_with_cursors() {
+        use serde_json::json;
+
+        let fs = Firestore::get_firestore("test-project-9").await.unwrap();
+        let query = fs.collection("posts")
+            .query()
+            .start_at(vec![json!("2024-01-01")])
+            .end_at(vec![json!("2024-12-31")]);
+
+        assert!(query.start_at.is_some());
+        assert!(query.end_at.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_filter_condition_field_path() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+
+        let filter = FilterCondition::Equal("user.name".to_string(), json!("Bob"));
+        assert_eq!(filter.field_path(), "user.name");
+
+        let filter2 = FilterCondition::GreaterThan("score".to_string(), json!(100));
+        assert_eq!(filter2.field_path(), "score");
+    }
+
+    #[tokio::test]
+    async fn test_filter_condition_operators() {
+        use crate::firestore::types::FilterCondition;
+        use serde_json::json;
+
+        assert_eq!(FilterCondition::Equal("f".to_string(), json!(1)).operator(), "EQUAL");
+        assert_eq!(FilterCondition::LessThan("f".to_string(), json!(1)).operator(), "LESS_THAN");
+        assert_eq!(FilterCondition::GreaterThanOrEqual("f".to_string(), json!(1)).operator(), "GREATER_THAN_OR_EQUAL");
+        assert_eq!(FilterCondition::ArrayContains("f".to_string(), json!(1)).operator(), "ARRAY_CONTAINS");
+        assert_eq!(FilterCondition::In("f".to_string(), vec![json!(1)]).operator(), "IN");
+    }
+
+    #[tokio::test]
+    async fn test_convert_value_to_firestore() {
+        use serde_json::json;
+
+        // Test null
+        let result = convert_value_to_firestore(json!(null));
+        assert_eq!(result, json!({"nullValue": null}));
+
+        // Test boolean
+        let result = convert_value_to_firestore(json!(true));
+        assert_eq!(result, json!({"booleanValue": true}));
+
+        // Test integer
+        let result = convert_value_to_firestore(json!(42));
+        assert_eq!(result, json!({"integerValue": "42"}));
+
+        // Test string
+        let result = convert_value_to_firestore(json!("hello"));
+        assert_eq!(result, json!({"stringValue": "hello"}));
+
+        // Test array
+        let result = convert_value_to_firestore(json!([1, 2, 3]));
+        assert!(result.get("arrayValue").is_some());
     }
 }

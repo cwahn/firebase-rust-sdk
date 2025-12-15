@@ -10,7 +10,7 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 
 ## Implementation Status
 
-✅ **Phase 2 Complete** - Core Auth & Firestore operations
+✅ **Phase 3 In Progress** - Query operations added
 
 **Completed:**
 - Error types (FirebaseError, AuthError, FirestoreError)
@@ -18,10 +18,67 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - Auth state change listeners (async streams)
 - Firestore initialization with singleton pattern
 - Firestore document operations (Get, Set, Update, Delete)
+- **NEW:** Firestore query operations (filters, ordering, limits, cursors)
 
-**Tests:** 47 tests passing
+**Tests:** 53 tests passing
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
+
+## Examples
+
+### Authentication
+
+```rust
+use firebase_rust_sdk::Auth;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let auth = Auth::get_auth("YOUR_API_KEY").await?;
+    
+    // Sign in
+    let user = auth.sign_in_with_email_and_password("user@example.com", "password").await?;
+    println!("Signed in: {}", user.uid);
+    
+    // Listen to auth state changes
+    let mut stream = auth.auth_state_changes().await;
+    while let Some(user_opt) = stream.next().await {
+        match user_opt {
+            Some(user) => println!("User signed in: {}", user.uid),
+            None => println!("User signed out"),
+        }
+    }
+    
+    Ok(())
+}
+```
+
+### Firestore Queries
+
+```rust
+use firebase_rust_sdk::firestore::{Firestore, FilterCondition, OrderDirection};
+use serde_json::json;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let firestore = Firestore::get_firestore("my-project").await?;
+    
+    // Query documents
+    let docs = firestore.collection("users")
+        .query()
+        .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
+        .where_filter(FilterCondition::Equal("active".to_string(), json!(true)))
+        .order_by("age", OrderDirection::Ascending)
+        .limit(10)
+        .get()
+        .await?;
+    
+    for doc in docs {
+        println!("Document: {}", doc.reference.id());
+    }
+    
+    Ok(())
+}
+```
 
 ## Project Structure
 

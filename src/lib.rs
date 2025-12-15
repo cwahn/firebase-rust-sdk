@@ -41,9 +41,9 @@ pub mod firestore {
     
     pub mod types;
     pub mod firestore;
-    // pub mod query;
     
-    pub use firestore::{Firestore, CollectionReference};
+    pub use firestore::{Firestore, CollectionReference, Query};
+    pub use types::{DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, GeoPoint, Timestamp, SnapshotMetadata};
 }
 
 // Re-exports for convenience

@@ -16,6 +16,89 @@ use serde_json::Value;
 // This provides better flexibility and matches Rust ecosystem standards
 // For Firestore-specific types like Timestamp and GeoPoint, use the dedicated structs below
 
+/// Filter operators for Firestore queries
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/query.h:142` (Filter)
+#[derive(Debug, Clone, PartialEq)]
+pub enum FilterCondition {
+    /// field == value
+    Equal(String, Value),
+    
+    /// field < value
+    LessThan(String, Value),
+    
+    /// field <= value
+    LessThanOrEqual(String, Value),
+    
+    /// field > value
+    GreaterThan(String, Value),
+    
+    /// field >= value
+    GreaterThanOrEqual(String, Value),
+    
+    /// field array contains value
+    ArrayContains(String, Value),
+    
+    /// field array contains any value from list
+    ArrayContainsAny(String, Vec<Value>),
+    
+    /// field value is in list
+    In(String, Vec<Value>),
+    
+    /// field != value
+    NotEqual(String, Value),
+    
+    /// field not in list
+    NotIn(String, Vec<Value>),
+}
+
+impl FilterCondition {
+    /// Get the field path for this filter
+    pub fn field_path(&self) -> &str {
+        match self {
+            FilterCondition::Equal(field, _) => field,
+            FilterCondition::LessThan(field, _) => field,
+            FilterCondition::LessThanOrEqual(field, _) => field,
+            FilterCondition::GreaterThan(field, _) => field,
+            FilterCondition::GreaterThanOrEqual(field, _) => field,
+            FilterCondition::ArrayContains(field, _) => field,
+            FilterCondition::ArrayContainsAny(field, _) => field,
+            FilterCondition::In(field, _) => field,
+            FilterCondition::NotEqual(field, _) => field,
+            FilterCondition::NotIn(field, _) => field,
+        }
+    }
+
+    /// Get the operator string for Firestore REST API
+    pub fn operator(&self) -> &'static str {
+        match self {
+            FilterCondition::Equal(_, _) => "EQUAL",
+            FilterCondition::LessThan(_, _) => "LESS_THAN",
+            FilterCondition::LessThanOrEqual(_, _) => "LESS_THAN_OR_EQUAL",
+            FilterCondition::GreaterThan(_, _) => "GREATER_THAN",
+            FilterCondition::GreaterThanOrEqual(_, _) => "GREATER_THAN_OR_EQUAL",
+            FilterCondition::ArrayContains(_, _) => "ARRAY_CONTAINS",
+            FilterCondition::ArrayContainsAny(_, _) => "ARRAY_CONTAINS_ANY",
+            FilterCondition::In(_, _) => "IN",
+            FilterCondition::NotEqual(_, _) => "NOT_EQUAL",
+            FilterCondition::NotIn(_, _) => "NOT_IN",
+        }
+    }
+}
+
+/// Order direction for Firestore queries
+///
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/query.h:204` (Direction)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OrderDirection {
+    /// Sort in ascending order
+    Ascending,
+    /// Sort in descending order
+    Descending,
+}
+
 /// Firestore timestamp
 ///
 /// # C++ Reference
