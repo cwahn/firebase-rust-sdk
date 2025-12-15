@@ -14,9 +14,9 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 
 ### Coverage Summary
 - **Auth Module:** 10/10 core features (100%)
-- **Firestore Module:** 11/13 features (85%)
-- **Overall:** ~80% of production-critical features
-- **Tests:** 85 tests passing
+- **Firestore Module:** 12/13 features (92%)
+- **Overall:** ~85% of production-critical features
+- **Tests:** 90 tests passing
 
 ### Auth Features (10/10) ✅
 - ✅ Email/password authentication (sign in, create user)
@@ -30,7 +30,7 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - ✅ Sign out
 - ✅ Current user tracking
 
-### Firestore Features (11/13) ✅
+### Firestore Features (12/13) ✅
 - ✅ Document CRUD operations (Get, Set, Update, Delete)
 - ✅ Query operations (filters, ordering, limits)
 - ✅ Query pagination (start_at, start_after, end_at, end_before)
@@ -42,7 +42,7 @@ Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
 - ✅ GeoPoint, Timestamp field types
 - ✅ Nested collections
 - ✅ Path-based document access
-- ⏳ Compound filters (And/Or) - not yet implemented
+- ✅ **Compound filters (And/Or) with nesting support**
 - ⏳ Offline persistence - not yet implemented
 
 See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
@@ -167,6 +167,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for doc in docs {
         println!("Document: {} (age: {})", doc.reference.id(), doc.data.as_ref().unwrap()["age"]);
     }
+    
+    // Compound filters - complex queries
+    // Query: (age > 18 AND age < 65) OR status = "vip"
+    let compound_filter = FilterCondition::Or(vec![
+        FilterCondition::And(vec![
+            FilterCondition::GreaterThan("age".to_string(), json!(18)),
+            FilterCondition::LessThan("age".to_string(), json!(65)),
+        ]),
+        FilterCondition::Equal("status".to_string(), json!("vip")),
+    ]);
+    
+    let filtered_users = firestore.collection("users")
+        .query()
+        .where_filter(compound_filter)
+        .get()
+        .await?;
+    
+    println!("Found {} users matching compound filter", filtered_users.len());
     
     // Next page using end value from previous results
     let last_age = docs.last().and_then(|d| d.data.as_ref()?.get("age"));
