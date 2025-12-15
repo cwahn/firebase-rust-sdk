@@ -6,7 +6,13 @@
     "method": "AuthStateListener",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "606",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "606"
   },
   "direct_dependencies": [
     "AuthStateListener",
@@ -23,8 +29,8 @@
     "firebase::auth::UserDataPersist::UserDataPersist"
   ],
   "implementation_order": [
-    "AuthStateListener",
     "std::__1::vector<Auth *, allocator<Auth *>>::vector",
+    "AuthStateListener",
     "firebase::auth::AuthStateListener::AuthStateListener"
   ]
 }

@@ -6,7 +6,13 @@
     "method": "host",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/settings.h",
+    "line_number": "109",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/settings.h",
+    "line_number": "109"
   },
   "direct_dependencies": [
     "basic_string<char, char_traits<char>, allocator<char>>"

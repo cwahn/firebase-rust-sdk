@@ -1,460 +1,537 @@
-"class_name","method_name","method_qualified","return_type","param_count","file_path"
-"firebase::auth::AuthResult","operator=","firebase::auth::AuthResult::operator=","AuthResult &",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AuthResult","AuthResult","firebase::auth::AuthResult::AuthResult","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AuthResult","AuthResult","firebase::auth::AuthResult::AuthResult","void",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AuthResult","~AuthResult","firebase::auth::AuthResult::~AuthResult","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::Auth","operator=","firebase::auth::Auth::operator=","Auth &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::Auth","app","firebase::auth::Auth::app","App &",0,"auth/src/auth.cc"
-"firebase::auth::Auth","UseEmulator","firebase::auth::Auth::UseEmulator","void",2,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignOut","firebase::auth::Auth::SignOut","void",0,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInAnonymously","firebase::auth::Auth::SignInAnonymously","Future<AuthResult>",0,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","current_user","firebase::auth::Auth::current_user","User",0,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","Auth","firebase::auth::Auth::Auth","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::Auth","SendPasswordResetEmail","firebase::auth::Auth::SendPasswordResetEmail","Future<void>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","CreateUserWithEmailAndPassword","firebase::auth::Auth::CreateUserWithEmailAndPassword","Future<AuthResult>",2,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInWithEmailAndPassword","firebase::auth::Auth::SignInWithEmailAndPassword","Future<AuthResult>",2,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInWithCredential","firebase::auth::Auth::SignInWithCredential","Future<User>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInWithCustomToken","firebase::auth::Auth::SignInWithCustomToken","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","RemoveIdTokenListener","firebase::auth::Auth::RemoveIdTokenListener","void",1,"auth/src/auth.cc"
-"firebase::auth::Auth","AddIdTokenListener","firebase::auth::Auth::AddIdTokenListener","void",1,"auth/src/auth.cc"
-"firebase::auth::Auth","RemoveAuthStateListener","firebase::auth::Auth::RemoveAuthStateListener","void",1,"auth/src/auth.cc"
-"firebase::auth::Auth","AddAuthStateListener","firebase::auth::Auth::AddAuthStateListener","void",1,"auth/src/auth.cc"
-"firebase::auth::Auth","UseAppLanguage","firebase::auth::Auth::UseAppLanguage","void",0,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","GetAuth","firebase::auth::Auth::GetAuth","Auth *",2,"auth/src/auth.cc"
-"firebase::auth::Auth","SendPasswordResetEmailLastResult","firebase::auth::Auth::SendPasswordResetEmailLastResult","Future<void>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","CreateUserWithEmailAndPasswordLastResult","firebase::auth::Auth::CreateUserWithEmailAndPasswordLastResult","Future<AuthResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","SignInWithEmailAndPasswordLastResult","firebase::auth::Auth::SignInWithEmailAndPasswordLastResult","Future<AuthResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","SignInAnonymouslyLastResult","firebase::auth::Auth::SignInAnonymouslyLastResult","Future<AuthResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","SignInAndRetrieveDataWithCredentialLastResult","firebase::auth::Auth::SignInAndRetrieveDataWithCredentialLastResult","Future<AuthResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","SignInAndRetrieveDataWithCredential","firebase::auth::Auth::SignInAndRetrieveDataWithCredential","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInWithCustomTokenLastResult","firebase::auth::Auth::SignInWithCustomTokenLastResult","Future<AuthResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","FetchProvidersForEmailLastResult","firebase::auth::Auth::FetchProvidersForEmailLastResult","Future<FetchProvidersResult>",0,"auth/src/auth.cc"
-"firebase::auth::Auth","FetchProvidersForEmail","firebase::auth::Auth::FetchProvidersForEmail","Future<FetchProvidersResult>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","~Auth","firebase::auth::Auth::~Auth","void",0,"auth/src/auth.cc"
-"firebase::auth::Auth","language_code","firebase::auth::Auth::language_code","string",0,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","SignInWithProvider","firebase::auth::Auth::SignInWithProvider","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::Auth","set_language_code","firebase::auth::Auth::set_language_code","void",1,"auth/src/desktop/auth_desktop.cc"
-"firebase::auth::User","operator=","firebase::auth::User::operator=","User &",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","operator!=","firebase::auth::User::operator!=","bool",1,"auth/src/common.cc"
-"firebase::auth::User","operator==","firebase::auth::User::operator==","bool",1,"auth/src/common.cc"
-"firebase::auth::User","phone_number","firebase::auth::User::phone_number","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","Delete","firebase::auth::User::Delete","Future<void>",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","uid","firebase::auth::User::uid","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","metadata","firebase::auth::User::metadata","UserMetadata",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","GetToken","firebase::auth::User::GetToken","Future<basic_string<char, char_traits<char>, allocator<char>>>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","is_valid","firebase::auth::User::is_valid","bool",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","DeleteLastResult","firebase::auth::User::DeleteLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","email","firebase::auth::User::email","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","Reauthenticate","firebase::auth::User::Reauthenticate","Future<void>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","ReauthenticateAndRetrieveData","firebase::auth::User::ReauthenticateAndRetrieveData","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","SendEmailVerification","firebase::auth::User::SendEmailVerification","Future<void>",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","SendEmailVerificationBeforeUpdatingEmail","firebase::auth::User::SendEmailVerificationBeforeUpdatingEmail","Future<void>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","UpdateUserProfile","firebase::auth::User::UpdateUserProfile","Future<void>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","LinkWithCredential","firebase::auth::User::LinkWithCredential","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","Unlink","firebase::auth::User::Unlink","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","Reload","firebase::auth::User::Reload","Future<void>",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","provider_id","firebase::auth::User::provider_id","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","photo_url","firebase::auth::User::photo_url","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","display_name","firebase::auth::User::display_name","string",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","User","firebase::auth::User::User","void",0,"auth/src/common.cc"
-"firebase::auth::User","User","firebase::auth::User::User","void",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","UpdatePhoneNumberCredential","firebase::auth::User::UpdatePhoneNumberCredential","Future<User>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","UpdatePassword","firebase::auth::User::UpdatePassword","Future<void>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","is_anonymous","firebase::auth::User::is_anonymous","bool",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","is_email_verified","firebase::auth::User::is_email_verified","bool",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","ReloadLastResult","firebase::auth::User::ReloadLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","UpdatePhoneNumberCredentialLastResult","firebase::auth::User::UpdatePhoneNumberCredentialLastResult","Future<User>",0,"auth/src/user.cc"
-"firebase::auth::User","UnlinkLastResult","firebase::auth::User::UnlinkLastResult","Future<AuthResult>",0,"auth/src/user.cc"
-"firebase::auth::User","LinkWithProvider","firebase::auth::User::LinkWithProvider","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","LinkWithCredentialLastResult","firebase::auth::User::LinkWithCredentialLastResult","Future<AuthResult>",0,"auth/src/user.cc"
-"firebase::auth::User","UpdateUserProfileLastResult","firebase::auth::User::UpdateUserProfileLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","SendEmailVerificationBeforeUpdatingEmailLastResult","firebase::auth::User::SendEmailVerificationBeforeUpdatingEmailLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","SendEmailVerificationLastResult","firebase::auth::User::SendEmailVerificationLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","ReauthenticateWithProvider","firebase::auth::User::ReauthenticateWithProvider","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","ReauthenticateAndRetrieveDataLastResult","firebase::auth::User::ReauthenticateAndRetrieveDataLastResult","Future<AuthResult>",0,"auth/src/user.cc"
-"firebase::auth::User","ReauthenticateLastResult","firebase::auth::User::ReauthenticateLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","UpdatePasswordLastResult","firebase::auth::User::UpdatePasswordLastResult","Future<void>",0,"auth/src/user.cc"
-"firebase::auth::User","provider_data","firebase::auth::User::provider_data","vector<UserInfoInterface, allocator<UserInfoInterface>>",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::User","GetTokenLastResult","firebase::auth::User::GetTokenLastResult","Future<basic_string<char, char_traits<char>, allocator<char>>>",0,"auth/src/user.cc"
-"firebase::auth::User","~User","firebase::auth::User::~User","void",0,"auth/src/desktop/user_desktop.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator=","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=","ForceResendingToken &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator!=","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator!=","bool",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator==","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator==","bool",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","~ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::~ForceResendingToken","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken","void",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::Listener","operator=","firebase::auth::PhoneAuthProvider::Listener::operator=","Listener &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider::Listener","Listener","firebase::auth::PhoneAuthProvider::Listener::Listener","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::Listener","Listener","firebase::auth::PhoneAuthProvider::Listener::Listener","void",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider::Listener","~Listener","firebase::auth::PhoneAuthProvider::Listener::~Listener","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider::Listener","OnCodeAutoRetrievalTimeOut","firebase::auth::PhoneAuthProvider::Listener::OnCodeAutoRetrievalTimeOut","void",1,"auth/src/common.cc"
-"firebase::auth::PhoneAuthProvider::Listener","OnCodeSent","firebase::auth::PhoneAuthProvider::Listener::OnCodeSent","void",2,"auth/src/common.cc"
-"firebase::auth::PhoneAuthProvider::Listener","OnVerificationFailed","firebase::auth::PhoneAuthProvider::Listener::OnVerificationFailed","void",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider::Listener","OnVerificationCompleted","firebase::auth::PhoneAuthProvider::Listener::OnVerificationCompleted","void",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::User::UserProfile","operator=","firebase::auth::User::UserProfile::operator=","UserProfile &",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::User::UserProfile","UserProfile","firebase::auth::User::UserProfile::UserProfile","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::User::UserProfile","UserProfile","firebase::auth::User::UserProfile::UserProfile","void",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::Auth::FetchProvidersResult","operator=","firebase::auth::Auth::FetchProvidersResult::operator=","FetchProvidersResult &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::Auth::FetchProvidersResult","FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::FetchProvidersResult","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::Auth::FetchProvidersResult","FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::FetchProvidersResult","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::Auth::FetchProvidersResult","~FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::~FetchProvidersResult","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::Credential","operator=","firebase::auth::Credential::operator=","Credential &",1,"auth/src/desktop/credential_desktop.cc"
-"firebase::auth::Credential","is_valid","firebase::auth::Credential::is_valid","bool",0,"auth/src/desktop/credential_desktop.cc"
-"firebase::auth::Credential","provider","firebase::auth::Credential::provider","string",0,"auth/src/desktop/credential_desktop.cc"
-"firebase::auth::Credential","Credential","firebase::auth::Credential::Credential","void",0,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::Credential","Credential","firebase::auth::Credential::Credential","void",1,"auth/src/desktop/credential_desktop.cc"
-"firebase::auth::Credential","~Credential","firebase::auth::Credential::~Credential","void",0,"auth/src/desktop/credential_desktop.cc"
-"firebase::auth::PhoneAuthOptions","operator=","firebase::auth::PhoneAuthOptions::operator=","PhoneAuthOptions &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthOptions","~PhoneAuthOptions","firebase::auth::PhoneAuthOptions::~PhoneAuthOptions","void",0,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthOptions","PhoneAuthOptions","firebase::auth::PhoneAuthOptions::PhoneAuthOptions","void",0,"auth/src/common.cc"
-"firebase::auth::PhoneAuthOptions","PhoneAuthOptions","firebase::auth::PhoneAuthOptions::PhoneAuthOptions","void",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider","operator=","firebase::auth::PhoneAuthProvider::operator=","PhoneAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider","GetInstance","firebase::auth::PhoneAuthProvider::GetInstance","PhoneAuthProvider &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider","GetCredential","firebase::auth::PhoneAuthProvider::GetCredential","PhoneAuthCredential",2,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthProvider","PhoneAuthProvider","firebase::auth::PhoneAuthProvider::PhoneAuthProvider","void",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthProvider","VerifyPhoneNumber","firebase::auth::PhoneAuthProvider::VerifyPhoneNumber","void",2,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthCredential","operator=","firebase::auth::PhoneAuthCredential::operator=","PhoneAuthCredential &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::PhoneAuthCredential","~PhoneAuthCredential","firebase::auth::PhoneAuthCredential::~PhoneAuthCredential","void",0,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PhoneAuthCredential","PhoneAuthCredential","firebase::auth::PhoneAuthCredential::PhoneAuthCredential","void",0,"auth/src/credential.cc"
-"firebase::auth::PhoneAuthCredential","PhoneAuthCredential","firebase::auth::PhoneAuthCredential::PhoneAuthCredential","void",1,"auth/src/credential.cc"
-"firebase::auth::PhoneAuthCredential","sms_code","firebase::auth::PhoneAuthCredential::sms_code","string",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc"
-"firebase::auth::OAuthProvider","operator=","firebase::auth::OAuthProvider::operator=","OAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::OAuthProvider","GetCredential","firebase::auth::OAuthProvider::GetCredential","Credential",3,"auth/src/desktop/auth_providers/oauth_auth_provider.cc"
-"firebase::auth::OAuthProvider","GetCredential","firebase::auth::OAuthProvider::GetCredential","Credential",4,"auth/src/desktop/auth_providers/oauth_auth_provider.cc"
-"firebase::auth::GoogleAuthProvider","operator=","firebase::auth::GoogleAuthProvider::operator=","GoogleAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::GoogleAuthProvider","GetCredential","firebase::auth::GoogleAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/google_auth_provider.cc"
-"firebase::auth::GitHubAuthProvider","operator=","firebase::auth::GitHubAuthProvider::operator=","GitHubAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::GitHubAuthProvider","GetCredential","firebase::auth::GitHubAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/github_auth_provider.cc"
-"firebase::auth::TwitterAuthProvider","operator=","firebase::auth::TwitterAuthProvider::operator=","TwitterAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::TwitterAuthProvider","GetCredential","firebase::auth::TwitterAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/twitter_auth_provider.cc"
-"firebase::auth::FacebookAuthProvider","operator=","firebase::auth::FacebookAuthProvider::operator=","FacebookAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::FacebookAuthProvider","GetCredential","firebase::auth::FacebookAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/facebook_auth_provider.cc"
-"firebase::auth::EmailAuthProvider","operator=","firebase::auth::EmailAuthProvider::operator=","EmailAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::EmailAuthProvider","GetCredential","firebase::auth::EmailAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/email_auth_provider.cc"
-"firebase::auth::IdTokenListener","operator=","firebase::auth::IdTokenListener::operator=","IdTokenListener &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::IdTokenListener","IdTokenListener","firebase::auth::IdTokenListener::IdTokenListener","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::IdTokenListener","IdTokenListener","firebase::auth::IdTokenListener::IdTokenListener","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::IdTokenListener","OnIdTokenChanged","firebase::auth::IdTokenListener::OnIdTokenChanged","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::IdTokenListener","~IdTokenListener","firebase::auth::IdTokenListener::~IdTokenListener","void",0,"auth/src/auth.cc"
-"firebase::auth::AuthStateListener","operator=","firebase::auth::AuthStateListener::operator=","AuthStateListener &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::AuthStateListener","AuthStateListener","firebase::auth::AuthStateListener::AuthStateListener","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::AuthStateListener","AuthStateListener","firebase::auth::AuthStateListener::AuthStateListener","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::AuthStateListener","OnAuthStateChanged","firebase::auth::AuthStateListener::OnAuthStateChanged","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::AuthStateListener","~AuthStateListener","firebase::auth::AuthStateListener::~AuthStateListener","void",0,"auth/src/auth.cc"
-"firebase::auth::UserInfoInterface","operator=","firebase::auth::UserInfoInterface::operator=","UserInfoInterface &",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::UserInfoInterface","phone_number","firebase::auth::UserInfoInterface::phone_number","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","uid","firebase::auth::UserInfoInterface::uid","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","email","firebase::auth::UserInfoInterface::email","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","provider_id","firebase::auth::UserInfoInterface::provider_id","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","photo_url","firebase::auth::UserInfoInterface::photo_url","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","UserInfoInterface","firebase::auth::UserInfoInterface::UserInfoInterface","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::UserInfoInterface","UserInfoInterface","firebase::auth::UserInfoInterface::UserInfoInterface","void",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::UserInfoInterface","display_name","firebase::auth::UserInfoInterface::display_name","string",0,"auth/src/user.cc"
-"firebase::auth::UserInfoInterface","~UserInfoInterface","firebase::auth::UserInfoInterface::~UserInfoInterface","void",0,"auth/src/user.cc"
-"firebase::auth::PlayGamesAuthProvider","operator=","firebase::auth::PlayGamesAuthProvider::operator=","PlayGamesAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::PlayGamesAuthProvider","GetCredential","firebase::auth::PlayGamesAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/playgames_auth_provider.cc"
-"firebase::auth::AdditionalUserInfo","operator=","firebase::auth::AdditionalUserInfo::operator=","AdditionalUserInfo &",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AdditionalUserInfo","AdditionalUserInfo","firebase::auth::AdditionalUserInfo::AdditionalUserInfo","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AdditionalUserInfo","AdditionalUserInfo","firebase::auth::AdditionalUserInfo::AdditionalUserInfo","void",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::AdditionalUserInfo","~AdditionalUserInfo","firebase::auth::AdditionalUserInfo::~AdditionalUserInfo","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::YahooAuthProvider","operator=","firebase::auth::YahooAuthProvider::operator=","YahooAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::MicrosoftAuthProvider","operator=","firebase::auth::MicrosoftAuthProvider::operator=","MicrosoftAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::GameCenterAuthProvider","operator=","firebase::auth::GameCenterAuthProvider::operator=","GameCenterAuthProvider &",1,"auth/src/include/firebase/auth/credential.h"
-"firebase::auth::GameCenterAuthProvider","GetCredential","firebase::auth::GameCenterAuthProvider::GetCredential","Future<Credential>",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc"
-"firebase::auth::GameCenterAuthProvider","IsPlayerAuthenticated","firebase::auth::GameCenterAuthProvider::IsPlayerAuthenticated","bool",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc"
-"firebase::auth::GameCenterAuthProvider","GetCredentialLastResult","firebase::auth::GameCenterAuthProvider::GetCredentialLastResult","Future<Credential>",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc"
-"firebase::auth::FederatedAuthProvider","operator=","firebase::auth::FederatedAuthProvider::operator=","FederatedAuthProvider &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","SignIn","firebase::auth::FederatedAuthProvider::SignIn","Future<AuthResult>",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","Reauthenticate","firebase::auth::FederatedAuthProvider::Reauthenticate","Future<AuthResult>",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","FederatedAuthProvider","firebase::auth::FederatedAuthProvider::FederatedAuthProvider","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","FederatedAuthProvider","firebase::auth::FederatedAuthProvider::FederatedAuthProvider","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","Link","firebase::auth::FederatedAuthProvider::Link","Future<AuthResult>",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedAuthProvider","~FederatedAuthProvider","firebase::auth::FederatedAuthProvider::~FederatedAuthProvider","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedProviderData","operator=","firebase::auth::FederatedProviderData::operator=","FederatedProviderData &",1,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedProviderData","FederatedProviderData","firebase::auth::FederatedProviderData::FederatedProviderData","void",0,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedProviderData","FederatedProviderData","firebase::auth::FederatedProviderData::FederatedProviderData","void",1,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedProviderData","~FederatedProviderData","firebase::auth::FederatedProviderData::~FederatedProviderData","void",0,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedOAuthProviderData","operator=","firebase::auth::FederatedOAuthProviderData::operator=","FederatedOAuthProviderData &",1,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedOAuthProviderData","~FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::~FederatedOAuthProviderData","void",0,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",0,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",1,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",3,"auth/src/include/firebase/auth/types.h"
-"firebase::auth::UserMetadata","operator=","firebase::auth::UserMetadata::operator=","UserMetadata &",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::UserMetadata","UserMetadata","firebase::auth::UserMetadata::UserMetadata","void",0,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::UserMetadata","UserMetadata","firebase::auth::UserMetadata::UserMetadata","void",1,"auth/src/include/firebase/auth/user.h"
-"firebase::auth::FederatedOAuthProvider","operator=","firebase::auth::FederatedOAuthProvider::operator=","FederatedOAuthProvider &",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedOAuthProvider","FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider","void",0,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedOAuthProvider","FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedOAuthProvider","SetProviderData","firebase::auth::FederatedOAuthProvider::SetProviderData","void",1,"auth/src/include/firebase/auth.h"
-"firebase::auth::FederatedOAuthProvider","~FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::~FederatedOAuthProvider","void",0,"auth/src/include/firebase/auth.h"
-"firebase::firestore::FieldValue","operator=","firebase::firestore::FieldValue::operator=","FieldValue &",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","type","firebase::firestore::FieldValue::type","Type",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","String","firebase::firestore::FieldValue::String","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","ToString","firebase::firestore::FieldValue::ToString","string",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Delete","firebase::firestore::FieldValue::Delete","FieldValue",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","string_value","firebase::firestore::FieldValue::string_value","string",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","double_value","firebase::firestore::FieldValue::double_value","double",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","blob_size","firebase::firestore::FieldValue::blob_size","size_t",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","is_blob","firebase::firestore::FieldValue::is_blob","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_string","firebase::firestore::FieldValue::is_string","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_map","firebase::firestore::FieldValue::is_map","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_double","firebase::firestore::FieldValue::is_double","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_null","firebase::firestore::FieldValue::is_null","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","Null","firebase::firestore::FieldValue::Null","FieldValue",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","blob_value","firebase::firestore::FieldValue::blob_value","const uint8_t *",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","map_value","firebase::firestore::FieldValue::map_value","MapFieldValue",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","is_integer","firebase::firestore::FieldValue::is_integer","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","Double","firebase::firestore::FieldValue::Double","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Boolean","firebase::firestore::FieldValue::Boolean","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Map","firebase::firestore::FieldValue::Map","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Blob","firebase::firestore::FieldValue::Blob","FieldValue",2,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","ServerTimestamp","firebase::firestore::FieldValue::ServerTimestamp","FieldValue",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","is_valid","firebase::firestore::FieldValue::is_valid","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","Integer","firebase::firestore::FieldValue::Integer","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Timestamp","firebase::firestore::FieldValue::Timestamp","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","Timestamp","firebase::firestore::FieldValue::Timestamp","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","FieldValue","firebase::firestore::FieldValue::FieldValue","void",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","FieldValue","firebase::firestore::FieldValue::FieldValue","void",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Increment","firebase::firestore::FieldValue::Increment","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","ArrayRemove","firebase::firestore::FieldValue::ArrayRemove","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","ArrayUnion","firebase::firestore::FieldValue::ArrayUnion","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","array_value","firebase::firestore::FieldValue::array_value","vector<FieldValue, allocator<FieldValue>>",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","geo_point_value","firebase::firestore::FieldValue::geo_point_value","GeoPoint",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","reference_value","firebase::firestore::FieldValue::reference_value","DocumentReference",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","timestamp_value","firebase::firestore::FieldValue::timestamp_value","Timestamp",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","integer_value","firebase::firestore::FieldValue::integer_value","int64_t",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","boolean_value","firebase::firestore::FieldValue::boolean_value","bool",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","is_array","firebase::firestore::FieldValue::is_array","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_geo_point","firebase::firestore::FieldValue::is_geo_point","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_reference","firebase::firestore::FieldValue::is_reference","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_timestamp","firebase::firestore::FieldValue::is_timestamp","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","is_boolean","firebase::firestore::FieldValue::is_boolean","bool",0,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","Array","firebase::firestore::FieldValue::Array","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","GeoPoint","firebase::firestore::FieldValue::GeoPoint","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h"
-"firebase::firestore::FieldValue","GeoPoint","firebase::firestore::FieldValue::GeoPoint","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","Reference","firebase::firestore::FieldValue::Reference","FieldValue",1,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldValue","~FieldValue","firebase::firestore::FieldValue::~FieldValue","void",0,"firestore/src/common/field_value.cc"
-"firebase::firestore::FieldPath","operator=","firebase::firestore::FieldPath::operator=","FieldPath &",1,"firestore/src/common/field_path.cc"
-"firebase::firestore::FieldPath","ToString","firebase::firestore::FieldPath::ToString","string",0,"firestore/src/common/field_path.cc"
-"firebase::firestore::FieldPath","is_valid","firebase::firestore::FieldPath::is_valid","bool",0,"firestore/src/include/firebase/firestore/field_path.h"
-"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",0,"firestore/src/common/field_path.cc"
-"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",1,"firestore/src/common/field_path.cc"
-"firebase::firestore::FieldPath","DocumentId","firebase::firestore::FieldPath::DocumentId","FieldPath",0,"firestore/src/common/field_path.cc"
-"firebase::firestore::FieldPath","~FieldPath","firebase::firestore::FieldPath::~FieldPath","void",0,"firestore/src/common/field_path.cc"
-"firebase::firestore::AggregateQuery","operator=","firebase::firestore::AggregateQuery::operator=","AggregateQuery &",1,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuery","Get","firebase::firestore::AggregateQuery::Get","Future<AggregateQuerySnapshot>",1,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuery","query","firebase::firestore::AggregateQuery::query","Query",0,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuery","is_valid","firebase::firestore::AggregateQuery::is_valid","bool",0,"firestore/src/include/firebase/firestore/aggregate_query.h"
-"firebase::firestore::AggregateQuery","AggregateQuery","firebase::firestore::AggregateQuery::AggregateQuery","void",0,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuery","AggregateQuery","firebase::firestore::AggregateQuery::AggregateQuery","void",1,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuery","~AggregateQuery","firebase::firestore::AggregateQuery::~AggregateQuery","void",0,"firestore/src/common/aggregate_query.cc"
-"firebase::firestore::AggregateQuerySnapshot","operator=","firebase::firestore::AggregateQuerySnapshot::operator=","AggregateQuerySnapshot &",1,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::AggregateQuerySnapshot","count","firebase::firestore::AggregateQuerySnapshot::count","int64_t",0,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::AggregateQuerySnapshot","query","firebase::firestore::AggregateQuerySnapshot::query","AggregateQuery",0,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::AggregateQuerySnapshot","is_valid","firebase::firestore::AggregateQuerySnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/aggregate_query_snapshot.h"
-"firebase::firestore::AggregateQuerySnapshot","AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot","void",0,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::AggregateQuerySnapshot","AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot","void",1,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::AggregateQuerySnapshot","~AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::~AggregateQuerySnapshot","void",0,"firestore/src/common/aggregate_query_snapshot.cc"
-"firebase::firestore::Query","operator=","firebase::firestore::Query::operator=","Query &",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","firestore","firebase::firestore::Query::firestore","Firestore *",0,"firestore/src/common/query.cc"
-"firebase::firestore::Query","firestore","firebase::firestore::Query::firestore","const Firestore *",0,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Get","firebase::firestore::Query::Get","Future<QuerySnapshot>",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Query","firebase::firestore::Query::Query","void",0,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Query","firebase::firestore::Query::Query","void",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","is_valid","firebase::firestore::Query::is_valid","bool",0,"firestore/src/include/firebase/firestore/query.h"
-"firebase::firestore::Query","LimitToLast","firebase::firestore::Query::LimitToLast","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","EndAt","firebase::firestore::Query::EndAt","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","StartAt","firebase::firestore::Query::StartAt","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","~Query","firebase::firestore::Query::~Query","void",0,"firestore/src/common/query.cc"
-"firebase::firestore::Query","OrderBy","firebase::firestore::Query::OrderBy","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",1,"firestore/src/include/firebase/firestore/query.h"
-"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",2,"firestore/src/include/firebase/firestore/query.h"
-"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","EndBefore","firebase::firestore::Query::EndBefore","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","StartAfter","firebase::firestore::Query::StartAfter","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Limit","firebase::firestore::Query::Limit","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereNotIn","firebase::firestore::Query::WhereNotIn","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereIn","firebase::firestore::Query::WhereIn","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereArrayContainsAny","firebase::firestore::Query::WhereArrayContainsAny","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereArrayContains","firebase::firestore::Query::WhereArrayContains","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereGreaterThanOrEqualTo","firebase::firestore::Query::WhereGreaterThanOrEqualTo","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereGreaterThan","firebase::firestore::Query::WhereGreaterThan","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereLessThanOrEqualTo","firebase::firestore::Query::WhereLessThanOrEqualTo","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereLessThan","firebase::firestore::Query::WhereLessThan","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereNotEqualTo","firebase::firestore::Query::WhereNotEqualTo","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","WhereEqualTo","firebase::firestore::Query::WhereEqualTo","Query",2,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Where","firebase::firestore::Query::Where","Query",1,"firestore/src/common/query.cc"
-"firebase::firestore::Query","Count","firebase::firestore::Query::Count","AggregateQuery",0,"firestore/src/common/query.cc"
-"firebase::firestore::QuerySnapshot","operator=","firebase::firestore::QuerySnapshot::operator=","QuerySnapshot &",1,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","size","firebase::firestore::QuerySnapshot::size","size_t",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","empty","firebase::firestore::QuerySnapshot::empty","bool",0,"firestore/src/include/firebase/firestore/query_snapshot.h"
-"firebase::firestore::QuerySnapshot","metadata","firebase::firestore::QuerySnapshot::metadata","SnapshotMetadata",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","query","firebase::firestore::QuerySnapshot::query","Query",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","is_valid","firebase::firestore::QuerySnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/query_snapshot.h"
-"firebase::firestore::QuerySnapshot","QuerySnapshot","firebase::firestore::QuerySnapshot::QuerySnapshot","void",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","QuerySnapshot","firebase::firestore::QuerySnapshot::QuerySnapshot","void",1,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","documents","firebase::firestore::QuerySnapshot::documents","vector<DocumentSnapshot, allocator<DocumentSnapshot>>",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","DocumentChanges","firebase::firestore::QuerySnapshot::DocumentChanges","vector<DocumentChange, allocator<DocumentChange>>",1,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::QuerySnapshot","~QuerySnapshot","firebase::firestore::QuerySnapshot::~QuerySnapshot","void",0,"firestore/src/common/query_snapshot.cc"
-"firebase::firestore::ListenerRegistration","operator=","firebase::firestore::ListenerRegistration::operator=","ListenerRegistration &",1,"firestore/src/common/listener_registration.cc"
-"firebase::firestore::ListenerRegistration","is_valid","firebase::firestore::ListenerRegistration::is_valid","bool",0,"firestore/src/include/firebase/firestore/listener_registration.h"
-"firebase::firestore::ListenerRegistration","ListenerRegistration","firebase::firestore::ListenerRegistration::ListenerRegistration","void",0,"firestore/src/common/listener_registration.cc"
-"firebase::firestore::ListenerRegistration","ListenerRegistration","firebase::firestore::ListenerRegistration::ListenerRegistration","void",1,"firestore/src/common/listener_registration.cc"
-"firebase::firestore::ListenerRegistration","Remove","firebase::firestore::ListenerRegistration::Remove","void",0,"firestore/src/common/listener_registration.cc"
-"firebase::firestore::ListenerRegistration","~ListenerRegistration","firebase::firestore::ListenerRegistration::~ListenerRegistration","void",0,"firestore/src/common/listener_registration.cc"
-"firebase::firestore::DocumentSnapshot","operator=","firebase::firestore::DocumentSnapshot::operator=","DocumentSnapshot &",1,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","reference","firebase::firestore::DocumentSnapshot::reference","DocumentReference",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","ToString","firebase::firestore::DocumentSnapshot::ToString","string",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","id","firebase::firestore::DocumentSnapshot::id","const string &",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","Get","firebase::firestore::DocumentSnapshot::Get","FieldValue",2,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","GetData","firebase::firestore::DocumentSnapshot::GetData","MapFieldValue",1,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","metadata","firebase::firestore::DocumentSnapshot::metadata","SnapshotMetadata",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","exists","firebase::firestore::DocumentSnapshot::exists","bool",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","is_valid","firebase::firestore::DocumentSnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_snapshot.h"
-"firebase::firestore::DocumentSnapshot","DocumentSnapshot","firebase::firestore::DocumentSnapshot::DocumentSnapshot","void",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","DocumentSnapshot","firebase::firestore::DocumentSnapshot::DocumentSnapshot","void",1,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::DocumentSnapshot","~DocumentSnapshot","firebase::firestore::DocumentSnapshot::~DocumentSnapshot","void",0,"firestore/src/common/document_snapshot.cc"
-"firebase::firestore::Filter","operator=","firebase::firestore::Filter::operator=","Filter &",1,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","EqualTo","firebase::firestore::Filter::EqualTo","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","Filter","firebase::firestore::Filter::Filter","void",1,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","~Filter","firebase::firestore::Filter::~Filter","void",0,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","Or","firebase::firestore::Filter::Or","Filter",1,"firestore/src/include/firebase/firestore/filter.h"
-"firebase::firestore::Filter","Or","firebase::firestore::Filter::Or","Filter",1,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","And","firebase::firestore::Filter::And","Filter",1,"firestore/src/include/firebase/firestore/filter.h"
-"firebase::firestore::Filter","And","firebase::firestore::Filter::And","Filter",1,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","NotIn","firebase::firestore::Filter::NotIn","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","In","firebase::firestore::Filter::In","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","LessThanOrEqualTo","firebase::firestore::Filter::LessThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","LessThan","firebase::firestore::Filter::LessThan","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","GreaterThanOrEqualTo","firebase::firestore::Filter::GreaterThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","GreaterThan","firebase::firestore::Filter::GreaterThan","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","NotEqualTo","firebase::firestore::Filter::NotEqualTo","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","ArrayContainsAny","firebase::firestore::Filter::ArrayContainsAny","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Filter","ArrayContains","firebase::firestore::Filter::ArrayContains","Filter",2,"firestore/src/common/filter.cc"
-"firebase::firestore::Firestore","operator=","firebase::firestore::Firestore::operator=","Firestore &",1,"firestore/src/include/firebase/firestore.h"
-"firebase::firestore::Firestore","Terminate","firebase::firestore::Firestore::Terminate","Future<void>",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",2,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",3,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","app","firebase::firestore::Firestore::app","App *",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","app","firebase::firestore::Firestore::app","const App *",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",1,"firestore/src/include/firebase/firestore.h"
-"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",2,"firestore/src/include/firebase/firestore.h"
-"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",2,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/android/firestore_android.cc"
-"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/main/firestore_main.cc"
-"firebase::firestore::Firestore","Collection","firebase::firestore::Firestore::Collection","CollectionReference",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","Firestore","firebase::firestore::Firestore::Firestore","void",1,"firestore/src/include/firebase/firestore.h"
-"firebase::firestore::Firestore","Document","firebase::firestore::Firestore::Document","DocumentReference",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","NamedQuery","firebase::firestore::Firestore::NamedQuery","Future<Query>",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","LoadBundle","firebase::firestore::Firestore::LoadBundle","Future<LoadBundleTaskProgress>",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","LoadBundle","firebase::firestore::Firestore::LoadBundle","Future<LoadBundleTaskProgress>",2,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","AddSnapshotsInSyncListener","firebase::firestore::Firestore::AddSnapshotsInSyncListener","ListenerRegistration",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","ClearPersistence","firebase::firestore::Firestore::ClearPersistence","Future<void>",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","WaitForPendingWrites","firebase::firestore::Firestore::WaitForPendingWrites","Future<void>",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","EnableNetwork","firebase::firestore::Firestore::EnableNetwork","Future<void>",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","DisableNetwork","firebase::firestore::Firestore::DisableNetwork","Future<void>",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","batch","firebase::firestore::Firestore::batch","WriteBatch",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","set_settings","firebase::firestore::Firestore::set_settings","void",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","settings","firebase::firestore::Firestore::settings","Settings",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","CollectionGroup","firebase::firestore::Firestore::CollectionGroup","Query",1,"firestore/src/common/firestore.cc"
-"firebase::firestore::Firestore","~Firestore","firebase::firestore::Firestore::~Firestore","void",0,"firestore/src/common/firestore.cc"
-"firebase::firestore::CollectionReference","operator=","firebase::firestore::CollectionReference::operator=","CollectionReference &",1,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","path","firebase::firestore::CollectionReference::path","string",0,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","id","firebase::firestore::CollectionReference::id","const string &",0,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","Add","firebase::firestore::CollectionReference::Add","Future<DocumentReference>",1,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","~CollectionReference","firebase::firestore::CollectionReference::~CollectionReference","void",0,"firestore/src/include/firebase/firestore/collection_reference.h"
-"firebase::firestore::CollectionReference","CollectionReference","firebase::firestore::CollectionReference::CollectionReference","void",0,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","CollectionReference","firebase::firestore::CollectionReference::CollectionReference","void",1,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","Document","firebase::firestore::CollectionReference::Document","DocumentReference",0,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","Document","firebase::firestore::CollectionReference::Document","DocumentReference",1,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::CollectionReference","Parent","firebase::firestore::CollectionReference::Parent","DocumentReference",0,"firestore/src/common/collection_reference.cc"
-"firebase::firestore::DocumentReference","operator=","firebase::firestore::DocumentReference::operator=","DocumentReference &",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","ToString","firebase::firestore::DocumentReference::ToString","string",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","firestore","firebase::firestore::DocumentReference::firestore","Firestore *",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","firestore","firebase::firestore::DocumentReference::firestore","const Firestore *",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","path","firebase::firestore::DocumentReference::path","string",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","id","firebase::firestore::DocumentReference::id","const string &",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","Get","firebase::firestore::DocumentReference::Get","Future<DocumentSnapshot>",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","Delete","firebase::firestore::DocumentReference::Delete","Future<void>",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","Set","firebase::firestore::DocumentReference::Set","Future<void>",2,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","is_valid","firebase::firestore::DocumentReference::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_reference.h"
-"firebase::firestore::DocumentReference","Collection","firebase::firestore::DocumentReference::Collection","CollectionReference",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",1,"firestore/src/include/firebase/firestore/document_reference.h"
-"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",2,"firestore/src/include/firebase/firestore/document_reference.h"
-"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",2,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","Parent","firebase::firestore::DocumentReference::Parent","CollectionReference",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","DocumentReference","firebase::firestore::DocumentReference::DocumentReference","void",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","DocumentReference","firebase::firestore::DocumentReference::DocumentReference","void",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","Update","firebase::firestore::DocumentReference::Update","Future<void>",1,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentReference","~DocumentReference","firebase::firestore::DocumentReference::~DocumentReference","void",0,"firestore/src/common/document_reference.cc"
-"firebase::firestore::DocumentChange","operator=","firebase::firestore::DocumentChange::operator=","DocumentChange &",1,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","type","firebase::firestore::DocumentChange::type","Type",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","is_valid","firebase::firestore::DocumentChange::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_change.h"
-"firebase::firestore::DocumentChange","DocumentChange","firebase::firestore::DocumentChange::DocumentChange","void",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","DocumentChange","firebase::firestore::DocumentChange::DocumentChange","void",1,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","new_index","firebase::firestore::DocumentChange::new_index","size_t",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","old_index","firebase::firestore::DocumentChange::old_index","size_t",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","document","firebase::firestore::DocumentChange::document","DocumentSnapshot",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::DocumentChange","~DocumentChange","firebase::firestore::DocumentChange::~DocumentChange","void",0,"firestore/src/common/document_change.cc"
-"firebase::firestore::SetOptions","operator=","firebase::firestore::SetOptions::operator=","SetOptions &",1,"firestore/src/include/firebase/firestore/set_options.h"
-"firebase::firestore::SetOptions","Merge","firebase::firestore::SetOptions::Merge","SetOptions",0,"firestore/src/common/set_options.cc"
-"firebase::firestore::SetOptions","SetOptions","firebase::firestore::SetOptions::SetOptions","void",0,"firestore/src/include/firebase/firestore/set_options.h"
-"firebase::firestore::SetOptions","SetOptions","firebase::firestore::SetOptions::SetOptions","void",1,"firestore/src/include/firebase/firestore/set_options.h"
-"firebase::firestore::SetOptions","MergeFieldPaths","firebase::firestore::SetOptions::MergeFieldPaths","SetOptions",1,"firestore/src/common/set_options.cc"
-"firebase::firestore::SetOptions","MergeFields","firebase::firestore::SetOptions::MergeFields","SetOptions",1,"firestore/src/common/set_options.cc"
-"firebase::firestore::SetOptions","~SetOptions","firebase::firestore::SetOptions::~SetOptions","void",0,"firestore/src/common/set_options.cc"
-"firebase::firestore::SnapshotMetadata","operator=","firebase::firestore::SnapshotMetadata::operator=","SnapshotMetadata &",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::SnapshotMetadata","ToString","firebase::firestore::SnapshotMetadata::ToString","string",0,"firestore/src/common/snapshot_metadata.cc"
-"firebase::firestore::SnapshotMetadata","is_from_cache","firebase::firestore::SnapshotMetadata::is_from_cache","bool",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::SnapshotMetadata","has_pending_writes","firebase::firestore::SnapshotMetadata::has_pending_writes","bool",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",2,"firestore/src/include/firebase/firestore/snapshot_metadata.h"
-"firebase::firestore::LoadBundleTaskProgress","operator=","firebase::firestore::LoadBundleTaskProgress::operator=","LoadBundleTaskProgress &",1,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","state","firebase::firestore::LoadBundleTaskProgress::state","State",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",1,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",5,"firestore/src/common/load_bundle_task_progress.cc"
-"firebase::firestore::LoadBundleTaskProgress","total_bytes","firebase::firestore::LoadBundleTaskProgress::total_bytes","int64_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","bytes_loaded","firebase::firestore::LoadBundleTaskProgress::bytes_loaded","int64_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","total_documents","firebase::firestore::LoadBundleTaskProgress::total_documents","int32_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::LoadBundleTaskProgress","documents_loaded","firebase::firestore::LoadBundleTaskProgress::documents_loaded","int32_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h"
-"firebase::firestore::Settings","operator=","firebase::firestore::Settings::operator=","Settings &",1,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","ToString","firebase::firestore::Settings::ToString","string",0,"firestore/src/common/settings.cc"
-"firebase::firestore::Settings","host","firebase::firestore::Settings::host","const string &",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","Settings","firebase::firestore::Settings::Settings","void",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","Settings","firebase::firestore::Settings::Settings","void",1,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","set_persistence_enabled","firebase::firestore::Settings::set_persistence_enabled","void",1,"firestore/src/common/settings.cc"
-"firebase::firestore::Settings","~Settings","firebase::firestore::Settings::~Settings","void",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","set_cache_size_bytes","firebase::firestore::Settings::set_cache_size_bytes","void",1,"firestore/src/common/settings.cc"
-"firebase::firestore::Settings","set_ssl_enabled","firebase::firestore::Settings::set_ssl_enabled","void",1,"firestore/src/common/settings.cc"
-"firebase::firestore::Settings","set_host","firebase::firestore::Settings::set_host","void",1,"firestore/src/common/settings.cc"
-"firebase::firestore::Settings","cache_size_bytes","firebase::firestore::Settings::cache_size_bytes","int64_t",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","is_persistence_enabled","firebase::firestore::Settings::is_persistence_enabled","bool",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Settings","is_ssl_enabled","firebase::firestore::Settings::is_ssl_enabled","bool",0,"firestore/src/include/firebase/firestore/settings.h"
-"firebase::firestore::Transaction","operator=","firebase::firestore::Transaction::operator=","Transaction &",1,"firestore/src/include/firebase/firestore/transaction.h"
-"firebase::firestore::Transaction","Get","firebase::firestore::Transaction::Get","DocumentSnapshot",3,"firestore/src/common/transaction.cc"
-"firebase::firestore::Transaction","Delete","firebase::firestore::Transaction::Delete","void",1,"firestore/src/common/transaction.cc"
-"firebase::firestore::Transaction","Set","firebase::firestore::Transaction::Set","void",3,"firestore/src/common/transaction.cc"
-"firebase::firestore::Transaction","Update","firebase::firestore::Transaction::Update","void",2,"firestore/src/common/transaction.cc"
-"firebase::firestore::Transaction","Transaction","firebase::firestore::Transaction::Transaction","void",1,"firestore/src/include/firebase/firestore/transaction.h"
-"firebase::firestore::Transaction","~Transaction","firebase::firestore::Transaction::~Transaction","void",0,"firestore/src/common/transaction.cc"
-"firebase::firestore::WriteBatch","operator=","firebase::firestore::WriteBatch::operator=","WriteBatch &",1,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","Delete","firebase::firestore::WriteBatch::Delete","WriteBatch &",1,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","Set","firebase::firestore::WriteBatch::Set","WriteBatch &",3,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","is_valid","firebase::firestore::WriteBatch::is_valid","bool",0,"firestore/src/include/firebase/firestore/write_batch.h"
-"firebase::firestore::WriteBatch","Commit","firebase::firestore::WriteBatch::Commit","Future<void>",0,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","Update","firebase::firestore::WriteBatch::Update","WriteBatch &",2,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","WriteBatch","firebase::firestore::WriteBatch::WriteBatch","void",0,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","WriteBatch","firebase::firestore::WriteBatch::WriteBatch","void",1,"firestore/src/common/write_batch.cc"
-"firebase::firestore::WriteBatch","~WriteBatch","firebase::firestore::WriteBatch::~WriteBatch","void",0,"firestore/src/common/write_batch.cc"
-"firebase::firestore::TransactionOptions","operator=","firebase::firestore::TransactionOptions::operator=","TransactionOptions &",1,"firestore/src/include/firebase/firestore/transaction_options.h"
-"firebase::firestore::TransactionOptions","ToString","firebase::firestore::TransactionOptions::ToString","string",0,"firestore/src/common/transaction_options.cc"
-"firebase::firestore::TransactionOptions","max_attempts","firebase::firestore::TransactionOptions::max_attempts","int32_t",0,"firestore/src/include/firebase/firestore/transaction_options.h"
-"firebase::firestore::TransactionOptions","set_max_attempts","firebase::firestore::TransactionOptions::set_max_attempts","void",1,"firestore/src/common/transaction_options.cc"
-"firebase::firestore::TransactionOptions","TransactionOptions","firebase::firestore::TransactionOptions::TransactionOptions","void",0,"firestore/src/include/firebase/firestore/transaction_options.h"
-"firebase::firestore::TransactionOptions","TransactionOptions","firebase::firestore::TransactionOptions::TransactionOptions","void",1,"firestore/src/include/firebase/firestore/transaction_options.h"
+"class_name","method_name","method_qualified","return_type","param_count","file_path","line_number"
+"firebase::auth::AuthResult","operator=","firebase::auth::AuthResult::operator=","AuthResult &",1,"auth/src/include/firebase/auth/user.h",498
+"firebase::auth::AuthResult","AuthResult","firebase::auth::AuthResult::AuthResult","void",0,"auth/src/include/firebase/auth/user.h",498
+"firebase::auth::AuthResult","AuthResult","firebase::auth::AuthResult::AuthResult","void",1,"auth/src/include/firebase/auth/user.h",498
+"firebase::auth::AuthResult","~AuthResult","firebase::auth::AuthResult::~AuthResult","void",0,"auth/src/include/firebase/auth/user.h",498
+"firebase::auth::Auth","operator=","firebase::auth::Auth::operator=","Auth &",1,"auth/src/include/firebase/auth.h",129
+"firebase::auth::Auth","app","firebase::auth::Auth::app","App &",0,"auth/src/auth.cc",184
+"firebase::auth::Auth","UseEmulator","firebase::auth::Auth::UseEmulator","void",2,"auth/src/desktop/auth_desktop.cc",570
+"firebase::auth::Auth","SignOut","firebase::auth::Auth::SignOut","void",0,"auth/src/desktop/auth_desktop.cc",504
+"firebase::auth::Auth","SignInAnonymously","firebase::auth::Auth::SignInAnonymously","Future<AuthResult>",0,"auth/src/desktop/auth_desktop.cc",378
+"firebase::auth::Auth","current_user","firebase::auth::Auth::current_user","User",0,"auth/src/desktop/auth_desktop.cc",524
+"firebase::auth::Auth","Auth","firebase::auth::Auth::Auth","void",1,"auth/src/include/firebase/auth.h",129
+"firebase::auth::Auth","SendPasswordResetEmail","firebase::auth::Auth::SendPasswordResetEmail","Future<void>",1,"auth/src/desktop/auth_desktop.cc",474
+"firebase::auth::Auth","CreateUserWithEmailAndPassword","firebase::auth::Auth::CreateUserWithEmailAndPassword","Future<AuthResult>",2,"auth/src/desktop/auth_desktop.cc",421
+"firebase::auth::Auth","SignInWithEmailAndPassword","firebase::auth::Auth::SignInWithEmailAndPassword","Future<AuthResult>",2,"auth/src/desktop/auth_desktop.cc",405
+"firebase::auth::Auth","SignInWithCredential","firebase::auth::Auth::SignInWithCredential","Future<User>",1,"auth/src/desktop/auth_desktop.cc",356
+"firebase::auth::Auth","SignInWithCustomToken","firebase::auth::Auth::SignInWithCustomToken","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc",338
+"firebase::auth::Auth","RemoveIdTokenListener","firebase::auth::Auth::RemoveIdTokenListener","void",1,"auth/src/auth.cc",294
+"firebase::auth::Auth","AddIdTokenListener","firebase::auth::Auth::AddIdTokenListener","void",1,"auth/src/auth.cc",234
+"firebase::auth::Auth","RemoveAuthStateListener","firebase::auth::Auth::RemoveAuthStateListener","void",1,"auth/src/auth.cc",288
+"firebase::auth::Auth","AddAuthStateListener","firebase::auth::Auth::AddAuthStateListener","void",1,"auth/src/auth.cc",218
+"firebase::auth::Auth","UseAppLanguage","firebase::auth::Auth::UseAppLanguage","void",0,"auth/src/desktop/auth_desktop.cc",563
+"firebase::auth::Auth","GetAuth","firebase::auth::Auth::GetAuth","Auth *",2,"auth/src/auth.cc",66
+"firebase::auth::Auth","SendPasswordResetEmailLastResult","firebase::auth::Auth::SendPasswordResetEmailLastResult","Future<void>",0,"auth/src/auth.cc",364
+"firebase::auth::Auth","CreateUserWithEmailAndPasswordLastResult","firebase::auth::Auth::CreateUserWithEmailAndPasswordLastResult","Future<AuthResult>",0,"auth/src/auth.cc",374
+"firebase::auth::Auth","SignInWithEmailAndPasswordLastResult","firebase::auth::Auth::SignInWithEmailAndPasswordLastResult","Future<AuthResult>",0,"auth/src/auth.cc",372
+"firebase::auth::Auth","SignInAnonymouslyLastResult","firebase::auth::Auth::SignInAnonymouslyLastResult","Future<AuthResult>",0,"auth/src/auth.cc",370
+"firebase::auth::Auth","SignInAndRetrieveDataWithCredentialLastResult","firebase::auth::Auth::SignInAndRetrieveDataWithCredentialLastResult","Future<AuthResult>",0,"auth/src/auth.cc",368
+"firebase::auth::Auth","SignInAndRetrieveDataWithCredential","firebase::auth::Auth::SignInAndRetrieveDataWithCredential","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc",438
+"firebase::auth::Auth","SignInWithCustomTokenLastResult","firebase::auth::Auth::SignInWithCustomTokenLastResult","Future<AuthResult>",0,"auth/src/auth.cc",366
+"firebase::auth::Auth","FetchProvidersForEmailLastResult","firebase::auth::Auth::FetchProvidersForEmailLastResult","Future<FetchProvidersResult>",0,"auth/src/auth.cc",363
+"firebase::auth::Auth","FetchProvidersForEmail","firebase::auth::Auth::FetchProvidersForEmail","Future<FetchProvidersResult>",1,"auth/src/desktop/auth_desktop.cc",446
+"firebase::auth::Auth","~Auth","firebase::auth::Auth::~Auth","void",0,"auth/src/auth.cc",181
+"firebase::auth::Auth","language_code","firebase::auth::Auth::language_code","string",0,"auth/src/desktop/auth_desktop.cc",546
+"firebase::auth::Auth","SignInWithProvider","firebase::auth::Auth::SignInWithProvider","Future<AuthResult>",1,"auth/src/desktop/auth_desktop.cc",366
+"firebase::auth::Auth","set_language_code","firebase::auth::Auth::set_language_code","void",1,"auth/src/desktop/auth_desktop.cc",552
+"firebase::auth::User","operator=","firebase::auth::User::operator=","User &",1,"auth/src/desktop/user_desktop.cc",639
+"firebase::auth::User","operator!=","firebase::auth::User::operator!=","bool",1,"auth/src/common.cc",92
+"firebase::auth::User","operator==","firebase::auth::User::operator==","bool",1,"auth/src/common.cc",85
+"firebase::auth::User","phone_number","firebase::auth::User::phone_number","string",0,"auth/src/desktop/user_desktop.cc",1060
+"firebase::auth::User","Delete","firebase::auth::User::Delete","Future<void>",0,"auth/src/desktop/user_desktop.cc",699
+"firebase::auth::User","uid","firebase::auth::User::uid","string",0,"auth/src/desktop/user_desktop.cc",1036
+"firebase::auth::User","metadata","firebase::auth::User::metadata","UserMetadata",0,"auth/src/desktop/user_desktop.cc",1007
+"firebase::auth::User","GetToken","firebase::auth::User::GetToken","Future<basic_string<char, char_traits<char>, allocator<char>>>",1,"auth/src/desktop/user_desktop.cc",652
+"firebase::auth::User","is_valid","firebase::auth::User::is_valid","bool",0,"auth/src/desktop/user_desktop.cc",646
+"firebase::auth::User","DeleteLastResult","firebase::auth::User::DeleteLastResult","Future<void>",0,"auth/src/user.cc",32
+"firebase::auth::User","email","firebase::auth::User::email","string",0,"auth/src/desktop/user_desktop.cc",1044
+"firebase::auth::User","Reauthenticate","firebase::auth::User::Reauthenticate","Future<void>",1,"auth/src/desktop/user_desktop.cc",945
+"firebase::auth::User","ReauthenticateAndRetrieveData","firebase::auth::User::ReauthenticateAndRetrieveData","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc",957
+"firebase::auth::User","SendEmailVerification","firebase::auth::User::SendEmailVerification","Future<void>",0,"auth/src/desktop/user_desktop.cc",728
+"firebase::auth::User","SendEmailVerificationBeforeUpdatingEmail","firebase::auth::User::SendEmailVerificationBeforeUpdatingEmail","Future<void>",1,"auth/src/desktop/user_desktop.cc",762
+"firebase::auth::User","UpdateUserProfile","firebase::auth::User::UpdateUserProfile","Future<void>",1,"auth/src/desktop/user_desktop.cc",864
+"firebase::auth::User","LinkWithCredential","firebase::auth::User::LinkWithCredential","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc",917
+"firebase::auth::User","Unlink","firebase::auth::User::Unlink","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc",882
+"firebase::auth::User","Reload","firebase::auth::User::Reload","Future<void>",0,"auth/src/desktop/user_desktop.cc",797
+"firebase::auth::User","provider_id","firebase::auth::User::provider_id","string",0,"auth/src/desktop/user_desktop.cc",1076
+"firebase::auth::User","photo_url","firebase::auth::User::photo_url","string",0,"auth/src/desktop/user_desktop.cc",1068
+"firebase::auth::User","display_name","firebase::auth::User::display_name","string",0,"auth/src/desktop/user_desktop.cc",1052
+"firebase::auth::User","User","firebase::auth::User::User","void",0,"auth/src/common.cc",83
+"firebase::auth::User","User","firebase::auth::User::User","void",1,"auth/src/desktop/user_desktop.cc",637
+"firebase::auth::User","UpdatePhoneNumberCredential","firebase::auth::User::UpdatePhoneNumberCredential","Future<User>",1,"auth/src/desktop/user_desktop.cc",1084
+"firebase::auth::User","UpdatePassword","firebase::auth::User::UpdatePassword","Future<void>",1,"auth/src/desktop/user_desktop.cc",838
+"firebase::auth::User","is_anonymous","firebase::auth::User::is_anonymous","bool",0,"auth/src/desktop/user_desktop.cc",1028
+"firebase::auth::User","is_email_verified","firebase::auth::User::is_email_verified","bool",0,"auth/src/desktop/user_desktop.cc",1020
+"firebase::auth::User","ReloadLastResult","firebase::auth::User::ReloadLastResult","Future<void>",0,"auth/src/user.cc",31
+"firebase::auth::User","UpdatePhoneNumberCredentialLastResult","firebase::auth::User::UpdatePhoneNumberCredentialLastResult","Future<User>",0,"auth/src/user.cc",33
+"firebase::auth::User","UnlinkLastResult","firebase::auth::User::UnlinkLastResult","Future<AuthResult>",0,"auth/src/user.cc",29
+"firebase::auth::User","LinkWithProvider","firebase::auth::User::LinkWithProvider","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc",930
+"firebase::auth::User","LinkWithCredentialLastResult","firebase::auth::User::LinkWithCredentialLastResult","Future<AuthResult>",0,"auth/src/user.cc",24
+"firebase::auth::User","UpdateUserProfileLastResult","firebase::auth::User::UpdateUserProfileLastResult","Future<void>",0,"auth/src/user.cc",30
+"firebase::auth::User","SendEmailVerificationBeforeUpdatingEmailLastResult","firebase::auth::User::SendEmailVerificationBeforeUpdatingEmailLastResult","Future<void>",0,"auth/src/user.cc",28
+"firebase::auth::User","SendEmailVerificationLastResult","firebase::auth::User::SendEmailVerificationLastResult","Future<void>",0,"auth/src/user.cc",27
+"firebase::auth::User","ReauthenticateWithProvider","firebase::auth::User::ReauthenticateWithProvider","Future<AuthResult>",1,"auth/src/desktop/user_desktop.cc",971
+"firebase::auth::User","ReauthenticateAndRetrieveDataLastResult","firebase::auth::User::ReauthenticateAndRetrieveDataLastResult","Future<AuthResult>",0,"auth/src/user.cc",26
+"firebase::auth::User","ReauthenticateLastResult","firebase::auth::User::ReauthenticateLastResult","Future<void>",0,"auth/src/user.cc",25
+"firebase::auth::User","UpdatePasswordLastResult","firebase::auth::User::UpdatePasswordLastResult","Future<void>",0,"auth/src/user.cc",23
+"firebase::auth::User","provider_data","firebase::auth::User::provider_data","vector<UserInfoInterface, allocator<UserInfoInterface>>",0,"auth/src/desktop/user_desktop.cc",987
+"firebase::auth::User","GetTokenLastResult","firebase::auth::User::GetTokenLastResult","Future<basic_string<char, char_traits<char>, allocator<char>>>",0,"auth/src/user.cc",22
+"firebase::auth::User","~User","firebase::auth::User::~User","void",0,"auth/src/desktop/user_desktop.cc",644
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator=","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator=","ForceResendingToken &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",42
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator!=","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator!=","bool",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",52
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","operator==","firebase::auth::PhoneAuthProvider::ForceResendingToken::operator==","bool",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",47
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","~ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::~ForceResendingToken","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc",35
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc",32
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","ForceResendingToken","firebase::auth::PhoneAuthProvider::ForceResendingToken::ForceResendingToken","void",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",37
+"firebase::auth::PhoneAuthProvider::Listener","operator=","firebase::auth::PhoneAuthProvider::Listener::operator=","Listener &",1,"auth/src/include/firebase/auth/credential.h",516
+"firebase::auth::PhoneAuthProvider::Listener","Listener","firebase::auth::PhoneAuthProvider::Listener::Listener","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc",57
+"firebase::auth::PhoneAuthProvider::Listener","Listener","firebase::auth::PhoneAuthProvider::Listener::Listener","void",1,"auth/src/include/firebase/auth/credential.h",516
+"firebase::auth::PhoneAuthProvider::Listener","~Listener","firebase::auth::PhoneAuthProvider::Listener::~Listener","void",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc",58
+"firebase::auth::PhoneAuthProvider::Listener","OnCodeAutoRetrievalTimeOut","firebase::auth::PhoneAuthProvider::Listener::OnCodeAutoRetrievalTimeOut","void",1,"auth/src/common.cc",77
+"firebase::auth::PhoneAuthProvider::Listener","OnCodeSent","firebase::auth::PhoneAuthProvider::Listener::OnCodeSent","void",2,"auth/src/common.cc",73
+"firebase::auth::PhoneAuthProvider::Listener","OnVerificationFailed","firebase::auth::PhoneAuthProvider::Listener::OnVerificationFailed","void",1,"auth/src/include/firebase/auth/credential.h",543
+"firebase::auth::PhoneAuthProvider::Listener","OnVerificationCompleted","firebase::auth::PhoneAuthProvider::Listener::OnVerificationCompleted","void",1,"auth/src/include/firebase/auth/credential.h",533
+"firebase::auth::User::UserProfile","operator=","firebase::auth::User::UserProfile::operator=","UserProfile &",1,"auth/src/include/firebase/auth/user.h",166
+"firebase::auth::User::UserProfile","UserProfile","firebase::auth::User::UserProfile::UserProfile","void",0,"auth/src/include/firebase/auth/user.h",168
+"firebase::auth::User::UserProfile","UserProfile","firebase::auth::User::UserProfile::UserProfile","void",1,"auth/src/include/firebase/auth/user.h",166
+"firebase::auth::Auth::FetchProvidersResult","operator=","firebase::auth::Auth::FetchProvidersResult::operator=","FetchProvidersResult &",1,"auth/src/include/firebase/auth.h",138
+"firebase::auth::Auth::FetchProvidersResult","FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::FetchProvidersResult","void",0,"auth/src/include/firebase/auth.h",138
+"firebase::auth::Auth::FetchProvidersResult","FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::FetchProvidersResult","void",1,"auth/src/include/firebase/auth.h",138
+"firebase::auth::Auth::FetchProvidersResult","~FetchProvidersResult","firebase::auth::Auth::FetchProvidersResult::~FetchProvidersResult","void",0,"auth/src/include/firebase/auth.h",138
+"firebase::auth::Credential","operator=","firebase::auth::Credential::operator=","Credential &",1,"auth/src/desktop/credential_desktop.cc",36
+"firebase::auth::Credential","is_valid","firebase::auth::Credential::is_valid","bool",0,"auth/src/desktop/credential_desktop.cc",60
+"firebase::auth::Credential","provider","firebase::auth::Credential::provider","string",0,"auth/src/desktop/credential_desktop.cc",50
+"firebase::auth::Credential","Credential","firebase::auth::Credential::Credential","void",0,"auth/src/include/firebase/auth/credential.h",106
+"firebase::auth::Credential","Credential","firebase::auth::Credential::Credential","void",1,"auth/src/desktop/credential_desktop.cc",28
+"firebase::auth::Credential","~Credential","firebase::auth::Credential::~Credential","void",0,"auth/src/desktop/credential_desktop.cc",26
+"firebase::auth::PhoneAuthOptions","operator=","firebase::auth::PhoneAuthOptions::operator=","PhoneAuthOptions &",1,"auth/src/include/firebase/auth/credential.h",626
+"firebase::auth::PhoneAuthOptions","~PhoneAuthOptions","firebase::auth::PhoneAuthOptions::~PhoneAuthOptions","void",0,"auth/src/include/firebase/auth/credential.h",626
+"firebase::auth::PhoneAuthOptions","PhoneAuthOptions","firebase::auth::PhoneAuthOptions::PhoneAuthOptions","void",0,"auth/src/common.cc",64
+"firebase::auth::PhoneAuthOptions","PhoneAuthOptions","firebase::auth::PhoneAuthOptions::PhoneAuthOptions","void",1,"auth/src/include/firebase/auth/credential.h",626
+"firebase::auth::PhoneAuthProvider","operator=","firebase::auth::PhoneAuthProvider::operator=","PhoneAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",479
+"firebase::auth::PhoneAuthProvider","GetInstance","firebase::auth::PhoneAuthProvider::GetInstance","PhoneAuthProvider &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",86
+"firebase::auth::PhoneAuthProvider","GetCredential","firebase::auth::PhoneAuthProvider::GetCredential","PhoneAuthCredential",2,"auth/src/desktop/auth_providers/phone_auth_provider.cc",77
+"firebase::auth::PhoneAuthProvider","PhoneAuthProvider","firebase::auth::PhoneAuthProvider::PhoneAuthProvider","void",1,"auth/src/include/firebase/auth/credential.h",479
+"firebase::auth::PhoneAuthProvider","VerifyPhoneNumber","firebase::auth::PhoneAuthProvider::VerifyPhoneNumber","void",2,"auth/src/desktop/auth_providers/phone_auth_provider.cc",63
+"firebase::auth::PhoneAuthCredential","operator=","firebase::auth::PhoneAuthCredential::operator=","PhoneAuthCredential &",1,"auth/src/desktop/auth_providers/phone_auth_provider.cc",96
+"firebase::auth::PhoneAuthCredential","~PhoneAuthCredential","firebase::auth::PhoneAuthCredential::~PhoneAuthCredential","void",0,"auth/src/include/firebase/auth/credential.h",150
+"firebase::auth::PhoneAuthCredential","PhoneAuthCredential","firebase::auth::PhoneAuthCredential::PhoneAuthCredential","void",0,"auth/src/credential.cc",24
+"firebase::auth::PhoneAuthCredential","PhoneAuthCredential","firebase::auth::PhoneAuthCredential::PhoneAuthCredential","void",1,"auth/src/credential.cc",28
+"firebase::auth::PhoneAuthCredential","sms_code","firebase::auth::PhoneAuthCredential::sms_code","string",0,"auth/src/desktop/auth_providers/phone_auth_provider.cc",102
+"firebase::auth::OAuthProvider","operator=","firebase::auth::OAuthProvider::operator=","OAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",272
+"firebase::auth::OAuthProvider","GetCredential","firebase::auth::OAuthProvider::GetCredential","Credential",3,"auth/src/desktop/auth_providers/oauth_auth_provider.cc",26
+"firebase::auth::OAuthProvider","GetCredential","firebase::auth::OAuthProvider::GetCredential","Credential",4,"auth/src/desktop/auth_providers/oauth_auth_provider.cc",35
+"firebase::auth::GoogleAuthProvider","operator=","firebase::auth::GoogleAuthProvider::operator=","GoogleAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",249
+"firebase::auth::GoogleAuthProvider","GetCredential","firebase::auth::GoogleAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/google_auth_provider.cc",26
+"firebase::auth::GitHubAuthProvider","operator=","firebase::auth::GitHubAuthProvider::operator=","GitHubAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",235
+"firebase::auth::GitHubAuthProvider","GetCredential","firebase::auth::GitHubAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/github_auth_provider.cc",26
+"firebase::auth::TwitterAuthProvider","operator=","firebase::auth::TwitterAuthProvider::operator=","TwitterAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",684
+"firebase::auth::TwitterAuthProvider","GetCredential","firebase::auth::TwitterAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/twitter_auth_provider.cc",26
+"firebase::auth::FacebookAuthProvider","operator=","firebase::auth::FacebookAuthProvider::operator=","FacebookAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",199
+"firebase::auth::FacebookAuthProvider","GetCredential","firebase::auth::FacebookAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/facebook_auth_provider.cc",26
+"firebase::auth::EmailAuthProvider","operator=","firebase::auth::EmailAuthProvider::operator=","EmailAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",184
+"firebase::auth::EmailAuthProvider","GetCredential","firebase::auth::EmailAuthProvider::GetCredential","Credential",2,"auth/src/desktop/auth_providers/email_auth_provider.cc",26
+"firebase::auth::IdTokenListener","operator=","firebase::auth::IdTokenListener::operator=","IdTokenListener &",1,"auth/src/include/firebase/auth.h",639
+"firebase::auth::IdTokenListener","IdTokenListener","firebase::auth::IdTokenListener::IdTokenListener","void",0,"auth/src/include/firebase/auth.h",639
+"firebase::auth::IdTokenListener","IdTokenListener","firebase::auth::IdTokenListener::IdTokenListener","void",1,"auth/src/include/firebase/auth.h",639
+"firebase::auth::IdTokenListener","OnIdTokenChanged","firebase::auth::IdTokenListener::OnIdTokenChanged","void",1,"auth/src/include/firebase/auth.h",656
+"firebase::auth::IdTokenListener","~IdTokenListener","firebase::auth::IdTokenListener::~IdTokenListener","void",0,"auth/src/auth.cc",314
+"firebase::auth::AuthStateListener","operator=","firebase::auth::AuthStateListener::operator=","AuthStateListener &",1,"auth/src/include/firebase/auth.h",606
+"firebase::auth::AuthStateListener","AuthStateListener","firebase::auth::AuthStateListener::AuthStateListener","void",0,"auth/src/include/firebase/auth.h",606
+"firebase::auth::AuthStateListener","AuthStateListener","firebase::auth::AuthStateListener::AuthStateListener","void",1,"auth/src/include/firebase/auth.h",606
+"firebase::auth::AuthStateListener","OnAuthStateChanged","firebase::auth::AuthStateListener::OnAuthStateChanged","void",1,"auth/src/include/firebase/auth.h",622
+"firebase::auth::AuthStateListener","~AuthStateListener","firebase::auth::AuthStateListener::~AuthStateListener","void",0,"auth/src/auth.cc",307
+"firebase::auth::UserInfoInterface","operator=","firebase::auth::UserInfoInterface::operator=","UserInfoInterface &",1,"auth/src/include/firebase/auth/user.h",39
+"firebase::auth::UserInfoInterface","phone_number","firebase::auth::UserInfoInterface::phone_number","string",0,"auth/src/user.cc",63
+"firebase::auth::UserInfoInterface","uid","firebase::auth::UserInfoInterface::uid","string",0,"auth/src/user.cc",58
+"firebase::auth::UserInfoInterface","email","firebase::auth::UserInfoInterface::email","string",0,"auth/src/user.cc",59
+"firebase::auth::UserInfoInterface","provider_id","firebase::auth::UserInfoInterface::provider_id","string",0,"auth/src/user.cc",62
+"firebase::auth::UserInfoInterface","photo_url","firebase::auth::UserInfoInterface::photo_url","string",0,"auth/src/user.cc",61
+"firebase::auth::UserInfoInterface","UserInfoInterface","firebase::auth::UserInfoInterface::UserInfoInterface","void",0,"auth/src/include/firebase/auth/user.h",39
+"firebase::auth::UserInfoInterface","UserInfoInterface","firebase::auth::UserInfoInterface::UserInfoInterface","void",1,"auth/src/include/firebase/auth/user.h",39
+"firebase::auth::UserInfoInterface","display_name","firebase::auth::UserInfoInterface::display_name","string",0,"auth/src/user.cc",60
+"firebase::auth::UserInfoInterface","~UserInfoInterface","firebase::auth::UserInfoInterface::~UserInfoInterface","void",0,"auth/src/user.cc",56
+"firebase::auth::PlayGamesAuthProvider","operator=","firebase::auth::PlayGamesAuthProvider::operator=","PlayGamesAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",670
+"firebase::auth::PlayGamesAuthProvider","GetCredential","firebase::auth::PlayGamesAuthProvider::GetCredential","Credential",1,"auth/src/desktop/auth_providers/playgames_auth_provider.cc",26
+"firebase::auth::AdditionalUserInfo","operator=","firebase::auth::AdditionalUserInfo::operator=","AdditionalUserInfo &",1,"auth/src/include/firebase/auth/user.h",121
+"firebase::auth::AdditionalUserInfo","AdditionalUserInfo","firebase::auth::AdditionalUserInfo::AdditionalUserInfo","void",0,"auth/src/include/firebase/auth/user.h",121
+"firebase::auth::AdditionalUserInfo","AdditionalUserInfo","firebase::auth::AdditionalUserInfo::AdditionalUserInfo","void",1,"auth/src/include/firebase/auth/user.h",121
+"firebase::auth::AdditionalUserInfo","~AdditionalUserInfo","firebase::auth::AdditionalUserInfo::~AdditionalUserInfo","void",0,"auth/src/include/firebase/auth/user.h",121
+"firebase::auth::YahooAuthProvider","operator=","firebase::auth::YahooAuthProvider::operator=","YahooAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",699
+"firebase::auth::MicrosoftAuthProvider","operator=","firebase::auth::MicrosoftAuthProvider::operator=","MicrosoftAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",265
+"firebase::auth::GameCenterAuthProvider","operator=","firebase::auth::GameCenterAuthProvider::operator=","GameCenterAuthProvider &",1,"auth/src/include/firebase/auth/credential.h",213
+"firebase::auth::GameCenterAuthProvider","GetCredential","firebase::auth::GameCenterAuthProvider::GetCredential","Future<Credential>",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc",29
+"firebase::auth::GameCenterAuthProvider","IsPlayerAuthenticated","firebase::auth::GameCenterAuthProvider::IsPlayerAuthenticated","bool",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc",52
+"firebase::auth::GameCenterAuthProvider","GetCredentialLastResult","firebase::auth::GameCenterAuthProvider::GetCredentialLastResult","Future<Credential>",0,"auth/src/desktop/auth_providers/gamecenter_auth_provider.cc",44
+"firebase::auth::FederatedAuthProvider","operator=","firebase::auth::FederatedAuthProvider::operator=","FederatedAuthProvider &",1,"auth/src/include/firebase/auth.h",673
+"firebase::auth::FederatedAuthProvider","SignIn","firebase::auth::FederatedAuthProvider::SignIn","Future<AuthResult>",1,"auth/src/include/firebase/auth.h",846
+"firebase::auth::FederatedAuthProvider","Reauthenticate","firebase::auth::FederatedAuthProvider::Reauthenticate","Future<AuthResult>",1,"auth/src/include/firebase/auth.h",850
+"firebase::auth::FederatedAuthProvider","FederatedAuthProvider","firebase::auth::FederatedAuthProvider::FederatedAuthProvider","void",0,"auth/src/include/firebase/auth.h",842
+"firebase::auth::FederatedAuthProvider","FederatedAuthProvider","firebase::auth::FederatedAuthProvider::FederatedAuthProvider","void",1,"auth/src/include/firebase/auth.h",673
+"firebase::auth::FederatedAuthProvider","Link","firebase::auth::FederatedAuthProvider::Link","Future<AuthResult>",1,"auth/src/include/firebase/auth.h",848
+"firebase::auth::FederatedAuthProvider","~FederatedAuthProvider","firebase::auth::FederatedAuthProvider::~FederatedAuthProvider","void",0,"auth/src/include/firebase/auth.h",843
+"firebase::auth::FederatedProviderData","operator=","firebase::auth::FederatedProviderData::operator=","FederatedProviderData &",1,"auth/src/include/firebase/auth/types.h",435
+"firebase::auth::FederatedProviderData","FederatedProviderData","firebase::auth::FederatedProviderData::FederatedProviderData","void",0,"auth/src/include/firebase/auth/types.h",435
+"firebase::auth::FederatedProviderData","FederatedProviderData","firebase::auth::FederatedProviderData::FederatedProviderData","void",1,"auth/src/include/firebase/auth/types.h",435
+"firebase::auth::FederatedProviderData","~FederatedProviderData","firebase::auth::FederatedProviderData::~FederatedProviderData","void",0,"auth/src/include/firebase/auth/types.h",435
+"firebase::auth::FederatedOAuthProviderData","operator=","firebase::auth::FederatedOAuthProviderData::operator=","FederatedOAuthProviderData &",1,"auth/src/include/firebase/auth/types.h",442
+"firebase::auth::FederatedOAuthProviderData","~FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::~FederatedOAuthProviderData","void",0,"auth/src/include/firebase/auth/types.h",442
+"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",0,"auth/src/include/firebase/auth/types.h",444
+"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",1,"auth/src/include/firebase/auth/types.h",442
+"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",1,"auth/src/include/firebase/auth/types.h",447
+"firebase::auth::FederatedOAuthProviderData","FederatedOAuthProviderData","firebase::auth::FederatedOAuthProviderData::FederatedOAuthProviderData","void",3,"auth/src/include/firebase/auth/types.h",454
+"firebase::auth::UserMetadata","operator=","firebase::auth::UserMetadata::operator=","UserMetadata &",1,"auth/src/include/firebase/auth/user.h",142
+"firebase::auth::UserMetadata","UserMetadata","firebase::auth::UserMetadata::UserMetadata","void",0,"auth/src/include/firebase/auth/user.h",143
+"firebase::auth::UserMetadata","UserMetadata","firebase::auth::UserMetadata::UserMetadata","void",1,"auth/src/include/firebase/auth/user.h",142
+"firebase::auth::FederatedOAuthProvider","operator=","firebase::auth::FederatedOAuthProvider::operator=","FederatedOAuthProvider &",1,"auth/src/include/firebase/auth.h",866
+"firebase::auth::FederatedOAuthProvider","FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider","void",0,"auth/src/include/firebase/auth.h",881
+"firebase::auth::FederatedOAuthProvider","FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider","void",1,"auth/src/include/firebase/auth.h",866
+"firebase::auth::FederatedOAuthProvider","FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider","void",1,"auth/src/include/firebase/auth.h",888
+"firebase::auth::FederatedOAuthProvider","SetProviderData","firebase::auth::FederatedOAuthProvider::SetProviderData","void",1,"auth/src/include/firebase/auth.h",918
+"firebase::auth::FederatedOAuthProvider","~FederatedOAuthProvider","firebase::auth::FederatedOAuthProvider::~FederatedOAuthProvider","void",0,"auth/src/include/firebase/auth.h",911
+"firebase::firestore::FieldValue","operator=","firebase::firestore::FieldValue::operator=","FieldValue &",1,"firestore/src/common/field_value.cc",113
+"firebase::firestore::FieldValue","operator=","firebase::firestore::FieldValue::operator=","FieldValue &",1,"firestore/src/common/field_value.cc",127
+"firebase::firestore::FieldValue","type","firebase::firestore::FieldValue::type","Type",0,"firestore/src/common/field_value.cc",188
+"firebase::firestore::FieldValue","String","firebase::firestore::FieldValue::String","FieldValue",1,"firestore/src/common/field_value.cc",159
+"firebase::firestore::FieldValue","ToString","firebase::firestore::FieldValue::ToString","string",0,"firestore/src/common/field_value.cc",285
+"firebase::firestore::FieldValue","Delete","firebase::firestore::FieldValue::Delete","FieldValue",0,"firestore/src/common/field_value.cc",256
+"firebase::firestore::FieldValue","string_value","firebase::firestore::FieldValue::string_value","string",0,"firestore/src/common/field_value.cc",213
+"firebase::firestore::FieldValue","double_value","firebase::firestore::FieldValue::double_value","double",0,"firestore/src/common/field_value.cc",203
+"firebase::firestore::FieldValue","blob_size","firebase::firestore::FieldValue::blob_size","size_t",0,"firestore/src/common/field_value.cc",223
+"firebase::firestore::FieldValue","is_blob","firebase::firestore::FieldValue::is_blob","bool",0,"firestore/src/include/firebase/firestore/field_value.h",223
+"firebase::firestore::FieldValue","is_string","firebase::firestore::FieldValue::is_string","bool",0,"firestore/src/include/firebase/firestore/field_value.h",220
+"firebase::firestore::FieldValue","is_map","firebase::firestore::FieldValue::is_map","bool",0,"firestore/src/include/firebase/firestore/field_value.h",239
+"firebase::firestore::FieldValue","is_double","firebase::firestore::FieldValue::is_double","bool",0,"firestore/src/include/firebase/firestore/field_value.h",214
+"firebase::firestore::FieldValue","is_null","firebase::firestore::FieldValue::is_null","bool",0,"firestore/src/include/firebase/firestore/field_value.h",205
+"firebase::firestore::FieldValue","Null","firebase::firestore::FieldValue::Null","FieldValue",0,"firestore/src/common/field_value.cc",249
+"firebase::firestore::FieldValue","blob_value","firebase::firestore::FieldValue::blob_value","const uint8_t *",0,"firestore/src/common/field_value.cc",218
+"firebase::firestore::FieldValue","map_value","firebase::firestore::FieldValue::map_value","MapFieldValue",0,"firestore/src/common/field_value.cc",243
+"firebase::firestore::FieldValue","is_integer","firebase::firestore::FieldValue::is_integer","bool",0,"firestore/src/include/firebase/firestore/field_value.h",211
+"firebase::firestore::FieldValue","Double","firebase::firestore::FieldValue::Double","FieldValue",1,"firestore/src/common/field_value.cc",149
+"firebase::firestore::FieldValue","Boolean","firebase::firestore::FieldValue::Boolean","FieldValue",1,"firestore/src/common/field_value.cc",139
+"firebase::firestore::FieldValue","Map","firebase::firestore::FieldValue::Map","FieldValue",1,"firestore/src/common/field_value.cc",184
+"firebase::firestore::FieldValue","Blob","firebase::firestore::FieldValue::Blob","FieldValue",2,"firestore/src/common/field_value.cc",164
+"firebase::firestore::FieldValue","ServerTimestamp","firebase::firestore::FieldValue::ServerTimestamp","FieldValue",0,"firestore/src/common/field_value.cc",259
+"firebase::firestore::FieldValue","is_valid","firebase::firestore::FieldValue::is_valid","bool",0,"firestore/src/include/firebase/firestore/field_value.h",287
+"firebase::firestore::FieldValue","Integer","firebase::firestore::FieldValue::Integer","FieldValue",1,"firestore/src/common/field_value.cc",144
+"firebase::firestore::FieldValue","Timestamp","firebase::firestore::FieldValue::Timestamp","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h",167
+"firebase::firestore::FieldValue","Timestamp","firebase::firestore::FieldValue::Timestamp","FieldValue",1,"firestore/src/common/field_value.cc",154
+"firebase::firestore::FieldValue","FieldValue","firebase::firestore::FieldValue::FieldValue","void",0,"firestore/src/common/field_value.cc",92
+"firebase::firestore::FieldValue","FieldValue","firebase::firestore::FieldValue::FieldValue","void",1,"firestore/src/common/field_value.cc",94
+"firebase::firestore::FieldValue","FieldValue","firebase::firestore::FieldValue::FieldValue","void",1,"firestore/src/common/field_value.cc",100
+"firebase::firestore::FieldValue","Increment","firebase::firestore::FieldValue::Increment","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h",347
+"firebase::firestore::FieldValue","Increment","firebase::firestore::FieldValue::Increment","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h",377
+"firebase::firestore::FieldValue","ArrayRemove","firebase::firestore::FieldValue::ArrayRemove","FieldValue",1,"firestore/src/common/field_value.cc",269
+"firebase::firestore::FieldValue","ArrayUnion","firebase::firestore::FieldValue::ArrayUnion","FieldValue",1,"firestore/src/common/field_value.cc",264
+"firebase::firestore::FieldValue","array_value","firebase::firestore::FieldValue::array_value","vector<FieldValue, allocator<FieldValue>>",0,"firestore/src/common/field_value.cc",238
+"firebase::firestore::FieldValue","geo_point_value","firebase::firestore::FieldValue::geo_point_value","GeoPoint",0,"firestore/src/common/field_value.cc",233
+"firebase::firestore::FieldValue","reference_value","firebase::firestore::FieldValue::reference_value","DocumentReference",0,"firestore/src/common/field_value.cc",228
+"firebase::firestore::FieldValue","timestamp_value","firebase::firestore::FieldValue::timestamp_value","Timestamp",0,"firestore/src/common/field_value.cc",208
+"firebase::firestore::FieldValue","integer_value","firebase::firestore::FieldValue::integer_value","int64_t",0,"firestore/src/common/field_value.cc",198
+"firebase::firestore::FieldValue","boolean_value","firebase::firestore::FieldValue::boolean_value","bool",0,"firestore/src/common/field_value.cc",193
+"firebase::firestore::FieldValue","is_array","firebase::firestore::FieldValue::is_array","bool",0,"firestore/src/include/firebase/firestore/field_value.h",235
+"firebase::firestore::FieldValue","is_geo_point","firebase::firestore::FieldValue::is_geo_point","bool",0,"firestore/src/include/firebase/firestore/field_value.h",232
+"firebase::firestore::FieldValue","is_reference","firebase::firestore::FieldValue::is_reference","bool",0,"firestore/src/include/firebase/firestore/field_value.h",229
+"firebase::firestore::FieldValue","is_timestamp","firebase::firestore::FieldValue::is_timestamp","bool",0,"firestore/src/include/firebase/firestore/field_value.h",217
+"firebase::firestore::FieldValue","is_boolean","firebase::firestore::FieldValue::is_boolean","bool",0,"firestore/src/include/firebase/firestore/field_value.h",208
+"firebase::firestore::FieldValue","Array","firebase::firestore::FieldValue::Array","FieldValue",1,"firestore/src/common/field_value.cc",179
+"firebase::firestore::FieldValue","GeoPoint","firebase::firestore::FieldValue::GeoPoint","FieldValue",1,"firestore/src/include/firebase/firestore/field_value.h",188
+"firebase::firestore::FieldValue","GeoPoint","firebase::firestore::FieldValue::GeoPoint","FieldValue",1,"firestore/src/common/field_value.cc",174
+"firebase::firestore::FieldValue","Reference","firebase::firestore::FieldValue::Reference","FieldValue",1,"firestore/src/common/field_value.cc",169
+"firebase::firestore::FieldValue","~FieldValue","firebase::firestore::FieldValue::~FieldValue","void",0,"firestore/src/common/field_value.cc",108
+"firebase::firestore::FieldPath","operator=","firebase::firestore::FieldPath::operator=","FieldPath &",1,"firestore/src/common/field_path.cc",55
+"firebase::firestore::FieldPath","operator=","firebase::firestore::FieldPath::operator=","FieldPath &",1,"firestore/src/common/field_path.cc",65
+"firebase::firestore::FieldPath","ToString","firebase::firestore::FieldPath::ToString","string",0,"firestore/src/common/field_path.cc",87
+"firebase::firestore::FieldPath","is_valid","firebase::firestore::FieldPath::is_valid","bool",0,"firestore/src/include/firebase/firestore/field_path.h",134
+"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",0,"firestore/src/common/field_path.cc",33
+"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",1,"firestore/src/common/field_path.cc",35
+"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",1,"firestore/src/common/field_path.cc",38
+"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",1,"firestore/src/common/field_path.cc",41
+"firebase::firestore::FieldPath","FieldPath","firebase::firestore::FieldPath::FieldPath","void",1,"firestore/src/common/field_path.cc",44
+"firebase::firestore::FieldPath","DocumentId","firebase::firestore::FieldPath::DocumentId","FieldPath",0,"firestore/src/common/field_path.cc",71
+"firebase::firestore::FieldPath","~FieldPath","firebase::firestore::FieldPath::~FieldPath","void",0,"firestore/src/common/field_path.cc",50
+"firebase::firestore::AggregateQuery","operator=","firebase::firestore::AggregateQuery::operator=","AggregateQuery &",1,"firestore/src/common/aggregate_query.cc",62
+"firebase::firestore::AggregateQuery","operator=","firebase::firestore::AggregateQuery::operator=","AggregateQuery &",1,"firestore/src/common/aggregate_query.cc",78
+"firebase::firestore::AggregateQuery","Get","firebase::firestore::AggregateQuery::Get","Future<AggregateQuerySnapshot>",1,"firestore/src/common/aggregate_query.cc",97
+"firebase::firestore::AggregateQuery","query","firebase::firestore::AggregateQuery::query","Query",0,"firestore/src/common/aggregate_query.cc",92
+"firebase::firestore::AggregateQuery","is_valid","firebase::firestore::AggregateQuery::is_valid","bool",0,"firestore/src/include/firebase/firestore/aggregate_query.h",128
+"firebase::firestore::AggregateQuery","AggregateQuery","firebase::firestore::AggregateQuery::AggregateQuery","void",0,"firestore/src/common/aggregate_query.cc",35
+"firebase::firestore::AggregateQuery","AggregateQuery","firebase::firestore::AggregateQuery::AggregateQuery","void",1,"firestore/src/common/aggregate_query.cc",37
+"firebase::firestore::AggregateQuery","AggregateQuery","firebase::firestore::AggregateQuery::AggregateQuery","void",1,"firestore/src/common/aggregate_query.cc",44
+"firebase::firestore::AggregateQuery","~AggregateQuery","firebase::firestore::AggregateQuery::~AggregateQuery","void",0,"firestore/src/common/aggregate_query.cc",56
+"firebase::firestore::AggregateQuerySnapshot","operator=","firebase::firestore::AggregateQuerySnapshot::operator=","AggregateQuerySnapshot &",1,"firestore/src/common/aggregate_query_snapshot.cc",64
+"firebase::firestore::AggregateQuerySnapshot","operator=","firebase::firestore::AggregateQuerySnapshot::operator=","AggregateQuerySnapshot &",1,"firestore/src/common/aggregate_query_snapshot.cc",81
+"firebase::firestore::AggregateQuerySnapshot","count","firebase::firestore::AggregateQuerySnapshot::count","int64_t",0,"firestore/src/common/aggregate_query_snapshot.cc",101
+"firebase::firestore::AggregateQuerySnapshot","query","firebase::firestore::AggregateQuerySnapshot::query","AggregateQuery",0,"firestore/src/common/aggregate_query_snapshot.cc",96
+"firebase::firestore::AggregateQuerySnapshot","is_valid","firebase::firestore::AggregateQuerySnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/aggregate_query_snapshot.h",122
+"firebase::firestore::AggregateQuerySnapshot","AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot","void",0,"firestore/src/common/aggregate_query_snapshot.cc",35
+"firebase::firestore::AggregateQuerySnapshot","AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot","void",1,"firestore/src/common/aggregate_query_snapshot.cc",37
+"firebase::firestore::AggregateQuerySnapshot","AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot","void",1,"firestore/src/common/aggregate_query_snapshot.cc",45
+"firebase::firestore::AggregateQuerySnapshot","~AggregateQuerySnapshot","firebase::firestore::AggregateQuerySnapshot::~AggregateQuerySnapshot","void",0,"firestore/src/common/aggregate_query_snapshot.cc",58
+"firebase::firestore::Query","operator=","firebase::firestore::Query::operator=","Query &",1,"firestore/src/common/query.cc",71
+"firebase::firestore::Query","operator=","firebase::firestore::Query::operator=","Query &",1,"firestore/src/common/query.cc",87
+"firebase::firestore::Query","firestore","firebase::firestore::Query::firestore","Firestore *",0,"firestore/src/common/query.cc",106
+"firebase::firestore::Query","firestore","firebase::firestore::Query::firestore","const Firestore *",0,"firestore/src/common/query.cc",101
+"firebase::firestore::Query","Get","firebase::firestore::Query::Get","Future<QuerySnapshot>",1,"firestore/src/common/query.cc",298
+"firebase::firestore::Query","Query","firebase::firestore::Query::Query","void",0,"firestore/src/common/query.cc",44
+"firebase::firestore::Query","Query","firebase::firestore::Query::Query","void",1,"firestore/src/common/query.cc",46
+"firebase::firestore::Query","Query","firebase::firestore::Query::Query","void",1,"firestore/src/common/query.cc",53
+"firebase::firestore::Query","is_valid","firebase::firestore::Query::is_valid","bool",0,"firestore/src/include/firebase/firestore/query.h",675
+"firebase::firestore::Query","LimitToLast","firebase::firestore::Query::LimitToLast","Query",1,"firestore/src/common/query.cc",253
+"firebase::firestore::Query","EndAt","firebase::firestore::Query::EndAt","Query",1,"firestore/src/common/query.cc",288
+"firebase::firestore::Query","EndAt","firebase::firestore::Query::EndAt","Query",1,"firestore/src/common/query.cc",293
+"firebase::firestore::Query","StartAt","firebase::firestore::Query::StartAt","Query",1,"firestore/src/common/query.cc",258
+"firebase::firestore::Query","StartAt","firebase::firestore::Query::StartAt","Query",1,"firestore/src/common/query.cc",263
+"firebase::firestore::Query","~Query","firebase::firestore::Query::~Query","void",0,"firestore/src/common/query.cc",65
+"firebase::firestore::Query","OrderBy","firebase::firestore::Query::OrderBy","Query",2,"firestore/src/common/query.cc",239
+"firebase::firestore::Query","OrderBy","firebase::firestore::Query::OrderBy","Query",2,"firestore/src/common/query.cc",243
+"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",1,"firestore/src/include/firebase/firestore/query.h",642
+"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",1,"firestore/src/common/query.cc",303
+"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",2,"firestore/src/include/firebase/firestore/query.h",660
+"firebase::firestore::Query","AddSnapshotListener","firebase::firestore::Query::AddSnapshotListener","ListenerRegistration",2,"firestore/src/common/query.cc",309
+"firebase::firestore::Query","EndBefore","firebase::firestore::Query::EndBefore","Query",1,"firestore/src/common/query.cc",278
+"firebase::firestore::Query","EndBefore","firebase::firestore::Query::EndBefore","Query",1,"firestore/src/common/query.cc",283
+"firebase::firestore::Query","StartAfter","firebase::firestore::Query::StartAfter","Query",1,"firestore/src/common/query.cc",268
+"firebase::firestore::Query","StartAfter","firebase::firestore::Query::StartAfter","Query",1,"firestore/src/common/query.cc",273
+"firebase::firestore::Query","Limit","firebase::firestore::Query::Limit","Query",1,"firestore/src/common/query.cc",248
+"firebase::firestore::Query","WhereNotIn","firebase::firestore::Query::WhereNotIn","Query",2,"firestore/src/common/query.cc",228
+"firebase::firestore::Query","WhereNotIn","firebase::firestore::Query::WhereNotIn","Query",2,"firestore/src/common/query.cc",233
+"firebase::firestore::Query","WhereIn","firebase::firestore::Query::WhereIn","Query",2,"firestore/src/common/query.cc",217
+"firebase::firestore::Query","WhereIn","firebase::firestore::Query::WhereIn","Query",2,"firestore/src/common/query.cc",222
+"firebase::firestore::Query","WhereArrayContainsAny","firebase::firestore::Query::WhereArrayContainsAny","Query",2,"firestore/src/common/query.cc",205
+"firebase::firestore::Query","WhereArrayContainsAny","firebase::firestore::Query::WhereArrayContainsAny","Query",2,"firestore/src/common/query.cc",211
+"firebase::firestore::Query","WhereArrayContains","firebase::firestore::Query::WhereArrayContains","Query",2,"firestore/src/common/query.cc",194
+"firebase::firestore::Query","WhereArrayContains","firebase::firestore::Query::WhereArrayContains","Query",2,"firestore/src/common/query.cc",199
+"firebase::firestore::Query","WhereGreaterThanOrEqualTo","firebase::firestore::Query::WhereGreaterThanOrEqualTo","Query",2,"firestore/src/common/query.cc",182
+"firebase::firestore::Query","WhereGreaterThanOrEqualTo","firebase::firestore::Query::WhereGreaterThanOrEqualTo","Query",2,"firestore/src/common/query.cc",188
+"firebase::firestore::Query","WhereGreaterThan","firebase::firestore::Query::WhereGreaterThan","Query",2,"firestore/src/common/query.cc",171
+"firebase::firestore::Query","WhereGreaterThan","firebase::firestore::Query::WhereGreaterThan","Query",2,"firestore/src/common/query.cc",176
+"firebase::firestore::Query","WhereLessThanOrEqualTo","firebase::firestore::Query::WhereLessThanOrEqualTo","Query",2,"firestore/src/common/query.cc",159
+"firebase::firestore::Query","WhereLessThanOrEqualTo","firebase::firestore::Query::WhereLessThanOrEqualTo","Query",2,"firestore/src/common/query.cc",165
+"firebase::firestore::Query","WhereLessThan","firebase::firestore::Query::WhereLessThan","Query",2,"firestore/src/common/query.cc",148
+"firebase::firestore::Query","WhereLessThan","firebase::firestore::Query::WhereLessThan","Query",2,"firestore/src/common/query.cc",153
+"firebase::firestore::Query","WhereNotEqualTo","firebase::firestore::Query::WhereNotEqualTo","Query",2,"firestore/src/common/query.cc",137
+"firebase::firestore::Query","WhereNotEqualTo","firebase::firestore::Query::WhereNotEqualTo","Query",2,"firestore/src/common/query.cc",142
+"firebase::firestore::Query","WhereEqualTo","firebase::firestore::Query::WhereEqualTo","Query",2,"firestore/src/common/query.cc",126
+"firebase::firestore::Query","WhereEqualTo","firebase::firestore::Query::WhereEqualTo","Query",2,"firestore/src/common/query.cc",131
+"firebase::firestore::Query","Where","firebase::firestore::Query::Where","Query",1,"firestore/src/common/query.cc",116
+"firebase::firestore::Query","Count","firebase::firestore::Query::Count","AggregateQuery",0,"firestore/src/common/query.cc",111
+"firebase::firestore::QuerySnapshot","operator=","firebase::firestore::QuerySnapshot::operator=","QuerySnapshot &",1,"firestore/src/common/query_snapshot.cc",65
+"firebase::firestore::QuerySnapshot","operator=","firebase::firestore::QuerySnapshot::operator=","QuerySnapshot &",1,"firestore/src/common/query_snapshot.cc",81
+"firebase::firestore::QuerySnapshot","size","firebase::firestore::QuerySnapshot::size","size_t",0,"firestore/src/common/query_snapshot.cc",116
+"firebase::firestore::QuerySnapshot","empty","firebase::firestore::QuerySnapshot::empty","bool",0,"firestore/src/include/firebase/firestore/query_snapshot.h",144
+"firebase::firestore::QuerySnapshot","metadata","firebase::firestore::QuerySnapshot::metadata","SnapshotMetadata",0,"firestore/src/common/query_snapshot.cc",100
+"firebase::firestore::QuerySnapshot","query","firebase::firestore::QuerySnapshot::query","Query",0,"firestore/src/common/query_snapshot.cc",95
+"firebase::firestore::QuerySnapshot","is_valid","firebase::firestore::QuerySnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/query_snapshot.h",164
+"firebase::firestore::QuerySnapshot","QuerySnapshot","firebase::firestore::QuerySnapshot::QuerySnapshot","void",0,"firestore/src/common/query_snapshot.cc",38
+"firebase::firestore::QuerySnapshot","QuerySnapshot","firebase::firestore::QuerySnapshot::QuerySnapshot","void",1,"firestore/src/common/query_snapshot.cc",40
+"firebase::firestore::QuerySnapshot","QuerySnapshot","firebase::firestore::QuerySnapshot::QuerySnapshot","void",1,"firestore/src/common/query_snapshot.cc",47
+"firebase::firestore::QuerySnapshot","documents","firebase::firestore::QuerySnapshot::documents","vector<DocumentSnapshot, allocator<DocumentSnapshot>>",0,"firestore/src/common/query_snapshot.cc",111
+"firebase::firestore::QuerySnapshot","DocumentChanges","firebase::firestore::QuerySnapshot::DocumentChanges","vector<DocumentChange, allocator<DocumentChange>>",1,"firestore/src/common/query_snapshot.cc",105
+"firebase::firestore::QuerySnapshot","~QuerySnapshot","firebase::firestore::QuerySnapshot::~QuerySnapshot","void",0,"firestore/src/common/query_snapshot.cc",59
+"firebase::firestore::ListenerRegistration","operator=","firebase::firestore::ListenerRegistration::operator=","ListenerRegistration &",1,"firestore/src/common/listener_registration.cc",70
+"firebase::firestore::ListenerRegistration","operator=","firebase::firestore::ListenerRegistration::operator=","ListenerRegistration &",1,"firestore/src/common/listener_registration.cc",83
+"firebase::firestore::ListenerRegistration","is_valid","firebase::firestore::ListenerRegistration::is_valid","bool",0,"firestore/src/include/firebase/firestore/listener_registration.h",108
+"firebase::firestore::ListenerRegistration","ListenerRegistration","firebase::firestore::ListenerRegistration::ListenerRegistration","void",0,"firestore/src/common/listener_registration.cc",40
+"firebase::firestore::ListenerRegistration","ListenerRegistration","firebase::firestore::ListenerRegistration::ListenerRegistration","void",1,"firestore/src/common/listener_registration.cc",42
+"firebase::firestore::ListenerRegistration","ListenerRegistration","firebase::firestore::ListenerRegistration::ListenerRegistration","void",1,"firestore/src/common/listener_registration.cc",49
+"firebase::firestore::ListenerRegistration","Remove","firebase::firestore::ListenerRegistration::Remove","void",0,"firestore/src/common/listener_registration.cc",98
+"firebase::firestore::ListenerRegistration","~ListenerRegistration","firebase::firestore::ListenerRegistration::~ListenerRegistration","void",0,"firestore/src/common/listener_registration.cc",65
+"firebase::firestore::DocumentSnapshot","operator=","firebase::firestore::DocumentSnapshot::operator=","DocumentSnapshot &",1,"firestore/src/common/document_snapshot.cc",68
+"firebase::firestore::DocumentSnapshot","operator=","firebase::firestore::DocumentSnapshot::operator=","DocumentSnapshot &",1,"firestore/src/common/document_snapshot.cc",85
+"firebase::firestore::DocumentSnapshot","reference","firebase::firestore::DocumentSnapshot::reference","DocumentReference",0,"firestore/src/common/document_snapshot.cc",104
+"firebase::firestore::DocumentSnapshot","ToString","firebase::firestore::DocumentSnapshot::ToString","string",0,"firestore/src/common/document_snapshot.cc",146
+"firebase::firestore::DocumentSnapshot","id","firebase::firestore::DocumentSnapshot::id","const string &",0,"firestore/src/common/document_snapshot.cc",99
+"firebase::firestore::DocumentSnapshot","Get","firebase::firestore::DocumentSnapshot::Get","FieldValue",2,"firestore/src/common/document_snapshot.cc",124
+"firebase::firestore::DocumentSnapshot","Get","firebase::firestore::DocumentSnapshot::Get","FieldValue",2,"firestore/src/common/document_snapshot.cc",134
+"firebase::firestore::DocumentSnapshot","Get","firebase::firestore::DocumentSnapshot::Get","FieldValue",2,"firestore/src/common/document_snapshot.cc",140
+"firebase::firestore::DocumentSnapshot","GetData","firebase::firestore::DocumentSnapshot::GetData","MapFieldValue",1,"firestore/src/common/document_snapshot.cc",119
+"firebase::firestore::DocumentSnapshot","metadata","firebase::firestore::DocumentSnapshot::metadata","SnapshotMetadata",0,"firestore/src/common/document_snapshot.cc",109
+"firebase::firestore::DocumentSnapshot","exists","firebase::firestore::DocumentSnapshot::exists","bool",0,"firestore/src/common/document_snapshot.cc",114
+"firebase::firestore::DocumentSnapshot","is_valid","firebase::firestore::DocumentSnapshot::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_snapshot.h",243
+"firebase::firestore::DocumentSnapshot","DocumentSnapshot","firebase::firestore::DocumentSnapshot::DocumentSnapshot","void",0,"firestore/src/common/document_snapshot.cc",41
+"firebase::firestore::DocumentSnapshot","DocumentSnapshot","firebase::firestore::DocumentSnapshot::DocumentSnapshot","void",1,"firestore/src/common/document_snapshot.cc",43
+"firebase::firestore::DocumentSnapshot","DocumentSnapshot","firebase::firestore::DocumentSnapshot::DocumentSnapshot","void",1,"firestore/src/common/document_snapshot.cc",50
+"firebase::firestore::DocumentSnapshot","~DocumentSnapshot","firebase::firestore::DocumentSnapshot::~DocumentSnapshot","void",0,"firestore/src/common/document_snapshot.cc",62
+"firebase::firestore::Filter","operator=","firebase::firestore::Filter::operator=","Filter &",1,"firestore/src/common/filter.cc",48
+"firebase::firestore::Filter","operator=","firebase::firestore::Filter::operator=","Filter &",1,"firestore/src/common/filter.cc",57
+"firebase::firestore::Filter","EqualTo","firebase::firestore::Filter::EqualTo","Filter",2,"firestore/src/common/filter.cc",77
+"firebase::firestore::Filter","EqualTo","firebase::firestore::Filter::EqualTo","Filter",2,"firestore/src/common/filter.cc",123
+"firebase::firestore::Filter","Filter","firebase::firestore::Filter::Filter","void",1,"firestore/src/common/filter.cc",33
+"firebase::firestore::Filter","Filter","firebase::firestore::Filter::Filter","void",1,"firestore/src/common/filter.cc",35
+"firebase::firestore::Filter","~Filter","firebase::firestore::Filter::~Filter","void",0,"firestore/src/common/filter.cc",43
+"firebase::firestore::Filter","Or","firebase::firestore::Filter::Or","Filter",1,"firestore/src/include/firebase/firestore/filter.h",315
+"firebase::firestore::Filter","Or","firebase::firestore::Filter::Or","Filter",1,"firestore/src/common/filter.cc",163
+"firebase::firestore::Filter","And","firebase::firestore::Filter::And","Filter",1,"firestore/src/include/firebase/firestore/filter.h",281
+"firebase::firestore::Filter","And","firebase::firestore::Filter::And","Filter",1,"firestore/src/common/filter.cc",159
+"firebase::firestore::Filter","NotIn","firebase::firestore::Filter::NotIn","Filter",2,"firestore/src/common/filter.cc",109
+"firebase::firestore::Filter","NotIn","firebase::firestore::Filter::NotIn","Filter",2,"firestore/src/common/filter.cc",154
+"firebase::firestore::Filter","In","firebase::firestore::Filter::In","Filter",2,"firestore/src/common/filter.cc",104
+"firebase::firestore::Filter","In","firebase::firestore::Filter::In","Filter",2,"firestore/src/common/filter.cc",149
+"firebase::firestore::Filter","LessThanOrEqualTo","firebase::firestore::Filter::LessThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc",99
+"firebase::firestore::Filter","LessThanOrEqualTo","firebase::firestore::Filter::LessThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc",144
+"firebase::firestore::Filter","LessThan","firebase::firestore::Filter::LessThan","Filter",2,"firestore/src/common/filter.cc",95
+"firebase::firestore::Filter","LessThan","firebase::firestore::Filter::LessThan","Filter",2,"firestore/src/common/filter.cc",140
+"firebase::firestore::Filter","GreaterThanOrEqualTo","firebase::firestore::Filter::GreaterThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc",90
+"firebase::firestore::Filter","GreaterThanOrEqualTo","firebase::firestore::Filter::GreaterThanOrEqualTo","Filter",2,"firestore/src/common/filter.cc",135
+"firebase::firestore::Filter","GreaterThan","firebase::firestore::Filter::GreaterThan","Filter",2,"firestore/src/common/filter.cc",86
+"firebase::firestore::Filter","GreaterThan","firebase::firestore::Filter::GreaterThan","Filter",2,"firestore/src/common/filter.cc",131
+"firebase::firestore::Filter","NotEqualTo","firebase::firestore::Filter::NotEqualTo","Filter",2,"firestore/src/common/filter.cc",82
+"firebase::firestore::Filter","NotEqualTo","firebase::firestore::Filter::NotEqualTo","Filter",2,"firestore/src/common/filter.cc",127
+"firebase::firestore::Filter","ArrayContainsAny","firebase::firestore::Filter::ArrayContainsAny","Filter",2,"firestore/src/common/filter.cc",72
+"firebase::firestore::Filter","ArrayContainsAny","firebase::firestore::Filter::ArrayContainsAny","Filter",2,"firestore/src/common/filter.cc",118
+"firebase::firestore::Filter","ArrayContains","firebase::firestore::Filter::ArrayContains","Filter",2,"firestore/src/common/filter.cc",67
+"firebase::firestore::Filter","ArrayContains","firebase::firestore::Filter::ArrayContains","Filter",2,"firestore/src/common/filter.cc",114
+"firebase::firestore::Firestore","operator=","firebase::firestore::Firestore::operator=","Firestore &",1,"firestore/src/include/firebase/firestore.h",204
+"firebase::firestore::Firestore","Terminate","firebase::firestore::Firestore::Terminate","Future<void>",0,"firestore/src/common/firestore.cc",381
+"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",1,"firestore/src/common/firestore.cc",133
+"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",2,"firestore/src/common/firestore.cc",143
+"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",2,"firestore/src/common/firestore.cc",147
+"firebase::firestore::Firestore","GetInstance","firebase::firestore::Firestore::GetInstance","Firestore *",3,"firestore/src/common/firestore.cc",158
+"firebase::firestore::Firestore","app","firebase::firestore::Firestore::app","App *",0,"firestore/src/common/firestore.cc",284
+"firebase::firestore::Firestore","app","firebase::firestore::Firestore::app","const App *",0,"firestore/src/common/firestore.cc",279
+"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",1,"firestore/src/include/firebase/firestore.h",314
+"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",1,"firestore/src/common/firestore.cc",354
+"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",2,"firestore/src/include/firebase/firestore.h",330
+"firebase::firestore::Firestore","RunTransaction","firebase::firestore::Firestore::RunTransaction","Future<void>",2,"firestore/src/common/firestore.cc",359
+"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/android/firestore_android.cc",358
+"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/android/firestore_android.cc",671
+"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/main/firestore_main.cc",358
+"firebase::firestore::Firestore","set_log_level","firebase::firestore::Firestore::set_log_level","void",1,"firestore/src/main/firestore_main.cc",671
+"firebase::firestore::Firestore","Collection","firebase::firestore::Firestore::Collection","CollectionReference",1,"firestore/src/common/firestore.cc",289
+"firebase::firestore::Firestore","Collection","firebase::firestore::Firestore::Collection","CollectionReference",1,"firestore/src/common/firestore.cc",301
+"firebase::firestore::Firestore","Firestore","firebase::firestore::Firestore::Firestore","void",1,"firestore/src/include/firebase/firestore.h",198
+"firebase::firestore::Firestore","Document","firebase::firestore::Firestore::Document","DocumentReference",1,"firestore/src/common/firestore.cc",306
+"firebase::firestore::Firestore","Document","firebase::firestore::Firestore::Document","DocumentReference",1,"firestore/src/common/firestore.cc",318
+"firebase::firestore::Firestore","NamedQuery","firebase::firestore::Firestore::NamedQuery","Future<Query>",1,"firestore/src/common/firestore.cc",438
+"firebase::firestore::Firestore","LoadBundle","firebase::firestore::Firestore::LoadBundle","Future<LoadBundleTaskProgress>",1,"firestore/src/common/firestore.cc",420
+"firebase::firestore::Firestore","LoadBundle","firebase::firestore::Firestore::LoadBundle","Future<LoadBundleTaskProgress>",2,"firestore/src/common/firestore.cc",426
+"firebase::firestore::Firestore","AddSnapshotsInSyncListener","firebase::firestore::Firestore::AddSnapshotsInSyncListener","ListenerRegistration",1,"firestore/src/common/firestore.cc",399
+"firebase::firestore::Firestore","ClearPersistence","firebase::firestore::Firestore::ClearPersistence","Future<void>",0,"firestore/src/common/firestore.cc",394
+"firebase::firestore::Firestore","WaitForPendingWrites","firebase::firestore::Firestore::WaitForPendingWrites","Future<void>",0,"firestore/src/common/firestore.cc",389
+"firebase::firestore::Firestore","EnableNetwork","firebase::firestore::Firestore::EnableNetwork","Future<void>",0,"firestore/src/common/firestore.cc",376
+"firebase::firestore::Firestore","DisableNetwork","firebase::firestore::Firestore::DisableNetwork","Future<void>",0,"firestore/src/common/firestore.cc",371
+"firebase::firestore::Firestore","batch","firebase::firestore::Firestore::batch","WriteBatch",0,"firestore/src/common/firestore.cc",349
+"firebase::firestore::Firestore","set_settings","firebase::firestore::Firestore::set_settings","void",1,"firestore/src/common/firestore.cc",344
+"firebase::firestore::Firestore","settings","firebase::firestore::Firestore::settings","Settings",0,"firestore/src/common/firestore.cc",339
+"firebase::firestore::Firestore","CollectionGroup","firebase::firestore::Firestore::CollectionGroup","Query",1,"firestore/src/common/firestore.cc",322
+"firebase::firestore::Firestore","CollectionGroup","firebase::firestore::Firestore::CollectionGroup","Query",1,"firestore/src/common/firestore.cc",334
+"firebase::firestore::Firestore","~Firestore","firebase::firestore::Firestore::~Firestore","void",0,"firestore/src/common/firestore.cc",237
+"firebase::firestore::CollectionReference","operator=","firebase::firestore::CollectionReference::operator=","CollectionReference &",1,"firestore/src/common/collection_reference.cc",56
+"firebase::firestore::CollectionReference","operator=","firebase::firestore::CollectionReference::operator=","CollectionReference &",1,"firestore/src/common/collection_reference.cc",62
+"firebase::firestore::CollectionReference","path","firebase::firestore::CollectionReference::path","string",0,"firestore/src/common/collection_reference.cc",73
+"firebase::firestore::CollectionReference","id","firebase::firestore::CollectionReference::id","const string &",0,"firestore/src/common/collection_reference.cc",68
+"firebase::firestore::CollectionReference","Add","firebase::firestore::CollectionReference::Add","Future<DocumentReference>",1,"firestore/src/common/collection_reference.cc",107
+"firebase::firestore::CollectionReference","~CollectionReference","firebase::firestore::CollectionReference::~CollectionReference","void",0,"firestore/src/include/firebase/firestore/collection_reference.h",46
+"firebase::firestore::CollectionReference","CollectionReference","firebase::firestore::CollectionReference::CollectionReference","void",0,"firestore/src/common/collection_reference.cc",43
+"firebase::firestore::CollectionReference","CollectionReference","firebase::firestore::CollectionReference::CollectionReference","void",1,"firestore/src/common/collection_reference.cc",45
+"firebase::firestore::CollectionReference","CollectionReference","firebase::firestore::CollectionReference::CollectionReference","void",1,"firestore/src/common/collection_reference.cc",50
+"firebase::firestore::CollectionReference","Document","firebase::firestore::CollectionReference::Document","DocumentReference",0,"firestore/src/common/collection_reference.cc",83
+"firebase::firestore::CollectionReference","Document","firebase::firestore::CollectionReference::Document","DocumentReference",1,"firestore/src/common/collection_reference.cc",88
+"firebase::firestore::CollectionReference","Document","firebase::firestore::CollectionReference::Document","DocumentReference",1,"firestore/src/common/collection_reference.cc",101
+"firebase::firestore::CollectionReference","Parent","firebase::firestore::CollectionReference::Parent","DocumentReference",0,"firestore/src/common/collection_reference.cc",78
+"firebase::firestore::DocumentReference","operator=","firebase::firestore::DocumentReference::operator=","DocumentReference &",1,"firestore/src/common/document_reference.cc",70
+"firebase::firestore::DocumentReference","operator=","firebase::firestore::DocumentReference::operator=","DocumentReference &",1,"firestore/src/common/document_reference.cc",87
+"firebase::firestore::DocumentReference","ToString","firebase::firestore::DocumentReference::ToString","string",0,"firestore/src/common/document_reference.cc",196
+"firebase::firestore::DocumentReference","firestore","firebase::firestore::DocumentReference::firestore","Firestore *",0,"firestore/src/common/document_reference.cc",109
+"firebase::firestore::DocumentReference","firestore","firebase::firestore::DocumentReference::firestore","const Firestore *",0,"firestore/src/common/document_reference.cc",101
+"firebase::firestore::DocumentReference","path","firebase::firestore::DocumentReference::path","string",0,"firestore/src/common/document_reference.cc",119
+"firebase::firestore::DocumentReference","id","firebase::firestore::DocumentReference::id","const string &",0,"firestore/src/common/document_reference.cc",114
+"firebase::firestore::DocumentReference","Get","firebase::firestore::DocumentReference::Get","Future<DocumentSnapshot>",1,"firestore/src/common/document_reference.cc",152
+"firebase::firestore::DocumentReference","Delete","firebase::firestore::DocumentReference::Delete","Future<void>",0,"firestore/src/common/document_reference.cc",173
+"firebase::firestore::DocumentReference","Set","firebase::firestore::DocumentReference::Set","Future<void>",2,"firestore/src/common/document_reference.cc",157
+"firebase::firestore::DocumentReference","is_valid","firebase::firestore::DocumentReference::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_reference.h",300
+"firebase::firestore::DocumentReference","Collection","firebase::firestore::DocumentReference::Collection","CollectionReference",1,"firestore/src/common/document_reference.cc",129
+"firebase::firestore::DocumentReference","Collection","firebase::firestore::DocumentReference::Collection","CollectionReference",1,"firestore/src/common/document_reference.cc",142
+"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",1,"firestore/src/include/firebase/firestore/document_reference.h",264
+"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",1,"firestore/src/common/document_reference.cc",178
+"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",2,"firestore/src/include/firebase/firestore/document_reference.h",282
+"firebase::firestore::DocumentReference","AddSnapshotListener","firebase::firestore::DocumentReference::AddSnapshotListener","ListenerRegistration",2,"firestore/src/common/document_reference.cc",184
+"firebase::firestore::DocumentReference","Parent","firebase::firestore::DocumentReference::Parent","CollectionReference",0,"firestore/src/common/document_reference.cc",124
+"firebase::firestore::DocumentReference","DocumentReference","firebase::firestore::DocumentReference::DocumentReference","void",0,"firestore/src/common/document_reference.cc",43
+"firebase::firestore::DocumentReference","DocumentReference","firebase::firestore::DocumentReference::DocumentReference","void",1,"firestore/src/common/document_reference.cc",45
+"firebase::firestore::DocumentReference","DocumentReference","firebase::firestore::DocumentReference::DocumentReference","void",1,"firestore/src/common/document_reference.cc",52
+"firebase::firestore::DocumentReference","Update","firebase::firestore::DocumentReference::Update","Future<void>",1,"firestore/src/common/document_reference.cc",163
+"firebase::firestore::DocumentReference","Update","firebase::firestore::DocumentReference::Update","Future<void>",1,"firestore/src/common/document_reference.cc",168
+"firebase::firestore::DocumentReference","~DocumentReference","firebase::firestore::DocumentReference::~DocumentReference","void",0,"firestore/src/common/document_reference.cc",64
+"firebase::firestore::DocumentChange","operator=","firebase::firestore::DocumentChange::operator=","DocumentChange &",1,"firestore/src/common/document_change.cc",72
+"firebase::firestore::DocumentChange","operator=","firebase::firestore::DocumentChange::operator=","DocumentChange &",1,"firestore/src/common/document_change.cc",88
+"firebase::firestore::DocumentChange","type","firebase::firestore::DocumentChange::type","Type",0,"firestore/src/common/document_change.cc",102
+"firebase::firestore::DocumentChange","is_valid","firebase::firestore::DocumentChange::is_valid","bool",0,"firestore/src/include/firebase/firestore/document_change.h",173
+"firebase::firestore::DocumentChange","DocumentChange","firebase::firestore::DocumentChange::DocumentChange","void",0,"firestore/src/common/document_change.cc",45
+"firebase::firestore::DocumentChange","DocumentChange","firebase::firestore::DocumentChange::DocumentChange","void",1,"firestore/src/common/document_change.cc",47
+"firebase::firestore::DocumentChange","DocumentChange","firebase::firestore::DocumentChange::DocumentChange","void",1,"firestore/src/common/document_change.cc",54
+"firebase::firestore::DocumentChange","new_index","firebase::firestore::DocumentChange::new_index","size_t",0,"firestore/src/common/document_change.cc",117
+"firebase::firestore::DocumentChange","old_index","firebase::firestore::DocumentChange::old_index","size_t",0,"firestore/src/common/document_change.cc",112
+"firebase::firestore::DocumentChange","document","firebase::firestore::DocumentChange::document","DocumentSnapshot",0,"firestore/src/common/document_change.cc",107
+"firebase::firestore::DocumentChange","~DocumentChange","firebase::firestore::DocumentChange::~DocumentChange","void",0,"firestore/src/common/document_change.cc",66
+"firebase::firestore::SetOptions","operator=","firebase::firestore::SetOptions::operator=","SetOptions &",1,"firestore/src/include/firebase/firestore/set_options.h",92
+"firebase::firestore::SetOptions","operator=","firebase::firestore::SetOptions::operator=","SetOptions &",1,"firestore/src/include/firebase/firestore/set_options.h",104
+"firebase::firestore::SetOptions","Merge","firebase::firestore::SetOptions::Merge","SetOptions",0,"firestore/src/common/set_options.cc",30
+"firebase::firestore::SetOptions","SetOptions","firebase::firestore::SetOptions::SetOptions","void",0,"firestore/src/include/firebase/firestore/set_options.h",60
+"firebase::firestore::SetOptions","SetOptions","firebase::firestore::SetOptions::SetOptions","void",1,"firestore/src/include/firebase/firestore/set_options.h",69
+"firebase::firestore::SetOptions","SetOptions","firebase::firestore::SetOptions::SetOptions","void",1,"firestore/src/include/firebase/firestore/set_options.h",79
+"firebase::firestore::SetOptions","MergeFieldPaths","firebase::firestore::SetOptions::MergeFieldPaths","SetOptions",1,"firestore/src/common/set_options.cc",45
+"firebase::firestore::SetOptions","MergeFields","firebase::firestore::SetOptions::MergeFields","SetOptions",1,"firestore/src/common/set_options.cc",35
+"firebase::firestore::SetOptions","~SetOptions","firebase::firestore::SetOptions::~SetOptions","void",0,"firestore/src/common/set_options.cc",27
+"firebase::firestore::SnapshotMetadata","operator=","firebase::firestore::SnapshotMetadata::operator=","SnapshotMetadata &",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h",83
+"firebase::firestore::SnapshotMetadata","operator=","firebase::firestore::SnapshotMetadata::operator=","SnapshotMetadata &",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h",95
+"firebase::firestore::SnapshotMetadata","ToString","firebase::firestore::SnapshotMetadata::ToString","string",0,"firestore/src/common/snapshot_metadata.cc",24
+"firebase::firestore::SnapshotMetadata","is_from_cache","firebase::firestore::SnapshotMetadata::is_from_cache","bool",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h",118
+"firebase::firestore::SnapshotMetadata","has_pending_writes","firebase::firestore::SnapshotMetadata::has_pending_writes","bool",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h",107
+"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",0,"firestore/src/include/firebase/firestore/snapshot_metadata.h",33
+"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h",58
+"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",1,"firestore/src/include/firebase/firestore/snapshot_metadata.h",68
+"firebase::firestore::SnapshotMetadata","SnapshotMetadata","firebase::firestore::SnapshotMetadata::SnapshotMetadata","void",2,"firestore/src/include/firebase/firestore/snapshot_metadata.h",43
+"firebase::firestore::LoadBundleTaskProgress","operator=","firebase::firestore::LoadBundleTaskProgress::operator=","LoadBundleTaskProgress &",1,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",27
+"firebase::firestore::LoadBundleTaskProgress","state","firebase::firestore::LoadBundleTaskProgress::state","State",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",64
+"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",37
+"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",1,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",27
+"firebase::firestore::LoadBundleTaskProgress","LoadBundleTaskProgress","firebase::firestore::LoadBundleTaskProgress::LoadBundleTaskProgress","void",5,"firestore/src/common/load_bundle_task_progress.cc",29
+"firebase::firestore::LoadBundleTaskProgress","total_bytes","firebase::firestore::LoadBundleTaskProgress::total_bytes","int64_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",61
+"firebase::firestore::LoadBundleTaskProgress","bytes_loaded","firebase::firestore::LoadBundleTaskProgress::bytes_loaded","int64_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",55
+"firebase::firestore::LoadBundleTaskProgress","total_documents","firebase::firestore::LoadBundleTaskProgress::total_documents","int32_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",52
+"firebase::firestore::LoadBundleTaskProgress","documents_loaded","firebase::firestore::LoadBundleTaskProgress::documents_loaded","int32_t",0,"firestore/src/include/firebase/firestore/load_bundle_task_progress.h",46
+"firebase::firestore::Settings","operator=","firebase::firestore::Settings::operator=","Settings &",1,"firestore/src/include/firebase/firestore/settings.h",92
+"firebase::firestore::Settings","operator=","firebase::firestore::Settings::operator=","Settings &",1,"firestore/src/include/firebase/firestore/settings.h",104
+"firebase::firestore::Settings","ToString","firebase::firestore::Settings::ToString","string",0,"firestore/src/common/settings.cc",62
+"firebase::firestore::Settings","host","firebase::firestore::Settings::host","const string &",0,"firestore/src/include/firebase/firestore/settings.h",109
+"firebase::firestore::Settings","Settings","firebase::firestore::Settings::Settings","void",0,"firestore/src/include/firebase/firestore/settings.h",62
+"firebase::firestore::Settings","Settings","firebase::firestore::Settings::Settings","void",1,"firestore/src/include/firebase/firestore/settings.h",71
+"firebase::firestore::Settings","Settings","firebase::firestore::Settings::Settings","void",1,"firestore/src/include/firebase/firestore/settings.h",81
+"firebase::firestore::Settings","set_persistence_enabled","firebase::firestore::Settings::set_persistence_enabled","void",1,"firestore/src/common/settings.cc",54
+"firebase::firestore::Settings","~Settings","firebase::firestore::Settings::~Settings","void",0,"firestore/src/include/firebase/firestore/settings.h",52
+"firebase::firestore::Settings","set_cache_size_bytes","firebase::firestore::Settings::set_cache_size_bytes","void",1,"firestore/src/common/settings.cc",58
+"firebase::firestore::Settings","set_ssl_enabled","firebase::firestore::Settings::set_ssl_enabled","void",1,"firestore/src/common/settings.cc",52
+"firebase::firestore::Settings","set_host","firebase::firestore::Settings::set_host","void",1,"firestore/src/common/settings.cc",50
+"firebase::firestore::Settings","cache_size_bytes","firebase::firestore::Settings::cache_size_bytes","int64_t",0,"firestore/src/include/firebase/firestore/settings.h",122
+"firebase::firestore::Settings","is_persistence_enabled","firebase::firestore::Settings::is_persistence_enabled","bool",0,"firestore/src/include/firebase/firestore/settings.h",119
+"firebase::firestore::Settings","is_ssl_enabled","firebase::firestore::Settings::is_ssl_enabled","bool",0,"firestore/src/include/firebase/firestore/settings.h",114
+"firebase::firestore::Transaction","operator=","firebase::firestore::Transaction::operator=","Transaction &",1,"firestore/src/include/firebase/firestore/transaction.h",63
+"firebase::firestore::Transaction","Get","firebase::firestore::Transaction::Get","DocumentSnapshot",3,"firestore/src/common/transaction.cc",88
+"firebase::firestore::Transaction","Delete","firebase::firestore::Transaction::Delete","void",1,"firestore/src/common/transaction.cc",81
+"firebase::firestore::Transaction","Set","firebase::firestore::Transaction::Set","void",3,"firestore/src/common/transaction.cc",56
+"firebase::firestore::Transaction","Update","firebase::firestore::Transaction::Update","void",2,"firestore/src/common/transaction.cc",65
+"firebase::firestore::Transaction","Update","firebase::firestore::Transaction::Update","void",2,"firestore/src/common/transaction.cc",73
+"firebase::firestore::Transaction","Transaction","firebase::firestore::Transaction::Transaction","void",1,"firestore/src/include/firebase/firestore/transaction.h",55
+"firebase::firestore::Transaction","~Transaction","firebase::firestore::Transaction::~Transaction","void",0,"firestore/src/common/transaction.cc",50
+"firebase::firestore::WriteBatch","operator=","firebase::firestore::WriteBatch::operator=","WriteBatch &",1,"firestore/src/common/write_batch.cc",74
+"firebase::firestore::WriteBatch","operator=","firebase::firestore::WriteBatch::operator=","WriteBatch &",1,"firestore/src/common/write_batch.cc",90
+"firebase::firestore::WriteBatch","Delete","firebase::firestore::WriteBatch::Delete","WriteBatch &",1,"firestore/src/common/write_batch.cc",132
+"firebase::firestore::WriteBatch","Set","firebase::firestore::WriteBatch::Set","WriteBatch &",3,"firestore/src/common/write_batch.cc",104
+"firebase::firestore::WriteBatch","is_valid","firebase::firestore::WriteBatch::is_valid","bool",0,"firestore/src/include/firebase/firestore/write_batch.h",171
+"firebase::firestore::WriteBatch","Commit","firebase::firestore::WriteBatch::Commit","Future<void>",0,"firestore/src/common/write_batch.cc",140
+"firebase::firestore::WriteBatch","Update","firebase::firestore::WriteBatch::Update","WriteBatch &",2,"firestore/src/common/write_batch.cc",114
+"firebase::firestore::WriteBatch","Update","firebase::firestore::WriteBatch::Update","WriteBatch &",2,"firestore/src/common/write_batch.cc",123
+"firebase::firestore::WriteBatch","WriteBatch","firebase::firestore::WriteBatch::WriteBatch","void",0,"firestore/src/common/write_batch.cc",48
+"firebase::firestore::WriteBatch","WriteBatch","firebase::firestore::WriteBatch::WriteBatch","void",1,"firestore/src/common/write_batch.cc",50
+"firebase::firestore::WriteBatch","WriteBatch","firebase::firestore::WriteBatch::WriteBatch","void",1,"firestore/src/common/write_batch.cc",57
+"firebase::firestore::WriteBatch","~WriteBatch","firebase::firestore::WriteBatch::~WriteBatch","void",0,"firestore/src/common/write_batch.cc",68
+"firebase::firestore::TransactionOptions","operator=","firebase::firestore::TransactionOptions::operator=","TransactionOptions &",1,"firestore/src/include/firebase/firestore/transaction_options.h",68
+"firebase::firestore::TransactionOptions","operator=","firebase::firestore::TransactionOptions::operator=","TransactionOptions &",1,"firestore/src/include/firebase/firestore/transaction_options.h",83
+"firebase::firestore::TransactionOptions","ToString","firebase::firestore::TransactionOptions::ToString","string",0,"firestore/src/common/transaction_options.cc",36
+"firebase::firestore::TransactionOptions","max_attempts","firebase::firestore::TransactionOptions::max_attempts","int32_t",0,"firestore/src/include/firebase/firestore/transaction_options.h",91
+"firebase::firestore::TransactionOptions","set_max_attempts","firebase::firestore::TransactionOptions::set_max_attempts","void",1,"firestore/src/common/transaction_options.cc",28
+"firebase::firestore::TransactionOptions","TransactionOptions","firebase::firestore::TransactionOptions::TransactionOptions","void",0,"firestore/src/include/firebase/firestore/transaction_options.h",35
+"firebase::firestore::TransactionOptions","TransactionOptions","firebase::firestore::TransactionOptions::TransactionOptions","void",1,"firestore/src/include/firebase/firestore/transaction_options.h",44
+"firebase::firestore::TransactionOptions","TransactionOptions","firebase::firestore::TransactionOptions::TransactionOptions","void",1,"firestore/src/include/firebase/firestore/transaction_options.h",57

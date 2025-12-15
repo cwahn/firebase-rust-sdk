@@ -25,4 +25,6 @@ select
   f.getName() as field_name,
   "field" as dependency_kind,
   t.toString() as type_name,
-  t.toString() as type_qualified
+  t.toString() as type_qualified,
+  c.getFile().getRelativePath() as file_path,
+  f.getLocation().getStartLine() as line_number

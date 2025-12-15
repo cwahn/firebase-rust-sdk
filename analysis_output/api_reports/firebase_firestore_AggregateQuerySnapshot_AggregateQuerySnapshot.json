@@ -6,7 +6,13 @@
     "method": "AggregateQuerySnapshot",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/aggregate_query_snapshot.cc",
+    "line_number": "45",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/aggregate_query_snapshot.cc",
+    "line_number": "45"
   },
   "direct_dependencies": [
     "AggregateQuerySnapshot",
@@ -37,19 +43,19 @@
     "firebase::firestore::ConverterImpl::MakePublicFromJava"
   ],
   "implementation_order": [
-    "AggregateQuerySnapshot",
-    "std::__1::swap",
-    "firebase::CleanupNotifier::UnregisterObject",
-    "firebase::CleanupNotifier::RegisterObject",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "CleanupNotifier",
-    "FirestoreInternal",
     "AggregateQuerySnapshotInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "AggregateQuerySnapshot",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::swap",
+    "CleanupNotifier",
     "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
-    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::AggregateQuerySnapshot::AggregateQuerySnapshot"
   ]
 }

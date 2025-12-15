@@ -6,7 +6,13 @@
     "method": "TransactionOptions",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/transaction_options.h",
+    "line_number": "57",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/transaction_options.h",
+    "line_number": "57"
   },
   "direct_dependencies": [
     "TransactionOptions"

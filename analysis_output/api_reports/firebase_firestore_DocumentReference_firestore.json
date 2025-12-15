@@ -6,7 +6,13 @@
     "method": "firestore",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/document_reference.cc",
+    "line_number": "101",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/document_reference.cc",
+    "line_number": "101"
   },
   "direct_dependencies": [
     "Firestore",
@@ -25,10 +31,10 @@
   "dependency_count": 6,
   "direct_dependents": [],
   "implementation_order": [
-    "firebase::LogAssert",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
     "Firestore",
+    "firebase::LogAssert",
     "firebase::firestore::FirestoreInternal::firestore_public",
     "firebase::firestore::DocumentReferenceInternal::firestore",
     "firebase::firestore::DocumentReference::firestore"

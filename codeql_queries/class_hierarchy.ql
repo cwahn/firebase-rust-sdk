@@ -19,4 +19,5 @@ where
 select 
   c.getQualifiedName() as derived_class,
   base.getQualifiedName() as base_class,
-  c.getFile().getRelativePath() as file_path
+  c.getFile().getRelativePath() as file_path,
+  c.getLocation().getStartLine() as line_number

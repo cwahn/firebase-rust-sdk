@@ -6,7 +6,13 @@
     "method": "~Settings",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/settings.h",
+    "line_number": "52",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/settings.h",
+    "line_number": "52"
   },
   "direct_dependencies": [
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
@@ -25,8 +31,8 @@
     "firebase::firestore::SettingsInternal::ToPublic"
   ],
   "implementation_order": [
-    "std::__1::shared_ptr<const Executor>::~shared_ptr",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::shared_ptr<const Executor>::~shared_ptr",
     "firebase::firestore::Settings::~Settings"
   ]
 }

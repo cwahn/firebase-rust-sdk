@@ -2,10 +2,10 @@
 FIREBASE C++ SDK DEPENDENCY ANALYSIS SUMMARY
 ================================================================================
 
-Total Components: 3394
-Total Dependencies: 7734
+Total Components: 3393
+Total Dependencies: 7731
 Implementation Layers: 32
-Average Layer Size: 106.1
+Average Layer Size: 106.0
 Leaf Nodes: 1115
 Max Dependencies: 64
 Max Dependents: 231
@@ -83,7 +83,7 @@ Layer 1 (1115 components):
   - AggregateSource
   ... and 1105 more
 
-Layer 2 (1206 components):
+Layer 2 (1205 components):
   - firebase::auth::(unnamed namespace)::BackendErrorToCode
   - firebase::auth::(unnamed namespace)::BackendErrorToCode::operator=
   - firebase::auth::(unnamed namespace)::ErrorCodeToDescription
@@ -94,7 +94,7 @@ Layer 2 (1206 components):
   - firebase::auth::(unnamed namespace)::GetTokenResult::operator=
   - firebase::auth::(unnamed namespace)::GetTokenResult::token
   - firebase::auth::(unnamed namespace)::GetTokenResult::~GetTokenResult
-  ... and 1196 more
+  ... and 1195 more
 
 Layer 3 (373 components):
   - MyAuthStateListener

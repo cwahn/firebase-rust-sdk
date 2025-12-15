@@ -6,7 +6,13 @@
     "method": "FieldValue",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/field_value.cc",
+    "line_number": "100",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_value.cc",
+    "line_number": "100"
   },
   "direct_dependencies": [
     "FieldValue",
@@ -42,11 +48,11 @@
     "firebase::firestore::UnaryFilterInternal::UnaryFilterInternal"
   ],
   "implementation_order": [
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
     "FieldValue",
     "std::__1::swap",
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "FieldValueInternal",
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
     "firebase::firestore::FieldValue::FieldValue"
   ]
 }

@@ -23,4 +23,5 @@ select
   m.getQualifiedName() as method_qualified,
   m.getType().toString() as return_type,
   m.getNumberOfParameters() as param_count,
-  m.getFile().getRelativePath() as file_path
+  m.getFile().getRelativePath() as file_path,
+  m.getLocation().getStartLine() as line_number

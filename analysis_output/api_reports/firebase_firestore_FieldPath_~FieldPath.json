@@ -5,7 +5,13 @@
     "class": "firebase::firestore::FieldPath",
     "method": "~FieldPath",
     "is_static": false,
-    "is_virtual": false
+    "is_virtual": false,
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "50"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "50"
   },
   "direct_dependencies": [],
   "transitive_dependencies": [],

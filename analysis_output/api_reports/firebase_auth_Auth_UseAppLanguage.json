@@ -6,7 +6,13 @@
     "method": "UseAppLanguage",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/desktop/auth_desktop.cc",
+    "line_number": "563",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "auth/src/desktop/auth_desktop.cc",
+    "line_number": "563"
   },
   "direct_dependencies": [
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
@@ -21,9 +27,9 @@
   "dependency_count": 3,
   "direct_dependents": [],
   "implementation_order": [
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::assign",
     "firebase::auth::Auth::UseAppLanguage"
   ]
 }

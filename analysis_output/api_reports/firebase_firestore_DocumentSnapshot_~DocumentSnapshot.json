@@ -6,7 +6,13 @@
     "method": "~DocumentSnapshot",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/document_snapshot.cc",
+    "line_number": "62",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "firestore/src/common/document_snapshot.cc",
+    "line_number": "62"
   },
   "direct_dependencies": [
     "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister"
@@ -26,13 +32,13 @@
     "firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::Completer<DocumentSnapshot, DocumentSnapshotInternal, void>::SucceedWithResult"
   ],
   "implementation_order": [
-    "DocumentSnapshotInternal",
     "DocumentSnapshot",
-    "firebase::CleanupNotifier::UnregisterObject",
-    "CleanupNotifier",
     "FirestoreInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "DocumentSnapshotInternal",
+    "CleanupNotifier",
     "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::DocumentSnapshot::~DocumentSnapshot"
   ]

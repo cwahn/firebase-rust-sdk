@@ -6,7 +6,13 @@
     "method": "~AuthResult",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "498",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "498"
   },
   "direct_dependencies": [
     "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
@@ -32,13 +38,13 @@
     "firebase::auth::User::ReauthenticateWithProvider"
   ],
   "implementation_order": [
-    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
-    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
-    "firebase::auth::CredentialImpl::~CredentialImpl",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::~map",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
     "firebase::auth::UserInfoInterface::~UserInfoInterface",
-    "firebase::auth::Credential::~Credential",
+    "firebase::auth::CredentialImpl::~CredentialImpl",
     "firebase::auth::User::~User",
+    "firebase::auth::Credential::~Credential",
     "firebase::auth::AdditionalUserInfo::~AdditionalUserInfo",
     "firebase::auth::AuthResult::~AuthResult"
   ]

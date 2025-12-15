@@ -6,7 +6,13 @@
     "method": "is_anonymous",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "1028",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "1028"
   },
   "direct_dependencies": [
     "firebase::auth::UserView::GetReader",
@@ -33,19 +39,19 @@
   "dependency_count": 14,
   "direct_dependents": [],
   "implementation_order": [
-    "firebase::LogAssert",
-    "AuthData",
+    "UserData",
     "firebase::Mutex::Acquire",
     "firebase::ReferenceCountedFutureImpl::mutex",
     "firebase::auth::UserView::Reader::IsValid",
-    "Reader",
-    "Mutex",
-    "UserData",
     "firebase::Mutex::Release",
-    "firebase::auth::UserView::CastToUser",
+    "AuthData",
+    "Reader",
+    "firebase::LogAssert",
+    "Mutex",
     "firebase::auth::UserView::Reader::operator->",
-    "firebase::auth::UserView::Reader::Reader",
     "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::Reader::Reader",
     "firebase::auth::UserView::GetReader",
     "firebase::auth::User::is_anonymous"
   ]

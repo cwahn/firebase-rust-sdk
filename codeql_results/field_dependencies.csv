@@ -1,516 +1,529 @@
-"class_name","field_name","dependency_kind","type_name","type_qualified"
-"firebase::firestore::jni::Local<String>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<T>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Array<unsigned char>>","env_","field","<error-type> *","<error-type> *"
-"firebase::auth::AuthResult","user","field","User","User"
-"firebase::auth::AuthResult","credential","field","Credential","Credential"
-"firebase::auth::AuthResult","additional_user_info","field","AdditionalUserInfo","AdditionalUserInfo"
-"firebase::auth::Auth","auth_data_","field","AuthData *","AuthData *"
-"firebase::auth::User","auth_data_","field","AuthData *","AuthData *"
-"firebase::auth::PhoneAuthProvider::ForceResendingToken","data_","field","ForceResendingTokenData *","ForceResendingTokenData *"
-"firebase::auth::PhoneAuthProvider::Listener","data_","field","PhoneListenerData *","PhoneListenerData *"
-"firebase::auth::User::UserProfile","photo_url","field","char *","char *"
-"firebase::auth::User::UserProfile","display_name","field","char *","char *"
-"firebase::auth::Auth::FetchProvidersResult","providers","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>"
-"firebase::auth::Credential","impl_","field","void *","void *"
-"firebase::auth::Credential","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::Credential","error_code_","field","AuthError","AuthError"
-"firebase::auth::PhoneAuthOptions","phone_number","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::PhoneAuthOptions","force_resending_token","field","ForceResendingToken *","ForceResendingToken *"
-"firebase::auth::PhoneAuthOptions","ui_parent","field","void *","void *"
-"firebase::auth::PhoneAuthProvider","data_","field","PhoneAuthProviderData *","PhoneAuthProviderData *"
-"firebase::auth::PhoneAuthCredential","sms_code_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::IdTokenListener","auths_","field","vector<Auth *, allocator<Auth *>>","vector<Auth *, allocator<Auth *>>"
-"firebase::auth::AuthStateListener","auths_","field","vector<Auth *, allocator<Auth *>>","vector<Auth *, allocator<Auth *>>"
-"firebase::auth::UserInfoInterface","phone_number_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoInterface","provider_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoInterface","photo_url_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoInterface","display_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoInterface","email_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoInterface","uid_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AdditionalUserInfo","profile","field","map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>","map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>"
-"firebase::auth::AdditionalUserInfo","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AdditionalUserInfo","updated_credential","field","Credential","Credential"
-"firebase::auth::AdditionalUserInfo","user_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthData","app","field","App *","App *"
-"firebase::auth::AuthData","future_impl","field","ReferenceCountedFutureImpl","ReferenceCountedFutureImpl"
-"firebase::auth::AuthData","auth","field","Auth *","Auth *"
-"firebase::auth::AuthData","current_user","field","User","User"
-"firebase::auth::AuthData","phone_auth_provider","field","PhoneAuthProvider","PhoneAuthProvider"
-"firebase::auth::AuthData","auth_impl","field","void *","void *"
-"firebase::auth::AuthData","id_token_listeners","field","vector<IdTokenListener *, allocator<IdTokenListener *>>","vector<IdTokenListener *, allocator<IdTokenListener *>>"
-"firebase::auth::AuthData","listeners","field","vector<AuthStateListener *, allocator<AuthStateListener *>>","vector<AuthStateListener *, allocator<AuthStateListener *>>"
-"firebase::auth::AuthData","destructing_mutex","field","Mutex","Mutex"
-"firebase::auth::AuthData","expect_id_token_mutex","field","Mutex","Mutex"
-"firebase::auth::AuthData","token_listener_mutex","field","Mutex","Mutex"
-"firebase::auth::AuthData","listeners_mutex","field","Mutex","Mutex"
-"firebase::auth::AuthData","user_infos","field","vector<UserInfoInterface *, allocator<UserInfoInterface *>>","vector<UserInfoInterface *, allocator<UserInfoInterface *>>"
-"firebase::auth::AuthData","id_token_listener_impl","field","void *","void *"
-"firebase::auth::AuthData","listener_impl","field","void *","void *"
-"firebase::auth::AuthData","user_impl","field","void *","void *"
-"firebase::auth::AuthData","future_api_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::FutureCallbackData<T>","handle","field","SafeFutureHandle<T>","SafeFutureHandle<T>"
-"firebase::auth::FutureCallbackData<T>","future_data_read_fn","field","..(*)(..)","..(*)(..)"
-"firebase::auth::FutureCallbackData<T>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::UserView::Reader","user_data_","field","UserData *","UserData *"
-"firebase::auth::UserView::Reader","mutex_","field","Mutex *","Mutex *"
-"firebase::auth::UserView::Reader","auth_data_","field","AuthData *","AuthData *"
-"firebase::auth::IdTokenRefreshThread","thread_","field","Thread","Thread"
-"firebase::auth::IdTokenRefreshThread","auth","field","Auth *","Auth *"
-"firebase::auth::IdTokenRefreshThread","token_refresh_listener_","field","IdTokenRefreshListener","IdTokenRefreshListener"
-"firebase::auth::IdTokenRefreshThread","wakeup_sem_","field","Semaphore","Semaphore"
-"firebase::auth::IdTokenRefreshThread","ref_count_mutex_","field","Mutex","Mutex"
-"firebase::auth::FunctionRegistryAuthStateListener","callbacks_","field","vector<pair<..(*)(..), void *>, allocator<pair<..(*)(..), void *>>>","vector<pair<..(*)(..), void *>, allocator<pair<..(*)(..), void *>>>"
-"firebase::auth::UserDataPersist","user_secure_manager_","field","unique_ptr<UserSecureManager, default_delete<UserSecureManager>>","unique_ptr<UserSecureManager, default_delete<UserSecureManager>>"
-"firebase::auth::IdTokenRefreshListener","mutex_","field","Mutex","Mutex"
-"firebase::auth::IdTokenRefreshListener","current_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthImpl","api_key","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthImpl","scheduler_","field","Scheduler","Scheduler"
-"firebase::auth::AuthImpl","app_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthImpl","assigned_emulator_url","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthImpl","language_code","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthImpl","provider_mutex","field","Mutex","Mutex"
-"firebase::auth::AuthImpl","internal_listeners","field","unique_ptr<FunctionRegistryAuthStateListener, default_delete<FunctionRegistryAuthStateListener>>","unique_ptr<FunctionRegistryAuthStateListener, default_delete<FunctionRegistryAuthStateListener>>"
-"firebase::auth::AuthImpl","user_data_persist","field","unique_ptr<UserDataPersist, default_delete<UserDataPersist>>","unique_ptr<UserDataPersist, default_delete<UserDataPersist>>"
-"firebase::auth::AuthImpl","token_refresh_thread","field","IdTokenRefreshThread","IdTokenRefreshThread"
-"firebase::auth::AuthResultCompletionHandle","future_handle","field","SafeFutureHandle<AuthResult>","SafeFutureHandle<AuthResult>"
-"firebase::auth::AuthResultCompletionHandle","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::Promise<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>"
-"firebase::auth::Promise<void>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<void>","future_","field","Future<void>","Future<void>"
-"firebase::auth::Promise<ResultT>","handle_","field","SafeFutureHandle<ResultT>","SafeFutureHandle<ResultT>"
-"firebase::auth::Promise<ResultT>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<ResultT>","future_","field","Future<ResultT>","Future<ResultT>"
-"firebase::auth::AuthenticationResult","user_account_info_","field","GetAccountInfoResult","GetAccountInfoResult"
-"firebase::auth::AuthenticationResult","info_","field","AdditionalUserInfo","AdditionalUserInfo"
-"firebase::auth::AuthenticationResult","user_impl_","field","UserData","UserData"
-"firebase::auth::AuthenticationResult","error_","field","AuthError","AuthError"
-"firebase::auth::GetAccountInfoResult","user_impl_","field","UserData","UserData"
-"firebase::auth::GetAccountInfoResult","error_","field","AuthError","AuthError"
-"firebase::auth::GetAccountInfoResult","provider_data_","field","vector<UserInfoImpl, allocator<UserInfoImpl>>","vector<UserInfoImpl, allocator<UserInfoImpl>>"
-"firebase::auth::UserData","access_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserData","id_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserData","refresh_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","phone_number","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","uid","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","email","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","photo_url","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserInfoImpl","display_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::CurrentUserBlockListener","semaphore_","field","Semaphore","Semaphore"
-"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","request","field","unique_ptr<GetOobConfirmationCodeRequest, default_delete<GetOobConfirmationCodeRequest>>","unique_ptr<GetOobConfirmationCodeRequest, default_delete<GetOobConfirmationCodeRequest>>"
-"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","promise","field","Promise<void>","Promise<void>"
-"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","request","field","unique_ptr<CreateAuthUriRequest, default_delete<CreateAuthUriRequest>>","unique_ptr<CreateAuthUriRequest, default_delete<CreateAuthUriRequest>>"
-"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","promise","field","Promise<FetchProvidersResult>","Promise<FetchProvidersResult>"
-"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::Promise<FetchProvidersResult>","handle_","field","SafeFutureHandle<FetchProvidersResult>","SafeFutureHandle<FetchProvidersResult>"
-"firebase::auth::Promise<FetchProvidersResult>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<FetchProvidersResult>","future_","field","Future<FetchProvidersResult>","Future<FetchProvidersResult>"
-"firebase::auth::Promise<AuthResult>","handle_","field","SafeFutureHandle<AuthResult>","SafeFutureHandle<AuthResult>"
-"firebase::auth::Promise<AuthResult>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<AuthResult>","future_","field","Future<AuthResult>","Future<AuthResult>"
-"firebase::auth::UserView","user_data_","field","UserData","UserData"
-"firebase::auth::Promise<User>","handle_","field","SafeFutureHandle<User>","SafeFutureHandle<User>"
-"firebase::auth::Promise<User>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<User>","future_","field","Future<User>","Future<User>"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","request","field","unique_ptr<SignUpNewUserRequest, default_delete<SignUpNewUserRequest>>","unique_ptr<SignUpNewUserRequest, default_delete<SignUpNewUserRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","request","field","unique_ptr<VerifyPasswordRequest, default_delete<VerifyPasswordRequest>>","unique_ptr<VerifyPasswordRequest, default_delete<VerifyPasswordRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","request","field","unique_ptr<VerifyCustomTokenRequest, default_delete<VerifyCustomTokenRequest>>","unique_ptr<VerifyCustomTokenRequest, default_delete<VerifyCustomTokenRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<ResultT, RequestT>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<ResultT, RequestT>","request","field","unique_ptr<RequestT, default_delete<RequestT>>","unique_ptr<RequestT, default_delete<RequestT>>"
-"firebase::auth::AuthDataHandle<ResultT, RequestT>","promise","field","Promise<ResultT>","Promise<ResultT>"
-"firebase::auth::AuthDataHandle<ResultT, RequestT>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<User, Request>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<User, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>"
-"firebase::auth::AuthDataHandle<User, Request>","promise","field","Promise<User>","Promise<User>"
-"firebase::auth::AuthDataHandle<User, Request>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::EmailAuthCredential","email_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::EmailAuthCredential","password_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthDataHandle<AuthResult, Request>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>"
-"firebase::auth::AuthDataHandle<AuthResult, Request>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, Request>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::CredentialImpl","auth_credential","field","shared_ptr<AuthCredential>","shared_ptr<AuthCredential>"
-"firebase::auth::VerifyAssertionRequest","post_body_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::FacebookAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::GitHubAuthCredential","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::GoogleAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::GoogleAuthCredential","id_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::jni::Object","object_","field","error","error"
-"firebase::auth::OAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::OAuthCredential","id_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::OAuthCredential","raw_nonce_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::OAuthCredential","provider_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::FederatedProviderData","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::FederatedOAuthProviderData","custom_parameters","field","map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>","map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>"
-"firebase::auth::FederatedOAuthProviderData","scopes","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>"
-"firebase::auth::FederatedOAuthProvider","provider_data_","field","FederatedOAuthProviderData","FederatedOAuthProviderData"
-"firebase::auth::PlayGamesAuthCredential","server_auth_code_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::TwitterAuthCredential","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::TwitterAuthCredential","secret_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::UserView::Writer","user_data_","field","UserData *","UserData *"
-"firebase::auth::UserView::Writer","mutex_","field","Mutex *","Mutex *"
-"firebase::auth::UserView::Writer","auth_data_","field","AuthData *","AuthData *"
-"firebase::auth::UserInfoInterfaceImpl","impl","field","UserInfoImpl","UserInfoImpl"
-"firebase::auth::(unnamed namespace)::ErrorCodeToDescription","description","field","char *","char *"
-"firebase::auth::(unnamed namespace)::ErrorCodeToDescription","error_code","field","AuthError","AuthError"
-"firebase::auth::(unnamed namespace)::BackendErrorToCode","error_code","field","AuthError","AuthError"
-"firebase::auth::(unnamed namespace)::BackendErrorToCode","backend_error","field","char *","char *"
-"firebase::auth::SetAccountInfoResult","user_impl_","field","UserData","UserData"
-"firebase::auth::SetAccountInfoResult","error_","field","AuthError","AuthError"
-"firebase::auth::SetAccountInfoResult","provider_data_","field","vector<UserInfoImpl, allocator<UserInfoImpl>>","vector<UserInfoImpl, allocator<UserInfoImpl>>"
-"firebase::auth::TokenUpdate","id_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::TokenUpdate","refresh_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","request","field","unique_ptr<GetAccountInfoRequest, default_delete<GetAccountInfoRequest>>","unique_ptr<GetAccountInfoRequest, default_delete<GetAccountInfoRequest>>"
-"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","promise","field","Promise<void>","Promise<void>"
-"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","request","field","unique_ptr<DeleteAccountRequest, default_delete<DeleteAccountRequest>>","unique_ptr<DeleteAccountRequest, default_delete<DeleteAccountRequest>>"
-"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","promise","field","Promise<void>","Promise<void>"
-"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::(unnamed namespace)::GetTokenResult","error_","field","AuthError","AuthError"
-"firebase::auth::(unnamed namespace)::GetTokenResult","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>"
-"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","promise","field","Promise<basic_string<char, char_traits<char>, allocator<char>>>","Promise<basic_string<char, char_traits<char>, allocator<char>>>"
-"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","handle_","field","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>"
-"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &"
-"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","future_","field","Future<basic_string<char, char_traits<char>, allocator<char>>>","Future<basic_string<char, char_traits<char>, allocator<char>>>"
-"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","request","field","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","request","field","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>"
-"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","promise","field","Promise<void>","Promise<void>"
-"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<void, Request>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<void, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>"
-"firebase::auth::AuthDataHandle<void, Request>","promise","field","Promise<void>","Promise<void>"
-"firebase::auth::AuthDataHandle<void, Request>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","request","field","unique_ptr<VerifyAssertionRequest, default_delete<VerifyAssertionRequest>>","unique_ptr<VerifyAssertionRequest, default_delete<VerifyAssertionRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","callback","field","..(*)(..)","..(*)(..)"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","request","field","unique_ptr<SignUpRequest, default_delete<SignUpRequest>>","unique_ptr<SignUpRequest, default_delete<SignUpRequest>>"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>"
-"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","auth_data","field","AuthData *","AuthData *"
-"firebase::firestore::FieldValue","internal_","field","FieldValueInternal *","FieldValueInternal *"
-"firebase::firestore::FieldPath","internal_","field","FieldPath *","FieldPath *"
-"firebase::firestore::AggregateQuery","internal_","field","AggregateQueryInternal *","AggregateQueryInternal *"
-"firebase::firestore::AggregateQueryInternal","api","field","error","error"
-"firebase::firestore::AggregateQueryInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>"
-"firebase::firestore::AggregateQueryInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>"
-"firebase::firestore::AggregateQuerySnapshot","internal_","field","AggregateQuerySnapshotInternal *","AggregateQuerySnapshotInternal *"
-"firebase::firestore::Query","internal_","field","QueryInternal *","QueryInternal *"
-"firebase::firestore::AggregateQuerySnapshotInternal","api","field","error","error"
-"firebase::firestore::AggregateQuerySnapshotInternal","int64_t","field","error","error"
-"firebase::firestore::AggregateQuerySnapshotInternal","count_result_","field","error","error"
-"firebase::firestore::QueryInternal","api","field","error","error"
-"firebase::firestore::QueryInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>"
-"firebase::firestore::QueryInternal","user_data_converter_","field","UserDataConverter","UserDataConverter"
-"firebase::firestore::QueryInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>"
-"firebase::firestore::QuerySnapshot","internal_","field","QuerySnapshotInternal *","QuerySnapshotInternal *"
-"firebase::firestore::ListenerRegistration","internal_","field","ListenerRegistrationInternal *","ListenerRegistrationInternal *"
-"firebase::firestore::ListenerRegistration","firestore_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::DocumentSnapshot","internal_","field","DocumentSnapshotInternal *","DocumentSnapshotInternal *"
-"firebase::firestore::Filter","internal_","field","FilterInternal *","FilterInternal *"
-"firebase::firestore::Firestore","internal_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::QuerySnapshotInternal","api","field","error","error"
-"firebase::firestore::FirestoreInternal","app_","field","App *","App *"
-"firebase::firestore::FirestoreInternal","cleanup_","field","CleanupNotifier","CleanupNotifier"
-"firebase::firestore::FirestoreInternal","future_manager_","field","FutureManager","FutureManager"
-"firebase::firestore::FirestoreInternal","listeners_mutex_","field","mutex","mutex"
-"firebase::firestore::FirestoreInternal","listeners_","field","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>"
-"firebase::firestore::FirestoreInternal","obj_","field","Global<Object>","Global<Object>"
-"firebase::firestore::FirestoreInternal","database_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::FirestoreInternal","transaction_executor_","field","shared_ptr<Executor>","shared_ptr<Executor>"
-"firebase::firestore::FirestoreInternal","promise_factory_","field","PromiseFactory<AsyncApi>","PromiseFactory<AsyncApi>"
-"firebase::firestore::FirestoreInternal","firestore_core_","field","error","error"
-"firebase::firestore::FirestoreInternal","firestore_public_","field","Firestore *","Firestore *"
-"firebase::firestore::FirestoreInternal","promises_","field","unique_ptr<PromiseFactory<AsyncFn>, default_delete<PromiseFactory<AsyncFn>>>","unique_ptr<PromiseFactory<AsyncFn>, default_delete<PromiseFactory<AsyncFn>>>"
-"firebase::firestore::FirestoreInternal","bundle_listeners_","field","list<LambdaEventListener<LoadBundleTaskProgress>, allocator<LambdaEventListener<LoadBundleTaskProgress>>>","list<LambdaEventListener<LoadBundleTaskProgress>, allocator<LambdaEventListener<LoadBundleTaskProgress>>>"
-"firebase::firestore::FirestoreInternal","bundle_listeners_mutex_","field","Mutex","Mutex"
-"firebase::firestore::FirestoreInternal","listener_registrations_","field","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>"
-"firebase::firestore::FirestoreInternal","listener_registration_mutex_","field","Mutex","Mutex"
-"firebase::firestore::FirestoreInternal","user_callback_executor_","field","Global<Object>","Global<Object>"
-"firebase::firestore::CollectionReferenceInternal","api","field","error","error"
-"firebase::firestore::CollectionReferenceInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::CollectionReferenceInternal","cached_path_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::DocumentReference","internal_","field","DocumentReferenceInternal *","DocumentReferenceInternal *"
-"firebase::firestore::DocumentReferenceInternal","api","field","error","error"
-"firebase::firestore::DocumentReferenceInternal","promise_factory_","field","PromiseFactory<<error-type>>","PromiseFactory<<error-type>>"
-"firebase::firestore::DocumentReferenceInternal","user_data_converter_","field","UserDataConverter","UserDataConverter"
-"firebase::firestore::DocumentReferenceInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>"
-"firebase::firestore::DocumentReferenceInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::DocumentReferenceInternal","cached_path_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::DocumentChange","internal_","field","DocumentChangeInternal *","DocumentChangeInternal *"
-"firebase::firestore::DocumentChangeInternal","api","field","error","error"
-"firebase::firestore::SetOptions","type_","field","Type","Type"
-"firebase::firestore::SetOptions","fields_","field","unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>","unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>"
-"firebase::firestore::SetOptionsInternal","options_","field","SetOptions","SetOptions"
-"firebase::firestore::WriteBatchInternal","api","field","error","error"
-"firebase::firestore::WriteBatchInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>"
-"firebase::firestore::WriteBatchInternal","user_data_converter_","field","UserDataConverter","UserDataConverter"
-"firebase::firestore::WriteBatchInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>"
-"firebase::firestore::TransactionInternal","transaction_","field","shared_ptr<<error-type>>","shared_ptr<<error-type>>"
-"firebase::firestore::TransactionInternal","user_data_converter_","field","UserDataConverter","UserDataConverter"
-"firebase::firestore::TransactionInternal","firestore_internal_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::TransactionInternal","first_exception_","field","shared_ptr<Local<Throwable>>","shared_ptr<Local<Throwable>>"
-"firebase::firestore::FieldValueInternal","object_","field","ArenaRef","ArenaRef"
-"firebase::firestore::FieldValueInternal","type_","field","Type","Type"
-"firebase::firestore::FieldValueInternal","cached_blob_","field","shared_ptr<vector<unsigned char, allocator<unsigned char>>>","shared_ptr<vector<unsigned char, allocator<unsigned char>>>"
-"firebase::firestore::FieldValueInternal","cached_type_","field","Type","Type"
-"firebase::firestore::DocumentSnapshotInternal","api","field","error","error"
-"firebase::firestore::DocumentSnapshotInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::FilterInternal","obj_","field","ArenaRef","ArenaRef"
-"firebase::firestore::FilterInternal","filter_type_","field","FilterType","FilterType"
-"firebase::firestore::ListenerRegistrationInternal","firestore_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::ListenerRegistrationInternal","registration_","field","error","error"
-"firebase::firestore::ListenerRegistrationInternal","listener_registration_","field","Global<Object>","Global<Object>"
-"firebase::firestore::ListenerRegistrationInternal","void_event_listener_","field","EventListener<void> *","EventListener<void> *"
-"firebase::firestore::ListenerRegistrationInternal","query_event_listener_","field","EventListener<QuerySnapshot> *","EventListener<QuerySnapshot> *"
-"firebase::firestore::ListenerRegistrationInternal","document_event_listener_","field","EventListener<DocumentSnapshot> *","EventListener<DocumentSnapshot> *"
-"firebase::firestore::LoadBundleTaskProgress","state_","field","State","State"
-"firebase::firestore::Settings","host_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::Settings","executor_","field","shared_ptr<const Executor>","shared_ptr<const Executor>"
-"firebase::firestore::Transaction","internal_","field","TransactionInternal *","TransactionInternal *"
-"firebase::firestore::WriteBatch","internal_","field","WriteBatchInternal *","WriteBatchInternal *"
-"firebase::firestore::FirestoreInfo","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::FirestoreInfo","firestore_","field","unique_ptr<Firestore, default_delete<Firestore>>","unique_ptr<Firestore, default_delete<Firestore>>"
-"firebase::firestore::FirestoreInfo","database_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::Stopwatch","mutex_","field","mutex","mutex"
-"firebase::firestore::Stopwatch","stop_time_","field","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>"
-"firebase::firestore::Stopwatch","start_time_","field","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>"
-"firebase::firestore::TestEventListener<T>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<T>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::TestEventListener<T>","last_results_","field","vector<T, allocator<T>>","vector<T, allocator<T>>"
-"firebase::firestore::TestEventListener<T>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<T>","first_error_code_","field","error","error"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","handle_","field","SafeFutureHandle<PublicT>","SafeFutureHandle<PublicT>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::jni::Env","context_","field","void *","void *"
-"firebase::firestore::jni::Env","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Env","exception_handler_","field","..(*)(..)","..(*)(..)"
-"firebase::firestore::jni::Local<Object>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<CancellationTokenSource>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Loader","app_","field","App *","App *"
-"firebase::firestore::jni::Loader","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Loader","embedded_files_","field","vector<EmbeddedFile, allocator<EmbeddedFile>>","vector<EmbeddedFile, allocator<EmbeddedFile>>"
-"firebase::firestore::jni::Loader","loaded_classes_","field","vector<<error-type>, allocator<<error-type>>>","vector<<error-type>, allocator<<error-type>>>"
-"firebase::firestore::jni::Loader","last_class_","field","error","error"
-"firebase::firestore::jni::Loader","last_class_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::jni::MethodBase","name_","field","char *","char *"
-"firebase::firestore::jni::MethodBase","id_","field","error","error"
-"firebase::firestore::jni::MethodBase","sig_","field","char *","char *"
-"firebase::firestore::jni::ConstructorBase","id_","field","error","error"
-"firebase::firestore::jni::ConstructorBase","clazz_","field","error","error"
-"firebase::firestore::jni::ConstructorBase","sig_","field","char *","char *"
-"firebase::firestore::FieldPathPortable","segments_","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>"
-"firebase::firestore::jni::Local<GeoPointInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::JniRunnable<CallbackT>","callback_","field","CallbackT","CallbackT"
-"firebase::firestore::jni::Local<Task>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::JniRunnableBase","java_runnable_","field","Global<Object>","Global<Object>"
-"firebase::firestore::jni::StaticMethodBase","name_","field","char *","char *"
-"firebase::firestore::jni::StaticMethodBase","id_","field","error","error"
-"firebase::firestore::jni::StaticMethodBase","clazz_","field","error","error"
-"firebase::firestore::jni::StaticMethodBase","sig_","field","char *","char *"
-"firebase::firestore::jni::StaticFieldBase","name_","field","char *","char *"
-"firebase::firestore::jni::StaticFieldBase","id_","field","error","error"
-"firebase::firestore::jni::StaticFieldBase","clazz_","field","error","error"
-"firebase::firestore::jni::StaticFieldBase","sig_","field","char *","char *"
-"firebase::firestore::jni::ArenaRef","entry_","field","shared_ptr<ObjectArenaEntry>","shared_ptr<ObjectArenaEntry>"
-"firebase::firestore::Wrapper","obj_","field","ArenaRef","ArenaRef"
-"firebase::firestore::Wrapper","firestore_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::LambdaEventListener<void>","callback_","field","function<..(..)>","function<..(..)>"
-"firebase::firestore::LambdaEventListener<T>","callback_","field","function<..(..)>","function<..(..)>"
-"firebase::firestore::FirestoreInternalWeakReference","mutex_","field","recursive_mutex","recursive_mutex"
-"firebase::firestore::FirestoreInternalWeakReference","firestore_","field","FirestoreInternal *","FirestoreInternal *"
-"firebase::firestore::PromiseFactory<AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::LambdaEventListener<LoadBundleTaskProgress>","callback_","field","error","error"
-"firebase::firestore::PromiseFactory<EnumT>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::jni::Local<Throwable>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","handle_","field","SafeFutureHandle<PublicType>","SafeFutureHandle<PublicType>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","completer_","field","unique_ptr<Completer<PublicType, InternalType, void>, default_delete<Completer<PublicType, InternalType, void>>>","unique_ptr<Completer<PublicType, InternalType, void>, default_delete<Completer<PublicType, InternalType, void>>>"
-"firebase::firestore::jni::Local<Integer>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::(unnamed namespace)::PromiseTest","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>"
-"firebase::firestore::(unnamed namespace)::PromiseTest","task_completion_source_","field","Local<<error-type>>","Local<<error-type>>"
-"firebase::firestore::(unnamed namespace)::PromiseTest","cancellation_token_source_","field","Local<CancellationTokenSource>","Local<CancellationTokenSource>"
-"firebase::firestore::(unnamed namespace)::TestCompletion<basic_string<char, char_traits<char>, allocator<char>>, int>","result_","field","unique_ptr<basic_string<char, char_traits<char>, allocator<char>>, default_delete<basic_string<char, char_traits<char>, allocator<char>>>>","unique_ptr<basic_string<char, char_traits<char>, allocator<char>>, default_delete<basic_string<char, char_traits<char>, allocator<char>>>>"
-"firebase::firestore::(unnamed namespace)::TestVoidCompletion","result_","field","void *","void *"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","error_code_","field","error","error"
-"firebase::firestore::jni::Local<<error-type>>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","error_code_","field","error","error"
-"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","handle_","field","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>"
-"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","completer_","field","unique_ptr<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>, default_delete<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>>>","unique_ptr<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>, default_delete<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>>>"
-"firebase::firestore::Promise<void, void, AsyncFn>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>"
-"firebase::firestore::Promise<void, void, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<void, void, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<void, void, AsyncFn>","completer_","field","unique_ptr<Completer<void, void, void>, default_delete<Completer<void, void, void>>>","unique_ptr<Completer<void, void, void>, default_delete<Completer<void, void, void>>>"
-"firebase::firestore::(unnamed namespace)::TestCompletion<PublicType, InternalType>","result_","field","unique_ptr<PublicType, default_delete<PublicType>>","unique_ptr<PublicType, default_delete<PublicType>>"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","error_code_","field","error","error"
-"firebase::firestore::jni::Local<SettingsInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<TaskCompletionSource>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<TimestampInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<TransactionOptionsInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<TransactionOptionsBuilderInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::TestEventListener<DocumentSnapshot>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<DocumentSnapshot>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::TestEventListener<DocumentSnapshot>","last_results_","field","vector<DocumentSnapshot, allocator<DocumentSnapshot>>","vector<DocumentSnapshot, allocator<DocumentSnapshot>>"
-"firebase::firestore::TestEventListener<DocumentSnapshot>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<DocumentSnapshot>","first_error_code_","field","error","error"
-"firebase::firestore::TestEventListener<QuerySnapshot>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<QuerySnapshot>","mutex_","field","Mutex","Mutex"
-"firebase::firestore::TestEventListener<QuerySnapshot>","last_results_","field","vector<QuerySnapshot, allocator<QuerySnapshot>>","vector<QuerySnapshot, allocator<QuerySnapshot>>"
-"firebase::firestore::TestEventListener<QuerySnapshot>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::TestEventListener<QuerySnapshot>","first_error_code_","field","error","error"
-"firebase::firestore::jni::Local<HashMap>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::PromiseFactory<AsyncApi>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::PromiseFactory<AsyncApi>","future_manager_","field","FutureManager *","FutureManager *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","handle_","field","SafeFutureHandle<AggregateQuerySnapshot>","SafeFutureHandle<AggregateQuerySnapshot>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<AggregateQuerySnapshot>","SafeFutureHandle<AggregateQuerySnapshot>"
-"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>, default_delete<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>>>","unique_ptr<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>, default_delete<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>>>"
-"firebase::firestore::jni::Local<Class>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::ExceptionClearGuard","env_","field","Env &","Env &"
-"firebase::firestore::jni::ExceptionClearGuard","exception_","field","Local<Throwable>","Local<Throwable>"
-"firebase::firestore::jni::Local<BlobInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","handle_","field","SafeFutureHandle<DocumentReference>","SafeFutureHandle<DocumentReference>"
-"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","completer_","field","unique_ptr<Completer<DocumentReference, DocumentReferenceInternal, void>, default_delete<Completer<DocumentReference, DocumentReferenceInternal, void>>>","unique_ptr<Completer<DocumentReference, DocumentReferenceInternal, void>, default_delete<Completer<DocumentReference, DocumentReferenceInternal, void>>>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","handle_","field","SafeFutureHandle<DocumentReference>","SafeFutureHandle<DocumentReference>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::jni::Local<Array<Object>>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","handle_","field","SafeFutureHandle<DocumentSnapshot>","SafeFutureHandle<DocumentSnapshot>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::jni::Local<DocumentChangeTypeInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<DocumentSnapshot>","SafeFutureHandle<DocumentSnapshot>"
-"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>, default_delete<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>>>","unique_ptr<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>, default_delete<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>>>"
-"firebase::firestore::UpdateFieldPathArgs","varargs","field","Local<Array<Object>>","Local<Array<Object>>"
-"firebase::firestore::UpdateFieldPathArgs","first_value","field","Local<Object>","Local<Object>"
-"firebase::firestore::UpdateFieldPathArgs","first_field","field","Local<Object>","Local<Object>"
-"firebase::firestore::LambdaEventListener<DocumentSnapshot>","callback_","field","error","error"
-"firebase::firestore::FirestoreException","code_","field","error","error"
-"firebase::firestore::FirestoreException","message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>"
-"firebase::firestore::jni::Local<Array<String>>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<ArrayList>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Boolean>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Double>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Iterator>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Map>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Set>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<List>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::jni::Local<Long>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::LambdaTransactionFunction","update_","field","error","error"
-"firebase::firestore::jni::Local<LoadBundleTaskInternal>","env_","field","<error-type> *","<error-type> *"
-"firebase::firestore::(unnamed namespace)::JavaFirestoreMap","mutex_","field","Mutex","Mutex"
-"firebase::firestore::(unnamed namespace)::JavaFirestoreMap","firestores_","field","Global<HashMap>","Global<HashMap>"
-"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>"
-"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","completer_","field","unique_ptr<Completer<Query, QueryInternal, void>, default_delete<Completer<Query, QueryInternal, void>>>","unique_ptr<Completer<Query, QueryInternal, void>, default_delete<Completer<Query, QueryInternal, void>>>"
-"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>"
-"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","completer_","field","unique_ptr<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>, default_delete<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>>>","unique_ptr<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>, default_delete<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>>>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","handle_","field","SafeFutureHandle<QuerySnapshot>","SafeFutureHandle<QuerySnapshot>"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","completion_","field","Completion *","Completion *"
-"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<QuerySnapshot>","SafeFutureHandle<QuerySnapshot>"
-"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference"
-"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<QuerySnapshot, QuerySnapshotInternal, void>, default_delete<Completer<QuerySnapshot, QuerySnapshotInternal, void>>>","unique_ptr<Completer<QuerySnapshot, QuerySnapshotInternal, void>, default_delete<Completer<QuerySnapshot, QuerySnapshotInternal, void>>>"
-"firebase::firestore::LambdaEventListener<QuerySnapshot>","callback_","field","error","error"
-"firebase::firestore::PromiseFactory<AsyncApis>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::PromiseFactory<AsyncApis>","future_manager_","field","FutureManager *","FutureManager *"
-"firebase::firestore::PromiseFactory<ApiEnum>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::PromiseFactory<ApiEnum>","future_manager_","field","FutureManager *","FutureManager *"
-"firebase::firestore::UserDataConverter","database_id_","field","<error-type> *","<error-type> *"
-"firebase::firestore::PromiseFactory<<error-type>>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::PromiseFactory<<error-type>>","future_manager_","field","FutureManager *","FutureManager *"
-"firebase::firestore::jni::ArenaRef::ObjectArenaEntry","id_","field","error","error"
-"firebase::firestore::jni::(unnamed namespace)::ObjectArena","initialized_","field","atomic<bool>","atomic<bool>"
-"firebase::firestore::jni::(unnamed namespace)::ObjectArena","remove_","field","atomic<<error-type>>","atomic<<error-type>>"
-"firebase::firestore::jni::(unnamed namespace)::ObjectArena","set_","field","atomic<<error-type>>","atomic<<error-type>>"
-"firebase::firestore::jni::(unnamed namespace)::ObjectArena","get_","field","atomic<<error-type>>","atomic<<error-type>>"
-"firebase::firestore::jni::(unnamed namespace)::ObjectArena","java_class_","field","atomic<<error-type>>","atomic<<error-type>>"
-"firebase::firestore::jni::(unnamed namespace)::MethodLoader","java_class_","field","error","error"
-"firebase::firestore::jni::(unnamed namespace)::MethodLoader","loader_","field","Loader &","Loader &"
-"firebase::firestore::Promise<ResultT>","handle_","field","SafeFutureHandle<ResultT>","SafeFutureHandle<ResultT>"
-"firebase::firestore::Promise<ResultT>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::Promise<ResultT>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<ResultT>","destruction_mutex_","field","mutex","mutex"
-"firebase::firestore::CompositeFilterInternal","vector","field","error","error"
-"firebase::firestore::CompositeFilterInternal","Operator","field","error","error"
-"firebase::firestore::CompositeFilterInternal","filters_","field","vector<shared_ptr<FilterInternal>, allocator<shared_ptr<FilterInternal>>>","vector<shared_ptr<FilterInternal>, allocator<shared_ptr<FilterInternal>>>"
-"firebase::firestore::CompositeFilterInternal","op_","field","error","error"
-"firebase::firestore::UnaryFilterInternal","value_","field","FieldValue","FieldValue"
-"firebase::firestore::UnaryFilterInternal","path_","field","FieldPath","FieldPath"
-"firebase::firestore::UnaryFilterInternal","op_","field","error","error"
-"firebase::firestore::CppAppCheckCredentialsProvider","app_","field","App &","App &"
-"firebase::firestore::FirebaseCppCredentialsProvider::Contents","app","field","App &","App &"
-"firebase::firestore::FirebaseCppCredentialsProvider::Contents","mutex","field","recursive_mutex","recursive_mutex"
-"firebase::firestore::FirebaseCppCredentialsProvider","contents_","field","shared_ptr<Contents>","shared_ptr<Contents>"
-"firebase::firestore::Promise<Query>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>"
-"firebase::firestore::Promise<Query>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::Promise<Query>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<Query>","destruction_mutex_","field","mutex","mutex"
-"firebase::firestore::Promise<LoadBundleTaskProgress>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>"
-"firebase::firestore::Promise<LoadBundleTaskProgress>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::Promise<LoadBundleTaskProgress>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<LoadBundleTaskProgress>","destruction_mutex_","field","mutex","mutex"
-"firebase::firestore::Promise<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>"
-"firebase::firestore::Promise<void>","cleanup_","field","CleanupNotifier *","CleanupNotifier *"
-"firebase::firestore::Promise<void>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *"
-"firebase::firestore::Promise<void>","destruction_mutex_","field","mutex","mutex"
+"class_name","field_name","dependency_kind","type_name","type_qualified","file_path","line_number"
+"firebase::firestore::jni::Local<String>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<T>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Array<unsigned char>>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::auth::AuthResult","user","field","User","User","auth/src/include/firebase/auth/user.h",509
+"firebase::auth::AuthResult","credential","field","Credential","Credential","auth/src/include/firebase/auth/user.h",505
+"firebase::auth::AuthResult","additional_user_info","field","AdditionalUserInfo","AdditionalUserInfo","auth/src/include/firebase/auth/user.h",501
+"firebase::auth::Auth","auth_data_","field","AuthData *","AuthData *","auth/src/include/firebase/auth.h",598
+"firebase::auth::User","auth_data_","field","AuthData *","AuthData *","auth/src/include/firebase/auth/user.h",494
+"firebase::auth::Credential","impl_","field","void *","void *","auth/src/include/firebase/auth/credential.h",139
+"firebase::auth::Credential","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/credential.h",145
+"firebase::auth::Credential","error_code_","field","AuthError","AuthError","auth/src/include/firebase/auth/credential.h",144
+"firebase::auth::PhoneAuthOptions","phone_number","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/credential.h",640
+"firebase::auth::PhoneAuthOptions","force_resending_token","field","ForceResendingToken *","ForceResendingToken *","auth/src/include/firebase/auth/credential.h",637
+"firebase::auth::PhoneAuthOptions","ui_parent","field","void *","void *","auth/src/include/firebase/auth/credential.h",666
+"firebase::auth::PhoneAuthProvider","data_","field","PhoneAuthProviderData *","PhoneAuthProviderData *","auth/src/include/firebase/auth/credential.h",621
+"firebase::auth::PhoneAuthCredential","sms_code_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/credential.h",176
+"firebase::auth::IdTokenListener","auths_","field","vector<Auth *, allocator<Auth *>>","vector<Auth *, allocator<Auth *>>","auth/src/include/firebase/auth.h",664
+"firebase::auth::AuthStateListener","auths_","field","vector<Auth *, allocator<Auth *>>","vector<Auth *, allocator<Auth *>>","auth/src/include/firebase/auth.h",630
+"firebase::auth::UserInfoInterface","phone_number_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",117
+"firebase::auth::UserInfoInterface","provider_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",116
+"firebase::auth::UserInfoInterface","photo_url_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",115
+"firebase::auth::UserInfoInterface","display_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",114
+"firebase::auth::UserInfoInterface","email_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",113
+"firebase::auth::UserInfoInterface","uid_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",112
+"firebase::auth::AdditionalUserInfo","profile","field","map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>","map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>","auth/src/include/firebase/auth/user.h",131
+"firebase::auth::AdditionalUserInfo","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",123
+"firebase::auth::AdditionalUserInfo","updated_credential","field","Credential","Credential","auth/src/include/firebase/auth/user.h",138
+"firebase::auth::AdditionalUserInfo","user_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/user.h",126
+"firebase::auth::AuthData","app","field","App *","App *","auth/src/data.h",114
+"firebase::auth::AuthData","future_impl","field","ReferenceCountedFutureImpl","ReferenceCountedFutureImpl","auth/src/data.h",120
+"firebase::auth::AuthData","auth","field","Auth *","Auth *","auth/src/data.h",117
+"firebase::auth::AuthData","current_user","field","User","User","auth/src/data.h",126
+"firebase::auth::AuthData","phone_auth_provider","field","PhoneAuthProvider","PhoneAuthProvider","auth/src/data.h",158
+"firebase::auth::AuthData","auth_impl","field","void *","void *","auth/src/data.h",130
+"firebase::auth::AuthData","id_token_listeners","field","vector<IdTokenListener *, allocator<IdTokenListener *>>","vector<IdTokenListener *, allocator<IdTokenListener *>>","auth/src/data.h",154
+"firebase::auth::AuthData","listeners","field","vector<AuthStateListener *, allocator<AuthStateListener *>>","vector<AuthStateListener *, allocator<AuthStateListener *>>","auth/src/data.h",150
+"firebase::auth::AuthData","destructing_mutex","field","Mutex","Mutex","auth/src/data.h",182
+"firebase::auth::AuthData","expect_id_token_mutex","field","Mutex","Mutex","auth/src/data.h",176
+"firebase::auth::AuthData","token_listener_mutex","field","Mutex","Mutex","auth/src/data.h",167
+"firebase::auth::AuthData","listeners_mutex","field","Mutex","Mutex","auth/src/data.h",164
+"firebase::auth::AuthData","user_infos","field","vector<UserInfoInterface *, allocator<UserInfoInterface *>>","vector<UserInfoInterface *, allocator<UserInfoInterface *>>","auth/src/data.h",146
+"firebase::auth::AuthData","id_token_listener_impl","field","void *","void *","auth/src/data.h",142
+"firebase::auth::AuthData","listener_impl","field","void *","void *","auth/src/data.h",138
+"firebase::auth::AuthData","user_impl","field","void *","void *","auth/src/data.h",134
+"firebase::auth::AuthData","future_api_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/data.h",123
+"firebase::auth::FutureCallbackData<T>","handle","field","SafeFutureHandle<T>","SafeFutureHandle<T>","auth/src/android/common_android.h",84
+"firebase::auth::FutureCallbackData<T>","future_data_read_fn","field","..(*)(..)","..(*)(..)","auth/src/android/common_android.h",86
+"firebase::auth::FutureCallbackData<T>","auth_data","field","AuthData *","AuthData *","auth/src/android/common_android.h",85
+"firebase::auth::PhoneAuthProvider::ForceResendingToken","data_","field","ForceResendingTokenData *","ForceResendingTokenData *","auth/src/include/firebase/auth/credential.h",510
+"firebase::auth::PhoneAuthProvider::Listener","data_","field","PhoneListenerData *","PhoneListenerData *","auth/src/include/firebase/auth/credential.h",578
+"firebase::auth::User::UserProfile","photo_url","field","char *","char *","auth/src/include/firebase/auth/user.h",174
+"firebase::auth::User::UserProfile","display_name","field","char *","char *","auth/src/include/firebase/auth/user.h",171
+"firebase::auth::Auth::FetchProvidersResult","providers","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","auth/src/include/firebase/auth.h",145
+"firebase::auth::IdTokenRefreshThread","thread_","field","Thread","Thread","auth/src/desktop/auth_desktop.h",99
+"firebase::auth::IdTokenRefreshThread","auth","field","Auth *","Auth *","auth/src/desktop/auth_desktop.h",100
+"firebase::auth::IdTokenRefreshThread","token_refresh_listener_","field","IdTokenRefreshListener","IdTokenRefreshListener","auth/src/desktop/auth_desktop.h",97
+"firebase::auth::IdTokenRefreshThread","wakeup_sem_","field","Semaphore","Semaphore","auth/src/desktop/auth_desktop.h",95
+"firebase::auth::IdTokenRefreshThread","ref_count_mutex_","field","Mutex","Mutex","auth/src/desktop/auth_desktop.h",92
+"firebase::auth::FunctionRegistryAuthStateListener","callbacks_","field","vector<pair<..(*)(..), void *>, allocator<pair<..(*)(..), void *>>>","vector<pair<..(*)(..), void *>, allocator<pair<..(*)(..), void *>>>","auth/src/desktop/auth_desktop.h",138
+"firebase::auth::UserDataPersist","user_secure_manager_","field","unique_ptr<UserSecureManager, default_delete<UserSecureManager>>","unique_ptr<UserSecureManager, default_delete<UserSecureManager>>","auth/src/desktop/user_desktop.h",118
+"firebase::auth::IdTokenRefreshListener","mutex_","field","Mutex","Mutex","auth/src/desktop/auth_desktop.h",48
+"firebase::auth::IdTokenRefreshListener","current_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_desktop.h",50
+"firebase::auth::AuthImpl","api_key","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_desktop.h",146
+"firebase::auth::AuthImpl","scheduler_","field","Scheduler","Scheduler","auth/src/desktop/auth_desktop.h",164
+"firebase::auth::AuthImpl","app_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_desktop.h",150
+"firebase::auth::AuthImpl","assigned_emulator_url","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_desktop.h",173
+"firebase::auth::AuthImpl","language_code","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_desktop.h",171
+"firebase::auth::AuthImpl","provider_mutex","field","Mutex","Mutex","auth/src/desktop/auth_desktop.h",167
+"firebase::auth::AuthImpl","internal_listeners","field","unique_ptr<FunctionRegistryAuthStateListener, default_delete<FunctionRegistryAuthStateListener>>","unique_ptr<FunctionRegistryAuthStateListener, default_delete<FunctionRegistryAuthStateListener>>","auth/src/desktop/auth_desktop.h",161
+"firebase::auth::AuthImpl","user_data_persist","field","unique_ptr<UserDataPersist, default_delete<UserDataPersist>>","unique_ptr<UserDataPersist, default_delete<UserDataPersist>>","auth/src/desktop/auth_desktop.h",155
+"firebase::auth::AuthImpl","token_refresh_thread","field","IdTokenRefreshThread","IdTokenRefreshThread","auth/src/desktop/auth_desktop.h",153
+"firebase::auth::AuthResultCompletionHandle","future_handle","field","SafeFutureHandle<AuthResult>","SafeFutureHandle<AuthResult>","auth/src/desktop/auth_desktop.h",118
+"firebase::auth::AuthResultCompletionHandle","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_desktop.h",119
+"firebase::auth::Promise<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>","auth/src/desktop/promise.h",126
+"firebase::auth::Promise<void>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",124
+"firebase::auth::Promise<void>","future_","field","Future<void>","Future<void>","auth/src/desktop/promise.h",127
+"firebase::auth::Promise<ResultT>","handle_","field","SafeFutureHandle<ResultT>","SafeFutureHandle<ResultT>","auth/src/desktop/promise.h",81
+"firebase::auth::Promise<ResultT>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",79
+"firebase::auth::Promise<ResultT>","future_","field","Future<ResultT>","Future<ResultT>","auth/src/desktop/promise.h",82
+"firebase::auth::AuthenticationResult","user_account_info_","field","GetAccountInfoResult","GetAccountInfoResult","auth/src/desktop/authentication_result.h",95
+"firebase::auth::AuthenticationResult","info_","field","AdditionalUserInfo","AdditionalUserInfo","auth/src/desktop/authentication_result.h",94
+"firebase::auth::AuthenticationResult","user_impl_","field","UserData","UserData","auth/src/desktop/authentication_result.h",93
+"firebase::auth::AuthenticationResult","error_","field","AuthError","AuthError","auth/src/desktop/authentication_result.h",91
+"firebase::auth::GetAccountInfoResult","user_impl_","field","UserData","UserData","auth/src/desktop/get_account_info_result.h",72
+"firebase::auth::GetAccountInfoResult","error_","field","AuthError","AuthError","auth/src/desktop/get_account_info_result.h",70
+"firebase::auth::GetAccountInfoResult","provider_data_","field","vector<UserInfoImpl, allocator<UserInfoImpl>>","vector<UserInfoImpl, allocator<UserInfoImpl>>","auth/src/desktop/get_account_info_result.h",73
+"firebase::auth::UserData","access_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",80
+"firebase::auth::UserData","id_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",78
+"firebase::auth::UserData","refresh_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",79
+"firebase::auth::UserInfoImpl","phone_number","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",58
+"firebase::auth::UserInfoImpl","uid","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",43
+"firebase::auth::UserInfoImpl","email","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",46
+"firebase::auth::UserInfoImpl","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",55
+"firebase::auth::UserInfoImpl","photo_url","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",52
+"firebase::auth::UserInfoImpl","display_name","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.h",49
+"firebase::auth::CurrentUserBlockListener","semaphore_","field","Semaphore","Semaphore","auth/src/desktop/auth_desktop.cc",521
+"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","request","field","unique_ptr<GetOobConfirmationCodeRequest, default_delete<GetOobConfirmationCodeRequest>>","unique_ptr<GetOobConfirmationCodeRequest, default_delete<GetOobConfirmationCodeRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","promise","field","Promise<void>","Promise<void>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<void, GetOobConfirmationCodeRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","request","field","unique_ptr<CreateAuthUriRequest, default_delete<CreateAuthUriRequest>>","unique_ptr<CreateAuthUriRequest, default_delete<CreateAuthUriRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","promise","field","Promise<FetchProvidersResult>","Promise<FetchProvidersResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<FetchProvidersResult, CreateAuthUriRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::Promise<FetchProvidersResult>","handle_","field","SafeFutureHandle<FetchProvidersResult>","SafeFutureHandle<FetchProvidersResult>","auth/src/desktop/promise.h",81
+"firebase::auth::Promise<FetchProvidersResult>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",79
+"firebase::auth::Promise<FetchProvidersResult>","future_","field","Future<FetchProvidersResult>","Future<FetchProvidersResult>","auth/src/desktop/promise.h",82
+"firebase::auth::Promise<AuthResult>","handle_","field","SafeFutureHandle<AuthResult>","SafeFutureHandle<AuthResult>","auth/src/desktop/promise.h",81
+"firebase::auth::Promise<AuthResult>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",79
+"firebase::auth::Promise<AuthResult>","future_","field","Future<AuthResult>","Future<AuthResult>","auth/src/desktop/promise.h",82
+"firebase::auth::UserView","user_data_","field","UserData","UserData","auth/src/desktop/user_view.h",168
+"firebase::auth::Promise<User>","handle_","field","SafeFutureHandle<User>","SafeFutureHandle<User>","auth/src/desktop/promise.h",81
+"firebase::auth::Promise<User>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",79
+"firebase::auth::Promise<User>","future_","field","Future<User>","Future<User>","auth/src/desktop/promise.h",82
+"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","request","field","unique_ptr<SignUpNewUserRequest, default_delete<SignUpNewUserRequest>>","unique_ptr<SignUpNewUserRequest, default_delete<SignUpNewUserRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, SignUpNewUserRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","request","field","unique_ptr<VerifyPasswordRequest, default_delete<VerifyPasswordRequest>>","unique_ptr<VerifyPasswordRequest, default_delete<VerifyPasswordRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, VerifyPasswordRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","request","field","unique_ptr<VerifyCustomTokenRequest, default_delete<VerifyCustomTokenRequest>>","unique_ptr<VerifyCustomTokenRequest, default_delete<VerifyCustomTokenRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, VerifyCustomTokenRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<ResultT, RequestT>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<ResultT, RequestT>","request","field","unique_ptr<RequestT, default_delete<RequestT>>","unique_ptr<RequestT, default_delete<RequestT>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<ResultT, RequestT>","promise","field","Promise<ResultT>","Promise<ResultT>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<ResultT, RequestT>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<User, Request>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<User, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<User, Request>","promise","field","Promise<User>","Promise<User>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<User, Request>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::EmailAuthCredential","email_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/email_auth_credential.h",41
+"firebase::auth::EmailAuthCredential","password_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/email_auth_credential.h",42
+"firebase::auth::AuthDataHandle<AuthResult, Request>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, Request>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, Request>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::UserView::Reader","user_data_","field","UserData *","UserData *","auth/src/desktop/user_view.h",68
+"firebase::auth::UserView::Reader","mutex_","field","Mutex *","Mutex *","auth/src/desktop/user_view.h",70
+"firebase::auth::UserView::Reader","auth_data_","field","AuthData *","AuthData *","auth/src/desktop/user_view.h",69
+"firebase::auth::CredentialImpl","auth_credential","field","shared_ptr<AuthCredential>","shared_ptr<AuthCredential>","auth/src/desktop/credential_impl.h",29
+"firebase::auth::VerifyAssertionRequest","post_body_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/rpcs/verify_assertion_request.h",66
+"firebase::auth::FacebookAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/facebook_auth_credential.h",46
+"firebase::auth::GitHubAuthCredential","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/github_auth_credential.h",45
+"firebase::auth::GoogleAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/google_auth_credential.h",53
+"firebase::auth::GoogleAuthCredential","id_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/google_auth_credential.h",52
+"firebase::firestore::jni::Object","object_","field","error","error","firestore/src/jni/object.h",74
+"firebase::auth::OAuthCredential","access_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/oauth_auth_credential.h",60
+"firebase::auth::OAuthCredential","id_token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/oauth_auth_credential.h",58
+"firebase::auth::OAuthCredential","raw_nonce_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/oauth_auth_credential.h",59
+"firebase::auth::OAuthCredential","provider_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/oauth_auth_credential.h",57
+"firebase::auth::FederatedProviderData","provider_id","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/include/firebase/auth/types.h",438
+"firebase::auth::FederatedOAuthProviderData","custom_parameters","field","map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>","map<basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>, less<basic_string<char, char_traits<char>, allocator<char>>>, allocator<pair<const basic_string<char, char_traits<char>, allocator<char>>, basic_string<char, char_traits<char>, allocator<char>>>>>","auth/src/include/firebase/auth/types.h",467
+"firebase::auth::FederatedOAuthProviderData","scopes","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","auth/src/include/firebase/auth/types.h",464
+"firebase::auth::FederatedOAuthProvider","provider_data_","field","FederatedOAuthProviderData","FederatedOAuthProviderData","auth/src/include/firebase/auth.h",946
+"firebase::auth::PlayGamesAuthCredential","server_auth_code_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/playgames_auth_credential.h",46
+"firebase::auth::TwitterAuthCredential","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/twitter_auth_credential.h",46
+"firebase::auth::TwitterAuthCredential","secret_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/auth_providers/twitter_auth_credential.h",47
+"firebase::auth::UserView::Writer","user_data_","field","UserData *","UserData *","auth/src/desktop/user_view.h",101
+"firebase::auth::UserView::Writer","mutex_","field","Mutex *","Mutex *","auth/src/desktop/user_view.h",103
+"firebase::auth::UserView::Writer","auth_data_","field","AuthData *","AuthData *","auth/src/desktop/user_view.h",102
+"firebase::auth::UserInfoInterfaceImpl","impl","field","UserInfoImpl","UserInfoImpl","auth/src/desktop/provider_user_info.h",39
+"firebase::auth::(unnamed namespace)::ErrorCodeToDescription","description","field","char *","char *","auth/src/desktop/rpcs/error_codes.cc",84
+"firebase::auth::(unnamed namespace)::ErrorCodeToDescription","error_code","field","AuthError","AuthError","auth/src/desktop/rpcs/error_codes.cc",83
+"firebase::auth::(unnamed namespace)::BackendErrorToCode","error_code","field","AuthError","AuthError","auth/src/desktop/rpcs/error_codes.cc",27
+"firebase::auth::(unnamed namespace)::BackendErrorToCode","backend_error","field","char *","char *","auth/src/desktop/rpcs/error_codes.cc",26
+"firebase::auth::SetAccountInfoResult","user_impl_","field","UserData","UserData","auth/src/desktop/set_account_info_result.h",95
+"firebase::auth::SetAccountInfoResult","error_","field","AuthError","AuthError","auth/src/desktop/set_account_info_result.h",93
+"firebase::auth::SetAccountInfoResult","provider_data_","field","vector<UserInfoImpl, allocator<UserInfoImpl>>","vector<UserInfoImpl, allocator<UserInfoImpl>>","auth/src/desktop/set_account_info_result.h",96
+"firebase::auth::TokenUpdate","id_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/set_account_info_result.h",50
+"firebase::auth::TokenUpdate","refresh_token","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/set_account_info_result.h",52
+"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","request","field","unique_ptr<GetAccountInfoRequest, default_delete<GetAccountInfoRequest>>","unique_ptr<GetAccountInfoRequest, default_delete<GetAccountInfoRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","promise","field","Promise<void>","Promise<void>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<void, GetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","request","field","unique_ptr<DeleteAccountRequest, default_delete<DeleteAccountRequest>>","unique_ptr<DeleteAccountRequest, default_delete<DeleteAccountRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","promise","field","Promise<void>","Promise<void>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<void, DeleteAccountRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::(unnamed namespace)::GetTokenResult","error_","field","AuthError","AuthError","auth/src/desktop/user_desktop.cc",78
+"firebase::auth::(unnamed namespace)::GetTokenResult","token_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","auth/src/desktop/user_desktop.cc",79
+"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","promise","field","Promise<basic_string<char, char_traits<char>, allocator<char>>>","Promise<basic_string<char, char_traits<char>, allocator<char>>>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<basic_string<char, char_traits<char>, allocator<char>>, Request>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","handle_","field","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","auth/src/desktop/promise.h",81
+"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","future_manager_","field","ReferenceCountedFutureImpl &","ReferenceCountedFutureImpl &","auth/src/desktop/promise.h",79
+"firebase::auth::Promise<basic_string<char, char_traits<char>, allocator<char>>>","future_","field","Future<basic_string<char, char_traits<char>, allocator<char>>>","Future<basic_string<char, char_traits<char>, allocator<char>>>","auth/src/desktop/promise.h",82
+"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","request","field","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, SetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","request","field","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","unique_ptr<SetAccountInfoRequest, default_delete<SetAccountInfoRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","promise","field","Promise<void>","Promise<void>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<void, SetAccountInfoRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<void, Request>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<void, Request>","request","field","unique_ptr<Request, default_delete<Request>>","unique_ptr<Request, default_delete<Request>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<void, Request>","promise","field","Promise<void>","Promise<void>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<void, Request>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","request","field","unique_ptr<VerifyAssertionRequest, default_delete<VerifyAssertionRequest>>","unique_ptr<VerifyAssertionRequest, default_delete<VerifyAssertionRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, VerifyAssertionRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","callback","field","..(*)(..)","..(*)(..)","auth/src/desktop/auth_data_handle.h",48
+"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","request","field","unique_ptr<SignUpRequest, default_delete<SignUpRequest>>","unique_ptr<SignUpRequest, default_delete<SignUpRequest>>","auth/src/desktop/auth_data_handle.h",47
+"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","promise","field","Promise<AuthResult>","Promise<AuthResult>","auth/src/desktop/auth_data_handle.h",45
+"firebase::auth::AuthDataHandle<AuthResult, SignUpRequest>","auth_data","field","AuthData *","AuthData *","auth/src/desktop/auth_data_handle.h",44
+"firebase::firestore::FieldValue","internal_","field","FieldValueInternal *","FieldValueInternal *","firestore/src/include/firebase/firestore/field_value.h",422
+"firebase::firestore::FieldPath","internal_","field","FieldPath *","FieldPath *","firestore/src/include/firebase/firestore/field_path.h",182
+"firebase::firestore::AggregateQuery","internal_","field","AggregateQueryInternal *","AggregateQueryInternal *","firestore/src/include/firebase/firestore/aggregate_query.h",144
+"firebase::firestore::AggregateQueryInternal","api","field","error","error","firestore/src/main/aggregate_query_main.h",35
+"firebase::firestore::AggregateQueryInternal","api","field","error","error","firestore/src/main/aggregate_query_main.h",57
+"firebase::firestore::AggregateQueryInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>","firestore/src/main/aggregate_query_main.h",58
+"firebase::firestore::AggregateQueryInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>","firestore/src/android/aggregate_query_android.h",65
+"firebase::firestore::AggregateQuerySnapshot","internal_","field","AggregateQuerySnapshotInternal *","AggregateQuerySnapshotInternal *","firestore/src/include/firebase/firestore/aggregate_query_snapshot.h",141
+"firebase::firestore::Query","internal_","field","QueryInternal *","QueryInternal *","firestore/src/include/firebase/firestore/query.h",696
+"firebase::firestore::AggregateQuerySnapshotInternal","api","field","error","error","firestore/src/main/aggregate_query_snapshot_main.h",36
+"firebase::firestore::AggregateQuerySnapshotInternal","api","field","error","error","firestore/src/main/aggregate_query_snapshot_main.h",53
+"firebase::firestore::AggregateQuerySnapshotInternal","int64_t","field","error","error","firestore/src/main/aggregate_query_snapshot_main.h",37
+"firebase::firestore::AggregateQuerySnapshotInternal","count_result_","field","error","error","firestore/src/main/aggregate_query_snapshot_main.h",54
+"firebase::firestore::QueryInternal","api","field","error","error","firestore/src/main/query_main.h",48
+"firebase::firestore::QueryInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>","firestore/src/main/query_main.h",218
+"firebase::firestore::QueryInternal","user_data_converter_","field","UserDataConverter","UserDataConverter","firestore/src/main/query_main.h",219
+"firebase::firestore::QueryInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>","firestore/src/android/query_android.h",409
+"firebase::firestore::QuerySnapshot","internal_","field","QuerySnapshotInternal *","QuerySnapshotInternal *","firestore/src/include/firebase/firestore/query_snapshot.h",182
+"firebase::firestore::ListenerRegistration","internal_","field","ListenerRegistrationInternal *","ListenerRegistrationInternal *","firestore/src/include/firebase/firestore/listener_registration.h",124
+"firebase::firestore::ListenerRegistration","firestore_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/include/firebase/firestore/listener_registration.h",123
+"firebase::firestore::DocumentSnapshot","internal_","field","DocumentSnapshotInternal *","DocumentSnapshotInternal *","firestore/src/include/firebase/firestore/document_snapshot.h",284
+"firebase::firestore::Filter","internal_","field","FilterInternal *","FilterInternal *","firestore/src/include/firebase/firestore/filter.h",397
+"firebase::firestore::Firestore","internal_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/include/firebase/firestore.h",513
+"firebase::firestore::QuerySnapshotInternal","api","field","error","error","firestore/src/main/query_snapshot_main.h",42
+"firebase::firestore::QuerySnapshotInternal","api","field","error","error","firestore/src/main/query_snapshot_main.h",61
+"firebase::firestore::FirestoreInternal","app_","field","App *","App *","firestore/src/main/firestore_main.h",176
+"firebase::firestore::FirestoreInternal","app_","field","App *","App *","firestore/src/android/firestore_android.h",200
+"firebase::firestore::FirestoreInternal","cleanup_","field","CleanupNotifier","CleanupNotifier","firestore/src/main/firestore_main.h",180
+"firebase::firestore::FirestoreInternal","cleanup_","field","CleanupNotifier","CleanupNotifier","firestore/src/android/firestore_android.h",216
+"firebase::firestore::FirestoreInternal","future_manager_","field","FutureManager","FutureManager","firestore/src/main/firestore_main.h",182
+"firebase::firestore::FirestoreInternal","future_manager_","field","FutureManager","FutureManager","firestore/src/android/firestore_android.h",213
+"firebase::firestore::FirestoreInternal","listeners_mutex_","field","mutex","mutex","firestore/src/main/firestore_main.h",186
+"firebase::firestore::FirestoreInternal","listeners_","field","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","firestore/src/main/firestore_main.h",187
+"firebase::firestore::FirestoreInternal","obj_","field","Global<Object>","Global<Object>","firestore/src/android/firestore_android.h",203
+"firebase::firestore::FirestoreInternal","database_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/main/firestore_main.h",190
+"firebase::firestore::FirestoreInternal","database_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/firestore_android.h",218
+"firebase::firestore::FirestoreInternal","transaction_executor_","field","shared_ptr<Executor>","shared_ptr<Executor>","firestore/src/main/firestore_main.h",189
+"firebase::firestore::FirestoreInternal","promise_factory_","field","PromiseFactory<AsyncApi>","PromiseFactory<AsyncApi>","firestore/src/main/firestore_main.h",183
+"firebase::firestore::FirestoreInternal","firestore_core_","field","error","error","firestore/src/main/firestore_main.h",178
+"firebase::firestore::FirestoreInternal","firestore_public_","field","Firestore *","Firestore *","firestore/src/main/firestore_main.h",177
+"firebase::firestore::FirestoreInternal","firestore_public_","field","Firestore *","Firestore *","firestore/src/android/firestore_android.h",201
+"firebase::firestore::FirestoreInternal","promises_","field","unique_ptr<PromiseFactory<AsyncFn>, default_delete<PromiseFactory<AsyncFn>>>","unique_ptr<PromiseFactory<AsyncFn>, default_delete<PromiseFactory<AsyncFn>>>","firestore/src/android/firestore_android.h",214
+"firebase::firestore::FirestoreInternal","bundle_listeners_","field","list<LambdaEventListener<LoadBundleTaskProgress>, allocator<LambdaEventListener<LoadBundleTaskProgress>>>","list<LambdaEventListener<LoadBundleTaskProgress>, allocator<LambdaEventListener<LoadBundleTaskProgress>>>","firestore/src/android/firestore_android.h",211
+"firebase::firestore::FirestoreInternal","bundle_listeners_mutex_","field","Mutex","Mutex","firestore/src/android/firestore_android.h",208
+"firebase::firestore::FirestoreInternal","listener_registrations_","field","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","unordered_set<ListenerRegistrationInternal *, hash<ListenerRegistrationInternal *>, equal_to<ListenerRegistrationInternal *>, allocator<ListenerRegistrationInternal *>>","firestore/src/android/firestore_android.h",206
+"firebase::firestore::FirestoreInternal","listener_registration_mutex_","field","Mutex","Mutex","firestore/src/android/firestore_android.h",205
+"firebase::firestore::FirestoreInternal","user_callback_executor_","field","Global<Object>","Global<Object>","firestore/src/android/firestore_android.h",198
+"firebase::firestore::CollectionReferenceInternal","api","field","error","error","firestore/src/main/collection_reference_main.h",36
+"firebase::firestore::CollectionReferenceInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/collection_reference_android.h",53
+"firebase::firestore::CollectionReferenceInternal","cached_path_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/collection_reference_android.h",54
+"firebase::firestore::DocumentReference","internal_","field","DocumentReferenceInternal *","DocumentReferenceInternal *","firestore/src/include/firebase/firestore/document_reference.h",336
+"firebase::firestore::DocumentReferenceInternal","api","field","error","error","firestore/src/main/document_reference_main.h",49
+"firebase::firestore::DocumentReferenceInternal","api","field","error","error","firestore/src/main/document_reference_main.h",79
+"firebase::firestore::DocumentReferenceInternal","promise_factory_","field","PromiseFactory<<error-type>>","PromiseFactory<<error-type>>","firestore/src/main/document_reference_main.h",95
+"firebase::firestore::DocumentReferenceInternal","user_data_converter_","field","UserDataConverter","UserDataConverter","firestore/src/main/document_reference_main.h",96
+"firebase::firestore::DocumentReferenceInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>","firestore/src/android/document_reference_android.h",195
+"firebase::firestore::DocumentReferenceInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/document_reference_android.h",198
+"firebase::firestore::DocumentReferenceInternal","cached_path_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/document_reference_android.h",199
+"firebase::firestore::DocumentChange","internal_","field","DocumentChangeInternal *","DocumentChangeInternal *","firestore/src/include/firebase/firestore/document_change.h",191
+"firebase::firestore::DocumentChangeInternal","api","field","error","error","firestore/src/main/document_change_main.h",35
+"firebase::firestore::DocumentChangeInternal","api","field","error","error","firestore/src/main/document_change_main.h",50
+"firebase::firestore::SetOptions","type_","field","Type","Type","firestore/src/include/firebase/firestore/set_options.h",144
+"firebase::firestore::SetOptions","fields_","field","unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>","unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>","firestore/src/include/firebase/firestore/set_options.h",145
+"firebase::firestore::SetOptionsInternal","options_","field","SetOptions","SetOptions","firestore/src/main/set_options_main.h",50
+"firebase::firestore::WriteBatchInternal","api","field","error","error","firestore/src/main/write_batch_main.h",37
+"firebase::firestore::WriteBatchInternal","api","field","error","error","firestore/src/main/write_batch_main.h",59
+"firebase::firestore::WriteBatchInternal","promise_factory_","field","PromiseFactory<AsyncApis>","PromiseFactory<AsyncApis>","firestore/src/main/write_batch_main.h",60
+"firebase::firestore::WriteBatchInternal","user_data_converter_","field","UserDataConverter","UserDataConverter","firestore/src/main/write_batch_main.h",61
+"firebase::firestore::WriteBatchInternal","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>","firestore/src/android/write_batch_android.h",69
+"firebase::firestore::TransactionInternal","transaction_","field","shared_ptr<<error-type>>","shared_ptr<<error-type>>","firestore/src/main/transaction_main.h",65
+"firebase::firestore::TransactionInternal","user_data_converter_","field","UserDataConverter","UserDataConverter","firestore/src/main/transaction_main.h",67
+"firebase::firestore::TransactionInternal","firestore_internal_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/main/transaction_main.h",66
+"firebase::firestore::TransactionInternal","first_exception_","field","shared_ptr<Local<Throwable>>","shared_ptr<Local<Throwable>>","firestore/src/android/transaction_android.h",96
+"firebase::firestore::FieldValueInternal","object_","field","ArenaRef","ArenaRef","firestore/src/android/field_value_android.h",124
+"firebase::firestore::FieldValueInternal","type_","field","Type","Type","firestore/src/main/field_value_main.h",101
+"firebase::firestore::FieldValueInternal","cached_blob_","field","shared_ptr<vector<unsigned char, allocator<unsigned char>>>","shared_ptr<vector<unsigned char, allocator<unsigned char>>>","firestore/src/android/field_value_android.h",129
+"firebase::firestore::FieldValueInternal","cached_type_","field","Type","Type","firestore/src/android/field_value_android.h",128
+"firebase::firestore::DocumentSnapshotInternal","api","field","error","error","firestore/src/main/document_snapshot_main.h",45
+"firebase::firestore::DocumentSnapshotInternal","api","field","error","error","firestore/src/main/document_snapshot_main.h",60
+"firebase::firestore::DocumentSnapshotInternal","cached_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/document_snapshot_android.h",66
+"firebase::firestore::FilterInternal","obj_","field","ArenaRef","ArenaRef","firestore/src/android/filter_android.h",66
+"firebase::firestore::FilterInternal","filter_type_","field","FilterType","FilterType","firestore/src/main/filter_main.h",72
+"firebase::firestore::ListenerRegistrationInternal","firestore_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/main/listener_registration_main.h",51
+"firebase::firestore::ListenerRegistrationInternal","firestore_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/android/listener_registration_android.h",81
+"firebase::firestore::ListenerRegistrationInternal","registration_","field","error","error","firestore/src/main/listener_registration_main.h",50
+"firebase::firestore::ListenerRegistrationInternal","listener_registration_","field","Global<Object>","Global<Object>","firestore/src/android/listener_registration_android.h",82
+"firebase::firestore::ListenerRegistrationInternal","void_event_listener_","field","EventListener<void> *","EventListener<void> *","firestore/src/android/listener_registration_android.h",89
+"firebase::firestore::ListenerRegistrationInternal","query_event_listener_","field","EventListener<QuerySnapshot> *","EventListener<QuerySnapshot> *","firestore/src/android/listener_registration_android.h",88
+"firebase::firestore::ListenerRegistrationInternal","document_event_listener_","field","EventListener<DocumentSnapshot> *","EventListener<DocumentSnapshot> *","firestore/src/android/listener_registration_android.h",87
+"firebase::firestore::LoadBundleTaskProgress","state_","field","State","State","firestore/src/include/firebase/firestore/load_bundle_task_progress.h",79
+"firebase::firestore::Settings","host_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/include/firebase/firestore/settings.h",214
+"firebase::firestore::Settings","executor_","field","shared_ptr<const Executor>","shared_ptr<const Executor>","firestore/src/include/firebase/firestore/settings.h",227
+"firebase::firestore::Transaction","internal_","field","TransactionInternal *","TransactionInternal *","firestore/src/include/firebase/firestore/transaction.h",137
+"firebase::firestore::WriteBatch","internal_","field","WriteBatchInternal *","WriteBatchInternal *","firestore/src/include/firebase/firestore/write_batch.h",182
+"firebase::firestore::FirestoreInfo","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",444
+"firebase::firestore::FirestoreInfo","firestore_","field","unique_ptr<Firestore, default_delete<Firestore>>","unique_ptr<Firestore, default_delete<Firestore>>","firestore/integration_test_internal/src/firestore_integration_test.h",446
+"firebase::firestore::FirestoreInfo","database_id_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",445
+"firebase::firestore::Stopwatch","mutex_","field","mutex","mutex","firestore/integration_test_internal/src/firestore_integration_test.h",203
+"firebase::firestore::Stopwatch","stop_time_","field","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","firestore/integration_test_internal/src/firestore_integration_test.h",205
+"firebase::firestore::Stopwatch","start_time_","field","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","time_point<steady_clock, duration<long long, ratio<1L, 1000000000L>>>","firestore/integration_test_internal/src/firestore_integration_test.h",204
+"firebase::firestore::TestEventListener<T>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",165
+"firebase::firestore::TestEventListener<T>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/firestore_integration_test.h",163
+"firebase::firestore::TestEventListener<T>","last_results_","field","vector<T, allocator<T>>","vector<T, allocator<T>>","firestore/integration_test_internal/src/firestore_integration_test.h",169
+"firebase::firestore::TestEventListener<T>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",175
+"firebase::firestore::TestEventListener<T>","first_error_code_","field","error","error","firestore/integration_test_internal/src/firestore_integration_test.h",174
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","handle_","field","SafeFutureHandle<PublicT>","SafeFutureHandle<PublicT>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<PublicT>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<void>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::jni::Env","context_","field","void *","void *","firestore/src/jni/env.h",544
+"firebase::firestore::jni::Env","env_","field","<error-type> *","<error-type> *","firestore/src/jni/env.h",541
+"firebase::firestore::jni::Env","exception_handler_","field","..(*)(..)","..(*)(..)","firestore/src/jni/env.h",543
+"firebase::firestore::jni::Local<Object>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<CancellationTokenSource>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Loader","app_","field","App *","App *","firestore/src/jni/loader.h",165
+"firebase::firestore::jni::Loader","env_","field","<error-type> *","<error-type> *","firestore/src/jni/loader.h",166
+"firebase::firestore::jni::Loader","embedded_files_","field","vector<EmbeddedFile, allocator<EmbeddedFile>>","vector<EmbeddedFile, allocator<EmbeddedFile>>","firestore/src/jni/loader.h",177
+"firebase::firestore::jni::Loader","loaded_classes_","field","vector<<error-type>, allocator<<error-type>>>","vector<<error-type>, allocator<<error-type>>>","firestore/src/jni/loader.h",174
+"firebase::firestore::jni::Loader","last_class_","field","error","error","firestore/src/jni/loader.h",169
+"firebase::firestore::jni::Loader","last_class_name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/jni/loader.h",168
+"firebase::firestore::jni::MethodBase","name_","field","char *","char *","firestore/src/jni/declaration.h",90
+"firebase::firestore::jni::MethodBase","id_","field","error","error","firestore/src/jni/declaration.h",93
+"firebase::firestore::jni::MethodBase","sig_","field","char *","char *","firestore/src/jni/declaration.h",91
+"firebase::firestore::jni::ConstructorBase","id_","field","error","error","firestore/src/jni/declaration.h",54
+"firebase::firestore::jni::ConstructorBase","clazz_","field","error","error","firestore/src/jni/declaration.h",53
+"firebase::firestore::jni::ConstructorBase","sig_","field","char *","char *","firestore/src/jni/declaration.h",51
+"firebase::firestore::FieldPathPortable","segments_","field","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>","firestore/src/android/field_path_portable.h",99
+"firebase::firestore::jni::Local<GeoPointInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::JniRunnable<CallbackT>","callback_","field","CallbackT","CallbackT","firestore/src/android/jni_runnable_android.h",156
+"firebase::firestore::jni::Local<Task>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::JniRunnableBase","java_runnable_","field","Global<Object>","Global<Object>","firestore/src/android/jni_runnable_android.h",109
+"firebase::firestore::jni::StaticMethodBase","name_","field","char *","char *","firestore/src/jni/declaration.h",174
+"firebase::firestore::jni::StaticMethodBase","id_","field","error","error","firestore/src/jni/declaration.h",178
+"firebase::firestore::jni::StaticMethodBase","clazz_","field","error","error","firestore/src/jni/declaration.h",177
+"firebase::firestore::jni::StaticMethodBase","sig_","field","char *","char *","firestore/src/jni/declaration.h",175
+"firebase::firestore::jni::StaticFieldBase","name_","field","char *","char *","firestore/src/jni/declaration.h",132
+"firebase::firestore::jni::StaticFieldBase","id_","field","error","error","firestore/src/jni/declaration.h",136
+"firebase::firestore::jni::StaticFieldBase","clazz_","field","error","error","firestore/src/jni/declaration.h",135
+"firebase::firestore::jni::StaticFieldBase","sig_","field","char *","char *","firestore/src/jni/declaration.h",133
+"firebase::firestore::jni::ArenaRef","entry_","field","shared_ptr<ObjectArenaEntry>","shared_ptr<ObjectArenaEntry>","firestore/src/jni/arena_ref.h",121
+"firebase::firestore::Wrapper","obj_","field","ArenaRef","ArenaRef","firestore/src/android/wrapper.h",61
+"firebase::firestore::Wrapper","firestore_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/android/wrapper.h",60
+"firebase::firestore::LambdaEventListener<void>","callback_","field","function<..(..)>","function<..(..)>","firestore/src/android/lambda_event_listener.h",63
+"firebase::firestore::LambdaEventListener<T>","callback_","field","function<..(..)>","function<..(..)>","firestore/src/android/lambda_event_listener.h",49
+"firebase::firestore::FirestoreInternalWeakReference","mutex_","field","recursive_mutex","recursive_mutex","firestore/src/android/firestore_android.h",263
+"firebase::firestore::FirestoreInternalWeakReference","firestore_","field","FirestoreInternal *","FirestoreInternal *","firestore/src/android/firestore_android.h",264
+"firebase::firestore::PromiseFactory<AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_factory_android.h",100
+"firebase::firestore::LambdaEventListener<LoadBundleTaskProgress>","callback_","field","error","error","firestore/src/android/lambda_event_listener.h",49
+"firebase::firestore::PromiseFactory<EnumT>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_factory_android.h",100
+"firebase::firestore::jni::Local<Throwable>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","handle_","field","SafeFutureHandle<PublicType>","SafeFutureHandle<PublicType>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>","completer_","field","unique_ptr<Completer<PublicType, InternalType, void>, default_delete<Completer<PublicType, InternalType, void>>>","unique_ptr<Completer<PublicType, InternalType, void>, default_delete<Completer<PublicType, InternalType, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::jni::Local<Integer>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::(unnamed namespace)::PromiseTest","promises_","field","PromiseFactory<AsyncFn>","PromiseFactory<AsyncFn>","firestore/integration_test_internal/src/android/promise_android_test.cc",97
+"firebase::firestore::(unnamed namespace)::PromiseTest","task_completion_source_","field","Local<<error-type>>","Local<<error-type>>","firestore/integration_test_internal/src/android/promise_android_test.cc",99
+"firebase::firestore::(unnamed namespace)::PromiseTest","cancellation_token_source_","field","Local<CancellationTokenSource>","Local<CancellationTokenSource>","firestore/integration_test_internal/src/android/promise_android_test.cc",98
+"firebase::firestore::(unnamed namespace)::TestCompletion<basic_string<char, char_traits<char>, allocator<char>>, int>","result_","field","unique_ptr<basic_string<char, char_traits<char>, allocator<char>>, default_delete<basic_string<char, char_traits<char>, allocator<char>>>>","unique_ptr<basic_string<char, char_traits<char>, allocator<char>>, default_delete<basic_string<char, char_traits<char>, allocator<char>>>>","firestore/integration_test_internal/src/android/promise_android_test.cc",210
+"firebase::firestore::(unnamed namespace)::TestVoidCompletion","result_","field","void *","void *","firestore/integration_test_internal/src/android/promise_android_test.cc",228
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/android/promise_android_test.cc",178
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/android/promise_android_test.cc",183
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<void, void>","error_code_","field","error","error","firestore/integration_test_internal/src/android/promise_android_test.cc",182
+"firebase::firestore::jni::Local<<error-type>>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/android/promise_android_test.cc",178
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/android/promise_android_test.cc",183
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<basic_string<char, char_traits<char>, allocator<char>>, int>","error_code_","field","error","error","firestore/integration_test_internal/src/android/promise_android_test.cc",182
+"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","handle_","field","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","SafeFutureHandle<basic_string<char, char_traits<char>, allocator<char>>>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<basic_string<char, char_traits<char>, allocator<char>>, int, AsyncFn>","completer_","field","unique_ptr<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>, default_delete<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>>>","unique_ptr<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>, default_delete<Completer<basic_string<char, char_traits<char>, allocator<char>>, int, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::Promise<void, void, AsyncFn>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<void, void, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<void, void, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<void, void, AsyncFn>","completer_","field","unique_ptr<Completer<void, void, void>, default_delete<Completer<void, void, void>>>","unique_ptr<Completer<void, void, void>, default_delete<Completer<void, void, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::(unnamed namespace)::TestCompletion<PublicType, InternalType>","result_","field","unique_ptr<PublicType, default_delete<PublicType>>","unique_ptr<PublicType, default_delete<PublicType>>","firestore/integration_test_internal/src/android/promise_android_test.cc",210
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/android/promise_android_test.cc",178
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/android/promise_android_test.cc",183
+"firebase::firestore::(unnamed namespace)::TestCompletionBase<PublicType, InternalType>","error_code_","field","error","error","firestore/integration_test_internal/src/android/promise_android_test.cc",182
+"firebase::firestore::jni::Local<SettingsInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<TaskCompletionSource>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<TimestampInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<TransactionOptionsInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<TransactionOptionsBuilderInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::TestEventListener<DocumentSnapshot>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",165
+"firebase::firestore::TestEventListener<DocumentSnapshot>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/firestore_integration_test.h",163
+"firebase::firestore::TestEventListener<DocumentSnapshot>","last_results_","field","vector<DocumentSnapshot, allocator<DocumentSnapshot>>","vector<DocumentSnapshot, allocator<DocumentSnapshot>>","firestore/integration_test_internal/src/firestore_integration_test.h",169
+"firebase::firestore::TestEventListener<DocumentSnapshot>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",175
+"firebase::firestore::TestEventListener<DocumentSnapshot>","first_error_code_","field","error","error","firestore/integration_test_internal/src/firestore_integration_test.h",174
+"firebase::firestore::TestEventListener<QuerySnapshot>","name_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",165
+"firebase::firestore::TestEventListener<QuerySnapshot>","mutex_","field","Mutex","Mutex","firestore/integration_test_internal/src/firestore_integration_test.h",163
+"firebase::firestore::TestEventListener<QuerySnapshot>","last_results_","field","vector<QuerySnapshot, allocator<QuerySnapshot>>","vector<QuerySnapshot, allocator<QuerySnapshot>>","firestore/integration_test_internal/src/firestore_integration_test.h",169
+"firebase::firestore::TestEventListener<QuerySnapshot>","first_error_message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/integration_test_internal/src/firestore_integration_test.h",175
+"firebase::firestore::TestEventListener<QuerySnapshot>","first_error_code_","field","error","error","firestore/integration_test_internal/src/firestore_integration_test.h",174
+"firebase::firestore::jni::Local<HashMap>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::PromiseFactory<AsyncApi>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_factory_main.h",84
+"firebase::firestore::PromiseFactory<AsyncApi>","future_manager_","field","FutureManager *","FutureManager *","firestore/src/main/promise_factory_main.h",85
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","handle_","field","SafeFutureHandle<AggregateQuerySnapshot>","SafeFutureHandle<AggregateQuerySnapshot>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<AggregateQuerySnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<AggregateQuerySnapshot>","SafeFutureHandle<AggregateQuerySnapshot>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>, default_delete<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>>>","unique_ptr<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>, default_delete<Completer<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::jni::Local<Class>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::ExceptionClearGuard","env_","field","Env &","Env &","firestore/src/jni/env.h",576
+"firebase::firestore::jni::ExceptionClearGuard","exception_","field","Local<Throwable>","Local<Throwable>","firestore/src/jni/env.h",577
+"firebase::firestore::jni::Local<BlobInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","handle_","field","SafeFutureHandle<DocumentReference>","SafeFutureHandle<DocumentReference>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<DocumentReference, DocumentReferenceInternal, AsyncFn>","completer_","field","unique_ptr<Completer<DocumentReference, DocumentReferenceInternal, void>, default_delete<Completer<DocumentReference, DocumentReferenceInternal, void>>>","unique_ptr<Completer<DocumentReference, DocumentReferenceInternal, void>, default_delete<Completer<DocumentReference, DocumentReferenceInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","handle_","field","SafeFutureHandle<DocumentReference>","SafeFutureHandle<DocumentReference>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentReference>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::jni::Local<Array<Object>>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","handle_","field","SafeFutureHandle<DocumentSnapshot>","SafeFutureHandle<DocumentSnapshot>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<DocumentSnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::jni::Local<DocumentChangeTypeInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<DocumentSnapshot>","SafeFutureHandle<DocumentSnapshot>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<DocumentSnapshot, DocumentSnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>, default_delete<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>>>","unique_ptr<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>, default_delete<Completer<DocumentSnapshot, DocumentSnapshotInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::UpdateFieldPathArgs","varargs","field","Local<Array<Object>>","Local<Array<Object>>","firestore/src/android/util_android.h",74
+"firebase::firestore::UpdateFieldPathArgs","first_value","field","Local<Object>","Local<Object>","firestore/src/android/util_android.h",73
+"firebase::firestore::UpdateFieldPathArgs","first_field","field","Local<Object>","Local<Object>","firestore/src/android/util_android.h",72
+"firebase::firestore::LambdaEventListener<DocumentSnapshot>","callback_","field","error","error","firestore/src/android/lambda_event_listener.h",49
+"firebase::firestore::FirestoreException","code_","field","error","error","firestore/src/android/firestore_exceptions_android.h",45
+"firebase::firestore::FirestoreException","message_","field","basic_string<char, char_traits<char>, allocator<char>>","basic_string<char, char_traits<char>, allocator<char>>","firestore/src/android/firestore_exceptions_android.h",44
+"firebase::firestore::jni::Local<Array<String>>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<ArrayList>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Boolean>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Double>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Iterator>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Map>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Set>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<List>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::jni::Local<Long>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<LoadBundleTaskProgress>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<Query>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::LambdaTransactionFunction","update_","field","error","error","firestore/src/android/lambda_transaction_function.h",65
+"firebase::firestore::jni::Local<LoadBundleTaskInternal>","env_","field","<error-type> *","<error-type> *","firestore/src/jni/ownership.h",159
+"firebase::firestore::(unnamed namespace)::JavaFirestoreMap","mutex_","field","Mutex","Mutex","firestore/src/android/firestore_android.cc",231
+"firebase::firestore::(unnamed namespace)::JavaFirestoreMap","firestores_","field","Global<HashMap>","Global<HashMap>","firestore/src/android/firestore_android.cc",232
+"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<Query, QueryInternal, AsyncFn>","completer_","field","unique_ptr<Completer<Query, QueryInternal, void>, default_delete<Completer<Query, QueryInternal, void>>>","unique_ptr<Completer<Query, QueryInternal, void>, default_delete<Completer<Query, QueryInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, AsyncFn>","completer_","field","unique_ptr<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>, default_delete<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>>>","unique_ptr<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>, default_delete<Completer<LoadBundleTaskProgress, LoadBundleTaskProgressInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","handle_","field","SafeFutureHandle<QuerySnapshot>","SafeFutureHandle<QuerySnapshot>","firestore/src/android/promise_android.h",238
+"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",237
+"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",231
+"firebase::firestore::Promise<QuerySnapshot, QuerySnapshotInternal, AsyncFn>","completer_","field","unique_ptr<Completer<QuerySnapshot, QuerySnapshotInternal, void>, default_delete<Completer<QuerySnapshot, QuerySnapshotInternal, void>>>","unique_ptr<Completer<QuerySnapshot, QuerySnapshotInternal, void>, default_delete<Completer<QuerySnapshot, QuerySnapshotInternal, void>>>","firestore/src/android/promise_android.h",233
+"firebase::firestore::LambdaEventListener<QuerySnapshot>","callback_","field","error","error","firestore/src/android/lambda_event_listener.h",49
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","handle_","field","SafeFutureHandle<QuerySnapshot>","SafeFutureHandle<QuerySnapshot>","firestore/src/android/promise_android.h",175
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","impl_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/android/promise_android.h",176
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","completion_","field","Completion *","Completion *","firestore/src/android/promise_android.h",177
+"firebase::firestore::Promise<PublicType, InternalType, FnEnumType>::CompleterBase<QuerySnapshot>","firestore_ref_","field","FirestoreInternalWeakReference","FirestoreInternalWeakReference","firestore/src/android/promise_android.h",172
+"firebase::firestore::PromiseFactory<AsyncApis>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_factory_main.h",84
+"firebase::firestore::PromiseFactory<AsyncApis>","future_manager_","field","FutureManager *","FutureManager *","firestore/src/main/promise_factory_main.h",85
+"firebase::firestore::PromiseFactory<ApiEnum>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_factory_main.h",84
+"firebase::firestore::PromiseFactory<ApiEnum>","future_manager_","field","FutureManager *","FutureManager *","firestore/src/main/promise_factory_main.h",85
+"firebase::firestore::UserDataConverter","database_id_","field","<error-type> *","<error-type> *","firestore/src/main/user_data_converter_main.h",116
+"firebase::firestore::PromiseFactory<<error-type>>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_factory_main.h",84
+"firebase::firestore::PromiseFactory<<error-type>>","future_manager_","field","FutureManager *","FutureManager *","firestore/src/main/promise_factory_main.h",85
+"firebase::firestore::jni::ArenaRef::ObjectArenaEntry","id_","field","error","error","firestore/src/jni/arena_ref.cc",222
+"firebase::firestore::jni::(unnamed namespace)::ObjectArena","initialized_","field","atomic<bool>","atomic<bool>","firestore/src/jni/arena_ref.cc",167
+"firebase::firestore::jni::(unnamed namespace)::ObjectArena","remove_","field","atomic<<error-type>>","atomic<<error-type>>","firestore/src/jni/arena_ref.cc",166
+"firebase::firestore::jni::(unnamed namespace)::ObjectArena","set_","field","atomic<<error-type>>","atomic<<error-type>>","firestore/src/jni/arena_ref.cc",165
+"firebase::firestore::jni::(unnamed namespace)::ObjectArena","get_","field","atomic<<error-type>>","atomic<<error-type>>","firestore/src/jni/arena_ref.cc",164
+"firebase::firestore::jni::(unnamed namespace)::ObjectArena","java_class_","field","atomic<<error-type>>","atomic<<error-type>>","firestore/src/jni/arena_ref.cc",163
+"firebase::firestore::jni::(unnamed namespace)::MethodLoader","java_class_","field","error","error","firestore/src/jni/arena_ref.cc",59
+"firebase::firestore::jni::(unnamed namespace)::MethodLoader","loader_","field","Loader &","Loader &","firestore/src/jni/arena_ref.cc",58
+"firebase::firestore::Promise<ResultT>","handle_","field","SafeFutureHandle<ResultT>","SafeFutureHandle<ResultT>","firestore/src/main/promise_main.h",215
+"firebase::firestore::Promise<ResultT>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_main.h",212
+"firebase::firestore::Promise<ResultT>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/main/promise_main.h",213
+"firebase::firestore::Promise<ResultT>","destruction_mutex_","field","mutex","mutex","firestore/src/main/promise_main.h",216
+"firebase::firestore::CompositeFilterInternal","vector","field","error","error","firestore/src/main/composite_filter_main.h",36
+"firebase::firestore::CompositeFilterInternal","Operator","field","error","error","firestore/src/main/composite_filter_main.h",35
+"firebase::firestore::CompositeFilterInternal","filters_","field","vector<shared_ptr<FilterInternal>, allocator<shared_ptr<FilterInternal>>>","vector<shared_ptr<FilterInternal>, allocator<shared_ptr<FilterInternal>>>","firestore/src/main/composite_filter_main.h",52
+"firebase::firestore::CompositeFilterInternal","op_","field","error","error","firestore/src/main/composite_filter_main.h",51
+"firebase::firestore::UnaryFilterInternal","value_","field","FieldValue","FieldValue","firestore/src/main/unary_filter_main.h",57
+"firebase::firestore::UnaryFilterInternal","path_","field","FieldPath","FieldPath","firestore/src/main/unary_filter_main.h",55
+"firebase::firestore::UnaryFilterInternal","op_","field","error","error","firestore/src/main/unary_filter_main.h",56
+"firebase::firestore::CppAppCheckCredentialsProvider","app_","field","App &","App &","firestore/src/main/app_check_credentials_provider_desktop.h",67
+"firebase::firestore::FirebaseCppCredentialsProvider","contents_","field","shared_ptr<Contents>","shared_ptr<Contents>","firestore/src/main/credentials_provider_desktop.h",110
+"firebase::firestore::FirebaseCppCredentialsProvider::Contents","app","field","App &","App &","firestore/src/main/credentials_provider_desktop.h",102
+"firebase::firestore::FirebaseCppCredentialsProvider::Contents","mutex","field","recursive_mutex","recursive_mutex","firestore/src/main/credentials_provider_desktop.h",100
+"firebase::firestore::Promise<Query>","handle_","field","SafeFutureHandle<Query>","SafeFutureHandle<Query>","firestore/src/main/promise_main.h",215
+"firebase::firestore::Promise<Query>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_main.h",212
+"firebase::firestore::Promise<Query>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/main/promise_main.h",213
+"firebase::firestore::Promise<Query>","destruction_mutex_","field","mutex","mutex","firestore/src/main/promise_main.h",216
+"firebase::firestore::Promise<LoadBundleTaskProgress>","handle_","field","SafeFutureHandle<LoadBundleTaskProgress>","SafeFutureHandle<LoadBundleTaskProgress>","firestore/src/main/promise_main.h",215
+"firebase::firestore::Promise<LoadBundleTaskProgress>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_main.h",212
+"firebase::firestore::Promise<LoadBundleTaskProgress>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/main/promise_main.h",213
+"firebase::firestore::Promise<LoadBundleTaskProgress>","destruction_mutex_","field","mutex","mutex","firestore/src/main/promise_main.h",216
+"firebase::firestore::Promise<void>","handle_","field","SafeFutureHandle<void>","SafeFutureHandle<void>","firestore/src/main/promise_main.h",215
+"firebase::firestore::Promise<void>","cleanup_","field","CleanupNotifier *","CleanupNotifier *","firestore/src/main/promise_main.h",212
+"firebase::firestore::Promise<void>","future_api_","field","ReferenceCountedFutureImpl *","ReferenceCountedFutureImpl *","firestore/src/main/promise_main.h",213
+"firebase::firestore::Promise<void>","destruction_mutex_","field","mutex","mutex","firestore/src/main/promise_main.h",216

@@ -6,7 +6,13 @@
     "method": "OnCodeAutoRetrievalTimeOut",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/common.cc",
+    "line_number": "77",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/common.cc",
+    "line_number": "77"
   },
   "direct_dependencies": [
     "basic_string<char, char_traits<char>, allocator<char>>"

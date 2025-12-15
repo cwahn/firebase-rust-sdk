@@ -6,7 +6,13 @@
     "method": "SignIn",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "846",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "846"
   },
   "direct_dependencies": [
     "AuthData",
@@ -19,8 +25,8 @@
   "dependency_count": 2,
   "direct_dependents": [],
   "implementation_order": [
-    "AuthData",
     "Future<AuthResult>",
+    "AuthData",
     "firebase::auth::FederatedAuthProvider::SignIn"
   ]
 }

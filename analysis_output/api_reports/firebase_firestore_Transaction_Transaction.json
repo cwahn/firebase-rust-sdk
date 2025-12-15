@@ -6,7 +6,13 @@
     "method": "Transaction",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/transaction.h",
+    "line_number": "55",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/transaction.h",
+    "line_number": "55"
   },
   "direct_dependencies": [
     "Transaction",
@@ -33,14 +39,14 @@
   ],
   "implementation_order": [
     "TransactionInternal",
-    "firebase::CleanupNotifier::RegisterObject",
-    "Transaction",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "CleanupNotifier",
+    "Transaction",
     "FirestoreInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::CleanupNotifier::RegisterObject",
+    "CleanupNotifier",
     "firebase::firestore::TransactionInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Register",
     "firebase::firestore::Transaction::Transaction"
   ]

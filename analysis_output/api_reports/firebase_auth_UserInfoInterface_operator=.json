@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "39",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "39"
   },
   "direct_dependencies": [
     "UserInfoInterface"

@@ -6,7 +6,13 @@
     "method": "SetOptions",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/set_options.h",
+    "line_number": "79",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/set_options.h",
+    "line_number": "79"
   },
   "direct_dependencies": [
     "SetOptions",
@@ -33,10 +39,10 @@
     "firebase::firestore::WriteBatch::Set"
   ],
   "implementation_order": [
-    "std::__1::move",
+    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::unordered_set",
     "SetOptions",
     "unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>",
-    "std::__1::unordered_set<FieldPath, hash<FieldPath>, equal_to<FieldPath>, allocator<FieldPath>>::unordered_set",
+    "std::__1::move",
     "Type",
     "firebase::firestore::SetOptions::SetOptions"
   ]

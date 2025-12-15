@@ -6,7 +6,13 @@
     "method": "DocumentSnapshot",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/document_snapshot.cc",
+    "line_number": "50",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/document_snapshot.cc",
+    "line_number": "50"
   },
   "direct_dependencies": [
     "DocumentSnapshot",
@@ -40,17 +46,17 @@
     "firebase::firestore::TransactionInternal::Get"
   ],
   "implementation_order": [
-    "DocumentSnapshotInternal",
-    "std::__1::swap",
-    "DocumentSnapshot",
-    "firebase::CleanupNotifier::UnregisterObject",
-    "firebase::CleanupNotifier::RegisterObject",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "CleanupNotifier",
+    "DocumentSnapshot",
     "FirestoreInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "DocumentSnapshotInternal",
+    "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::swap",
+    "CleanupNotifier",
     "firebase::firestore::DocumentSnapshotInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::CleanupFn<DocumentSnapshot, DocumentSnapshotInternal, FirestoreInternal>::Register",
     "firebase::firestore::DocumentSnapshot::DocumentSnapshot"

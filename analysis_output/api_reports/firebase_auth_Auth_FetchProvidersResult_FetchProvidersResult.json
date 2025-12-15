@@ -6,7 +6,13 @@
     "method": "FetchProvidersResult",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "138",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "138"
   },
   "direct_dependencies": [
     "FetchProvidersResult",
@@ -21,8 +27,8 @@
     "firebase::auth::Promise<FetchProvidersResult>::Promise"
   ],
   "implementation_order": [
-    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
     "FetchProvidersResult",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
     "firebase::auth::Auth::FetchProvidersResult::FetchProvidersResult"
   ]
 }

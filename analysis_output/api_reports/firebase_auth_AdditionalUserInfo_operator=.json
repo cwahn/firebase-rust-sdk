@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "121",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "121"
   },
   "direct_dependencies": [
     "AdditionalUserInfo",
@@ -36,13 +42,13 @@
   ],
   "implementation_order": [
     "Credential",
-    "std::__1::shared_ptr<AuthCredential>::shared_ptr",
-    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::operator=",
     "AuthCredential",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::operator=",
-    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
-    "CredentialImpl",
+    "std::__1::map<Variant, Variant, less<Variant>, allocator<pair<const Variant, Variant>>>::operator=",
     "AdditionalUserInfo",
+    "CredentialImpl",
+    "std::__1::shared_ptr<AuthCredential>::~shared_ptr",
+    "std::__1::shared_ptr<AuthCredential>::shared_ptr",
     "firebase::auth::CredentialImpl::~CredentialImpl",
     "firebase::auth::CredentialImpl::CredentialImpl",
     "firebase::auth::Credential::operator=",

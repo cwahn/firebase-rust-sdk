@@ -19,6 +19,7 @@ class DependencyGraph:
         self.edges: Dict[str, Set[str]] = defaultdict(set)
         self.reverse_edges: Dict[str, Set[str]] = defaultdict(set)
         self.node_metadata: Dict[str, Dict] = {}
+        self.node_locations: Dict[str, Dict[str, str]] = {}  # node -> {file_path, line_number}
         
     def add_edge(self, from_node: str, to_node: str, metadata: Optional[Dict] = None):
         """Add directed edge: from_node depends on to_node"""
@@ -42,6 +43,13 @@ class DependencyGraph:
             if node not in self.node_metadata:
                 self.node_metadata[node] = {}
             self.node_metadata[node].update(metadata)
+            
+            # Extract and store location information
+            if 'file_path' in metadata and 'line_number' in metadata:
+                self.node_locations[node] = {
+                    'file_path': metadata['file_path'],
+                    'line_number': metadata['line_number']
+                }
     
     def get_leaves(self) -> Set[str]:
         """Get nodes with no dependencies (leaves)"""
@@ -205,7 +213,9 @@ def build_graph_from_queries(results_dir: Path) -> DependencyGraph:
                 'class': row['class_name'],
                 'method': row['method_name'],
                 'is_static': row.get('is_static', 'false') == 'true',
-                'is_virtual': row.get('is_virtual', 'false') == 'true'
+                'is_virtual': row.get('is_virtual', 'false') == 'true',
+                'file_path': row.get('file_path', ''),
+                'line_number': row.get('line_number', '')
             })
     
     # 2. Process class hierarchy
@@ -309,9 +319,11 @@ def generate_per_api_reports(graph: DependencyGraph,
     for api in public_apis:
         deps = graph.get_transitive_dependencies(api)
         
+        location = graph.node_locations.get(api, {})
         report = {
             "api": api,
             "metadata": graph.node_metadata.get(api, {}),
+            "location": location,  # Add file path and line number
             "direct_dependencies": sorted(graph.edges.get(api, [])),
             "transitive_dependencies": sorted(deps),
             "dependency_count": len(deps),

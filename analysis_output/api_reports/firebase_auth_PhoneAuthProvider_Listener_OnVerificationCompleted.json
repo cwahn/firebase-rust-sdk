@@ -6,7 +6,13 @@
     "method": "OnVerificationCompleted",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "533",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "533"
   },
   "direct_dependencies": [
     "PhoneAuthCredential"

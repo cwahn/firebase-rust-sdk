@@ -6,7 +6,13 @@
     "method": "ToString",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/settings.cc",
+    "line_number": "62",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/settings.cc",
+    "line_number": "62"
   },
   "direct_dependencies": [
     "basic_string<char, char_traits<char>, allocator<char>>",
@@ -33,13 +39,13 @@
   "dependency_count": 9,
   "direct_dependents": [],
   "implementation_order": [
+    "firebase::firestore::Settings::is_ssl_enabled",
+    "firebase::firestore::Settings::cache_size_bytes",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
+    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
     "firebase::firestore::Settings::is_persistence_enabled",
     "firebase::firestore::(unnamed namespace)::ToStr",
     "std::__1::operator+",
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
-    "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "firebase::firestore::Settings::cache_size_bytes",
-    "firebase::firestore::Settings::is_ssl_enabled",
     "basic_string<char, char_traits<char>, allocator<char>>",
     "firebase::firestore::Settings::host",
     "firebase::firestore::Settings::ToString"

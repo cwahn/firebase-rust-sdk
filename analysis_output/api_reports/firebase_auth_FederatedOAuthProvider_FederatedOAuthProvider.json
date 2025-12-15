@@ -6,7 +6,13 @@
     "method": "FederatedOAuthProvider",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "888",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "888"
   },
   "direct_dependencies": [
     "FederatedOAuthProvider",
@@ -19,8 +25,8 @@
   "dependency_count": 2,
   "direct_dependents": [],
   "implementation_order": [
-    "FederatedOAuthProvider",
     "FederatedOAuthProviderData",
+    "FederatedOAuthProvider",
     "firebase::auth::FederatedOAuthProvider::FederatedOAuthProvider"
   ]
 }

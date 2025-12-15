@@ -6,7 +6,13 @@
     "method": "SnapshotMetadata",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/snapshot_metadata.h",
+    "line_number": "43",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/snapshot_metadata.h",
+    "line_number": "43"
   },
   "direct_dependencies": [
     "SnapshotMetadata"

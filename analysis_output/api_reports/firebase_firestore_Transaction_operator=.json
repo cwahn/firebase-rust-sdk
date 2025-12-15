@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/include/firebase/firestore/transaction.h",
+    "line_number": "63",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/include/firebase/firestore/transaction.h",
+    "line_number": "63"
   },
   "direct_dependencies": [
     "Transaction"

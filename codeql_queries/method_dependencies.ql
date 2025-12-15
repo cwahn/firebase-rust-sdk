@@ -27,4 +27,5 @@ select
   caller.getName() as caller_method,
   caller.getQualifiedName() as caller_qualified,
   callee.getQualifiedName() as callee_function,
+  caller.getFile().getRelativePath() as file_path,
   call.getLocation().getStartLine() as line_number

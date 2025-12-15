@@ -6,7 +6,13 @@
     "method": "photo_url",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "1068",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "1068"
   },
   "direct_dependencies": [
     "basic_string<char, char_traits<char>, allocator<char>>",
@@ -39,22 +45,22 @@
   "dependency_count": 17,
   "direct_dependents": [],
   "implementation_order": [
-    "firebase::LogAssert",
-    "AuthData",
-    "firebase::Mutex::Acquire",
-    "firebase::ReferenceCountedFutureImpl::mutex",
-    "firebase::auth::UserView::Reader::IsValid",
-    "Reader",
-    "Mutex",
     "UserData",
+    "firebase::Mutex::Acquire",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "firebase::ReferenceCountedFutureImpl::mutex",
+    "firebase::auth::UserView::Reader::IsValid",
     "firebase::Mutex::Release",
     "basic_string<char, char_traits<char>, allocator<char>>",
-    "firebase::auth::UserView::CastToUser",
+    "AuthData",
+    "Reader",
+    "firebase::LogAssert",
+    "Mutex",
     "firebase::auth::UserView::Reader::operator->",
-    "firebase::auth::UserView::Reader::Reader",
     "firebase::auth::UserView::Reader::~Reader",
+    "firebase::auth::UserView::CastToUser",
+    "firebase::auth::UserView::Reader::Reader",
     "firebase::auth::UserView::GetReader",
     "firebase::auth::User::photo_url"
   ]

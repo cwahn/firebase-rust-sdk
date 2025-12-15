@@ -6,7 +6,13 @@
     "method": "DocumentId",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "71",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "71"
   },
   "direct_dependencies": [
     "FieldPath"

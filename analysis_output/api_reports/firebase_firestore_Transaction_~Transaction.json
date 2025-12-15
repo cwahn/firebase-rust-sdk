@@ -6,7 +6,13 @@
     "method": "~Transaction",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/transaction.cc",
+    "line_number": "50",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "firestore/src/common/transaction.cc",
+    "line_number": "50"
   },
   "direct_dependencies": [
     "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Unregister",
@@ -34,16 +40,16 @@
   ],
   "implementation_order": [
     "TransactionInternal",
-    "std::__1::shared_ptr<<error-type>>::~shared_ptr",
-    "std::__1::shared_ptr<Local<Throwable>>::~shared_ptr",
     "std::__1::shared_ptr<ObjectArenaEntry>::~shared_ptr",
-    "firebase::CleanupNotifier::UnregisterObject",
     "Transaction",
-    "CleanupNotifier",
     "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "std::__1::shared_ptr<<error-type>>::~shared_ptr",
+    "CleanupNotifier",
+    "std::__1::shared_ptr<Local<Throwable>>::~shared_ptr",
     "firebase::firestore::jni::ArenaRef::~ArenaRef",
-    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::TransactionInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::Wrapper::~Wrapper",
     "firebase::firestore::CleanupFn<Transaction, TransactionInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::TransactionInternal::~TransactionInternal",

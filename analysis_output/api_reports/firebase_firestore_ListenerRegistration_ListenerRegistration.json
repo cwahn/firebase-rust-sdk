@@ -6,7 +6,13 @@
     "method": "ListenerRegistration",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/listener_registration.cc",
+    "line_number": "49",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/listener_registration.cc",
+    "line_number": "49"
   },
   "direct_dependencies": [
     "ListenerRegistration",
@@ -39,15 +45,15 @@
     "firebase::firestore::QueryInternal::AddSnapshotListener"
   ],
   "implementation_order": [
-    "ListenerRegistrationInternal",
-    "ListenerRegistration",
-    "std::__1::swap",
+    "FirestoreInternal",
     "firebase::CleanupNotifier::UnregisterObject",
     "firebase::CleanupNotifier::RegisterObject",
+    "std::__1::swap",
+    "ListenerRegistration",
     "CleanupNotifier",
-    "FirestoreInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "ListenerRegistrationInternal",
     "firebase::firestore::ListenerRegistrationInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Register",
     "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::ListenerRegistration::ListenerRegistration"

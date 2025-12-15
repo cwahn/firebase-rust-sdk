@@ -6,7 +6,13 @@
     "method": "is_valid",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "646",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "646"
   },
   "direct_dependencies": [
     "firebase::auth::UserView::GetReader",
@@ -42,19 +48,19 @@
     "firebase::auth::UserDataPersist::OnAuthStateChanged"
   ],
   "implementation_order": [
-    "firebase::LogAssert",
-    "AuthData",
+    "UserData",
     "firebase::Mutex::Acquire",
     "firebase::ReferenceCountedFutureImpl::mutex",
-    "firebase::auth::ValidUser",
     "firebase::auth::UserView::Reader::IsValid",
-    "Reader",
-    "Mutex",
-    "UserData",
     "firebase::Mutex::Release",
+    "AuthData",
+    "Reader",
+    "firebase::LogAssert",
+    "Mutex",
+    "firebase::auth::ValidUser",
+    "firebase::auth::UserView::Reader::~Reader",
     "firebase::auth::UserView::CastToUser",
     "firebase::auth::UserView::Reader::Reader",
-    "firebase::auth::UserView::Reader::~Reader",
     "firebase::auth::UserView::GetReader",
     "firebase::auth::User::is_valid"
   ]

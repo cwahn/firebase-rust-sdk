@@ -6,7 +6,13 @@
     "method": "QuerySnapshot",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/query_snapshot.cc",
+    "line_number": "47",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/query_snapshot.cc",
+    "line_number": "47"
   },
   "direct_dependencies": [
     "QuerySnapshot",
@@ -37,17 +43,17 @@
     "firebase::firestore::ConverterImpl::MakePublicFromJava"
   ],
   "implementation_order": [
-    "QuerySnapshotInternal",
-    "std::__1::swap",
-    "firebase::CleanupNotifier::UnregisterObject",
-    "firebase::CleanupNotifier::RegisterObject",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::~basic_string",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "CleanupNotifier",
     "FirestoreInternal",
+    "firebase::CleanupNotifier::UnregisterObject",
+    "QuerySnapshotInternal",
+    "firebase::CleanupNotifier::RegisterObject",
     "QuerySnapshot",
-    "firebase::firestore::FirestoreInternal::cleanup",
+    "std::__1::swap",
+    "CleanupNotifier",
     "firebase::firestore::QuerySnapshotInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::CleanupFn<QuerySnapshot, QuerySnapshotInternal, FirestoreInternal>::Register",
     "firebase::firestore::QuerySnapshot::QuerySnapshot"

@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "138",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth.h",
+    "line_number": "138"
   },
   "direct_dependencies": [
     "FetchProvidersResult",
@@ -19,8 +25,8 @@
   "dependency_count": 2,
   "direct_dependents": [],
   "implementation_order": [
-    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::operator=",
     "FetchProvidersResult",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::operator=",
     "firebase::auth::Auth::FetchProvidersResult::operator="
   ]
 }

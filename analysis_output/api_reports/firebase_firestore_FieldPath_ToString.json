@@ -6,7 +6,13 @@
     "method": "ToString",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "87",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "87"
   },
   "direct_dependencies": [
     "basic_string<char, char_traits<char>, allocator<char>>",

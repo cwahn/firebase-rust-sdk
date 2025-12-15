@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/aggregate_query_snapshot.cc",
+    "line_number": "81",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/aggregate_query_snapshot.cc",
+    "line_number": "81"
   },
   "direct_dependencies": [
     "AggregateQuerySnapshot",
@@ -28,16 +34,16 @@
   "dependency_count": 10,
   "direct_dependents": [],
   "implementation_order": [
-    "AggregateQuerySnapshot",
+    "AggregateQuerySnapshotInternal",
+    "FirestoreInternal",
     "firebase::CleanupNotifier::UnregisterObject",
+    "AggregateQuerySnapshot",
     "firebase::CleanupNotifier::RegisterObject",
     "CleanupNotifier",
-    "FirestoreInternal",
-    "AggregateQuerySnapshotInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::AggregateQuerySnapshotInternal::firestore_internal",
-    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Register",
+    "firebase::firestore::CleanupFn<AggregateQuerySnapshot, AggregateQuerySnapshotInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::AggregateQuerySnapshot::operator="
   ]
 }

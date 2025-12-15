@@ -6,7 +6,13 @@
     "method": "FieldPath",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "44",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_path.cc",
+    "line_number": "44"
   },
   "direct_dependencies": [
     "FieldPath",
@@ -27,10 +33,10 @@
     "firebase::firestore::UnaryFilterInternal::UnaryFilterInternal"
   ],
   "implementation_order": [
-    "vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>",
-    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
-    "initializer_list<basic_string<char, char_traits<char>, allocator<char>>>",
     "FieldPath",
+    "vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>",
+    "initializer_list<basic_string<char, char_traits<char>, allocator<char>>>",
+    "std::__1::vector<basic_string<char, char_traits<char>, allocator<char>>, allocator<basic_string<char, char_traits<char>, allocator<char>>>>::vector",
     "firebase::firestore::FieldPath::InternalFromSegments",
     "firebase::firestore::FieldPath::FieldPath"
   ]

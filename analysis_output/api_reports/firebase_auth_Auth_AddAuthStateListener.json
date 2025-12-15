@@ -6,7 +6,13 @@
     "method": "AddAuthStateListener",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/auth.cc",
+    "line_number": "218",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/auth.cc",
+    "line_number": "218"
   },
   "direct_dependencies": [
     "AuthStateListener",
@@ -28,11 +34,11 @@
     "firebase::auth::Auth::current_user"
   ],
   "implementation_order": [
+    "Auth",
     "AuthStateListener",
     "firebase::MutexLock::~MutexLock",
     "firebase::MutexLock::MutexLock",
     "firebase::auth::AddListener",
-    "Auth",
     "firebase::auth::AuthStateListener::OnAuthStateChanged",
     "firebase::auth::Auth::AddAuthStateListener"
   ]

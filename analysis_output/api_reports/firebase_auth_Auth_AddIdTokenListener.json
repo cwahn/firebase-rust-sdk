@@ -6,7 +6,13 @@
     "method": "AddIdTokenListener",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/auth.cc",
+    "line_number": "234",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/auth.cc",
+    "line_number": "234"
   },
   "direct_dependencies": [
     "IdTokenListener",
@@ -30,12 +36,12 @@
     "firebase::auth::IdTokenRefreshThread::Initialize"
   ],
   "implementation_order": [
+    "Auth",
+    "IdTokenListener",
+    "firebase::auth::EnableTokenAutoRefresh",
     "firebase::MutexLock::~MutexLock",
     "firebase::MutexLock::MutexLock",
-    "firebase::auth::EnableTokenAutoRefresh",
     "firebase::auth::AddListener",
-    "IdTokenListener",
-    "Auth",
     "firebase::auth::IdTokenListener::OnIdTokenChanged",
     "firebase::auth::Auth::AddIdTokenListener"
   ]

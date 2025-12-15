@@ -6,7 +6,13 @@
     "method": "PhoneAuthOptions",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "626",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "626"
   },
   "direct_dependencies": [
     "PhoneAuthOptions",
@@ -19,8 +25,8 @@
   "dependency_count": 2,
   "direct_dependents": [],
   "implementation_order": [
-    "PhoneAuthOptions",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
+    "PhoneAuthOptions",
     "firebase::auth::PhoneAuthOptions::PhoneAuthOptions"
   ]
 }

@@ -5,7 +5,13 @@
     "class": "firebase::firestore::TransactionOptions",
     "method": "set_max_attempts",
     "is_static": false,
-    "is_virtual": false
+    "is_virtual": false,
+    "file_path": "firestore/src/common/transaction_options.cc",
+    "line_number": "28"
+  },
+  "location": {
+    "file_path": "firestore/src/common/transaction_options.cc",
+    "line_number": "28"
   },
   "direct_dependencies": [],
   "transitive_dependencies": [],

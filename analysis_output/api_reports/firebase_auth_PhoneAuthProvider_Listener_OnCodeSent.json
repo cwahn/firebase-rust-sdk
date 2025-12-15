@@ -6,7 +6,13 @@
     "method": "OnCodeSent",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/common.cc",
+    "line_number": "73",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/common.cc",
+    "line_number": "73"
   },
   "direct_dependencies": [
     "ForceResendingToken",

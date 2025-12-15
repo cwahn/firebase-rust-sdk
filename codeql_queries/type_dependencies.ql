@@ -28,4 +28,6 @@ select
   "parameter" as dependency_kind,
   p.getName() as param_name,
   t.toString() as type_name,
-  t.toString() as type_qualified
+  t.toString() as type_qualified,
+  m.getFile().getRelativePath() as file_path,
+  m.getLocation().getStartLine() as line_number

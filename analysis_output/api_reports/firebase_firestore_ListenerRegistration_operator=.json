@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/listener_registration.cc",
+    "line_number": "83",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/listener_registration.cc",
+    "line_number": "83"
   },
   "direct_dependencies": [
     "ListenerRegistration",
@@ -26,11 +32,11 @@
   "dependency_count": 8,
   "direct_dependents": [],
   "implementation_order": [
-    "ListenerRegistration",
+    "FirestoreInternal",
     "firebase::CleanupNotifier::UnregisterObject",
     "firebase::CleanupNotifier::RegisterObject",
+    "ListenerRegistration",
     "CleanupNotifier",
-    "FirestoreInternal",
     "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Register",
     "firebase::firestore::CleanupFn<ListenerRegistration, ListenerRegistrationInternal, FirestoreInternal>::Unregister",

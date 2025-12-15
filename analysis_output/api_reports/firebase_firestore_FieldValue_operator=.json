@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/field_value.cc",
+    "line_number": "127",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "firestore/src/common/field_value.cc",
+    "line_number": "127"
   },
   "direct_dependencies": [
     "FieldValue"

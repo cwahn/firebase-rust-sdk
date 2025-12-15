@@ -6,7 +6,13 @@
     "method": "User",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "637",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/desktop/user_desktop.cc",
+    "line_number": "637"
   },
   "direct_dependencies": [
     "AuthData",
@@ -31,10 +37,10 @@
     "firebase::auth::User::ReauthenticateWithProvider"
   ],
   "implementation_order": [
-    "AuthData",
     "std::__1::basic_string<char, char_traits<char>, allocator<char>>::basic_string",
-    "User",
     "UserInfoInterface",
+    "AuthData",
+    "User",
     "firebase::auth::UserInfoInterface::UserInfoInterface",
     "firebase::auth::User::User"
   ]

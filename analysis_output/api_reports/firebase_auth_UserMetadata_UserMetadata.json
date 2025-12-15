@@ -6,7 +6,13 @@
     "method": "UserMetadata",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "142",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/user.h",
+    "line_number": "142"
   },
   "direct_dependencies": [
     "UserMetadata"

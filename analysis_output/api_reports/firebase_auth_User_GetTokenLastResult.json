@@ -6,7 +6,13 @@
     "method": "GetTokenLastResult",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/user.cc",
+    "line_number": "22",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/user.cc",
+    "line_number": "22"
   },
   "direct_dependencies": [
     "Future<basic_string<char, char_traits<char>, allocator<char>>>",
@@ -22,8 +28,8 @@
   "direct_dependents": [],
   "implementation_order": [
     "firebase::Future<basic_string<char, char_traits<char>, allocator<char>>>::Future",
-    "firebase::ReferenceCountedFutureImpl::LastResult",
     "Future<basic_string<char, char_traits<char>, allocator<char>>>",
+    "firebase::ReferenceCountedFutureImpl::LastResult",
     "firebase::auth::User::GetTokenLastResult"
   ]
 }

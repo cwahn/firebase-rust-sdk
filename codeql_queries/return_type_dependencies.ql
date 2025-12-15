@@ -26,4 +26,6 @@ select
   m.getQualifiedName() as method_qualified,
   "return" as dependency_kind,
   t.toString() as type_name,
-  t.toString() as type_qualified
+  t.toString() as type_qualified,
+  m.getFile().getRelativePath() as file_path,
+  m.getLocation().getStartLine() as line_number

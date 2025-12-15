@@ -6,7 +6,13 @@
     "method": "RemoveAuthStateListener",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/auth.cc",
+    "line_number": "288",
     "relationship": "uses_type"
+  },
+  "location": {
+    "file_path": "auth/src/auth.cc",
+    "line_number": "288"
   },
   "direct_dependencies": [
     "AuthStateListener",
@@ -23,8 +29,8 @@
     "firebase::auth::AuthStateListener::~AuthStateListener"
   ],
   "implementation_order": [
-    "AuthStateListener",
     "firebase::auth::RemoveListener",
+    "AuthStateListener",
     "firebase::auth::Auth::RemoveAuthStateListener"
   ]
 }

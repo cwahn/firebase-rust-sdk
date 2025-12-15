@@ -6,7 +6,13 @@
     "method": "~DocumentChange",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "firestore/src/common/document_change.cc",
+    "line_number": "66",
     "relationship": "calls"
+  },
+  "location": {
+    "file_path": "firestore/src/common/document_change.cc",
+    "line_number": "66"
   },
   "direct_dependencies": [
     "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister"
@@ -24,13 +30,13 @@
   "dependency_count": 8,
   "direct_dependents": [],
   "implementation_order": [
-    "DocumentChange",
+    "FirestoreInternal",
     "DocumentChangeInternal",
     "firebase::CleanupNotifier::UnregisterObject",
+    "DocumentChange",
     "CleanupNotifier",
-    "FirestoreInternal",
-    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::DocumentChangeInternal::firestore_internal",
+    "firebase::firestore::FirestoreInternal::cleanup",
     "firebase::firestore::CleanupFn<DocumentChange, DocumentChangeInternal, FirestoreInternal>::Unregister",
     "firebase::firestore::DocumentChange::~DocumentChange"
   ]

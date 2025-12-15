@@ -6,7 +6,13 @@
     "method": "operator=",
     "is_static": false,
     "is_virtual": false,
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "265",
     "relationship": "returns"
+  },
+  "location": {
+    "file_path": "auth/src/include/firebase/auth/credential.h",
+    "line_number": "265"
   },
   "direct_dependencies": [
     "MicrosoftAuthProvider"

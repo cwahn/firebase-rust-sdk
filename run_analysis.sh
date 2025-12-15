@@ -110,8 +110,13 @@ else
 fi
 
 # Verify database
-echo "Verifying database..."
-codeql database info "$DB_DIR" || echo "Database verification skipped"
+echo "Verifying database exists..."
+if [ -d "$DB_DIR" ]; then
+    echo "✓ Database found at $DB_DIR"
+else
+    echo "✗ Database not found! Run create_db_final.sh first."
+    exit 1
+fi
 echo ""
 
 # Step 2: Run CodeQL queries
