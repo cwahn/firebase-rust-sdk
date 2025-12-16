@@ -100,6 +100,10 @@ impl WriteBatch {
 - `src/firestore/snapshot_stream.rs` - Stream types with Drop cleanup
 - `src/firestore/metadata_changes.rs` - MetadataChanges enum
 
+**Files Modified:**
+- `src/firestore/document_reference.rs` - Added `listen()` method
+- `src/firestore/query.rs` - Added `listen()` to Query trait
+
 **Implemented Features:**
 ```rust
 // Async streams with automatic cleanup (RAII pattern)
@@ -117,6 +121,17 @@ pub enum MetadataChanges {
     Include,  // Listen to metadata-only changes
     Exclude,  // Only data changes (default)
 }
+
+// API methods with placeholder implementations
+impl DocumentReference {
+    pub fn listen(&self, metadata_changes: Option<MetadataChanges>) 
+        -> DocumentSnapshotStream { /* ... */ }
+}
+
+pub trait Query {
+    fn listen(&self, metadata_changes: Option<MetadataChanges>) 
+        -> QuerySnapshotStream { /* ... */ }
+}
 ```
 
 **Design Decision - Rust Idioms Over C++ Port:**
@@ -125,14 +140,24 @@ pub enum MetadataChanges {
 - ✅ **Automatic cleanup** - No explicit `remove()` needed
 - Stream drops → cancellation signal sent → listener cleaned up
 
+**Progress Summary:**
+- ✅ Stream infrastructure (DocumentSnapshotStream, QuerySnapshotStream)
+- ✅ MetadataChanges enum
+- ✅ listen() method signatures on DocumentReference and Query
+- ✅ Channel-based streaming pattern with Drop cleanup
+- ⚙️ Placeholder implementations (need gRPC integration)
+- ❌ gRPC Listen streaming (pending)
+- ❌ ListenRequest/ListenResponse handling (pending)
+- ❌ DocumentChange tracking (pending)
+
 **Remaining Work:**
-1. Implement gRPC bidirectional Listen streaming
-2. Add `listen()` methods to DocumentReference and Query
+1. Integrate listen() methods with existing listener.rs gRPC infrastructure
+2. Convert between gRPC bidirectional stream and Rust async streams
 3. Handle ListenRequest/ListenResponse proto conversion
-4. Implement DocumentChange tracking
+4. Implement DocumentChange tracking for query listeners
 5. Integration tests with real Firebase
 
-**Complexity:** High (8-10 hours total) - 2 hours done, 6-8 hours remaining for gRPC streaming
+**Complexity:** High (8-10 hours total) - ~3 hours done, 5-7 hours remaining for gRPC integration
 
 ---
 
