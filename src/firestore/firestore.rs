@@ -96,6 +96,14 @@ impl Firestore {
         CollectionReference::new(path, Arc::clone(&self.inner))
     }
 
+    /// Create a new write batch
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/firestore.cc:96` - GetBatch()
+    pub fn batch(&self) -> crate::firestore::types::WriteBatch {
+        crate::firestore::types::WriteBatch::new(Arc::clone(&self.inner))
+    }
+
     /// Get the gRPC database path
     /// Format: projects/{project_id}/databases/{database_id}
     pub(crate) fn database_path(&self) -> String {
