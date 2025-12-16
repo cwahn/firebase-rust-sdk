@@ -5,13 +5,14 @@ edition = "2021"
 authors = ["Firebase Rust Contributors"]
 description = "Idiomatic Rust port of Firebase C++ SDK (Auth + Firestore)"
 license = "Apache-2.0"
-repository = "https://github.com/yourusername/firebase-rust-sdk"
+repository = "https://github.com/cwahn/firebase-rust-sdk.git"
 keywords = ["firebase", "auth", "firestore", "async"]
 categories = ["authentication", "database", "api-bindings"]
 
 [features]
 default = []
-tracker = []  # Enable implementation status tracking
+tracker = []           # Enable implementation status tracking
+integration-tests = [] # Enable integration tests with real Firebase
 
 [dependencies]
 tokio = { version = "1.40", features = ["full"] }
@@ -29,3 +30,4 @@ uuid = { version = "1.11", features = ["v4"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
+dotenvy = "0.15"   # Load .env file for integration tests

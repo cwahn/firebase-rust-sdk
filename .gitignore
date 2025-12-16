@@ -13,3 +13,6 @@ codeql_results/*.bqrs
 
 # Build logs
 codeql_create.log
+
+# Environment variables (contains sensitive Firebase credentials)
+.env
