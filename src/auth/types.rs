@@ -514,6 +514,81 @@ impl User {
         Ok(())
     }
 
+    /// Send email verification before updating email
+    ///
+    /// Sends a verification email to a new email address before updating the user's email.
+    /// This method verifies the new email belongs to the user before making the change.
+    ///
+    /// # C++ Reference
+    /// - `auth/src/user.cc:27` - SendEmailVerificationBeforeUpdatingEmail
+    /// - `auth/src/desktop/rpcs/get_oob_confirmation_code_request.cc:51` - CreateSendEmailVerificationBeforeUpdatingEmailRequest
+    ///
+    /// # Arguments
+    /// * `new_email` - The new email address to verify before updating
+    pub async fn send_email_verification_before_updating_email(
+        &self,
+        new_email: impl AsRef<str>,
+    ) -> Result<(), AuthError> {
+        let new_email = new_email.as_ref();
+
+        // Error-first: validate new email
+        if new_email.is_empty() {
+            return Err(AuthError::InvalidEmail);
+        }
+
+        // Error-first: basic email format validation
+        if !new_email.contains('@') {
+            return Err(AuthError::InvalidEmail);
+        }
+
+        // Error-first: validate ID token
+        let Some(ref id_token) = self.id_token else {
+            return Err(AuthError::NoSignedInUser);
+        };
+
+        // Error-first: validate API key
+        let Some(ref api_key) = self.api_key else {
+            return Err(AuthError::InvalidApiKey);
+        };
+
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={}",
+            api_key
+        );
+
+        let body = serde_json::json!({
+            "requestType": "VERIFY_AND_CHANGE_EMAIL",
+            "idToken": id_token,
+            "newEmail": new_email
+        });
+
+        let client = reqwest::Client::new();
+        let response = match client
+            .post(&url)
+            .json(&body)
+            .send()
+            .await
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(e.to_string())),
+            Ok(resp) => resp,
+        };
+
+        // Error-first: handle HTTP errors
+        if !response.status().is_success() {
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("SEND_EMAIL_VERIFICATION_BEFORE_UPDATE_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+
+        // Email verification sent successfully to new address
+        Ok(())
+    }
+
     /// Update email address
     ///
     /// # C++ Reference
