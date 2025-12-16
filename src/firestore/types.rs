@@ -11,7 +11,6 @@
 use crate::error::FirestoreError;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 // Re-export protobuf types for public API
 // Matches C++ SDK's FieldValue and MapValue pattern
@@ -1221,35 +1220,34 @@ impl Transaction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
+    use proto::google::firestore::v1::value::ValueType;
+    use std::collections::HashMap;
 
-    #[test]
-    fn test_value_types() {
-        let null_val = Value::Null;
-        assert!(null_val.is_null());
-
-        let bool_val = json!(true);
-        assert_eq!(bool_val.as_bool(), Some(true));
-
-        let int_val = json!(42);
-        assert_eq!(int_val.as_i64(), Some(42));
-
-        let double_val = json!(3.14);
-        assert_eq!(double_val.as_f64(), Some(3.14));
-
-        let str_val = json!("hello");
-        assert_eq!(str_val.as_str(), Some("hello"));
-    }
+    // ============================================================================
+    // Timestamp Tests (10 tests)
+    // ============================================================================
 
     #[test]
     fn test_timestamp_creation() {
         let ts = Timestamp::new(1234567890, 123456789).unwrap();
         assert_eq!(ts.seconds, 1234567890);
         assert_eq!(ts.nanoseconds, 123456789);
+    }
 
-        // Invalid nanoseconds
+    #[test]
+    fn test_timestamp_invalid_nanoseconds_negative() {
         assert!(Timestamp::new(0, -1).is_err());
+    }
+
+    #[test]
+    fn test_timestamp_invalid_nanoseconds_too_large() {
         assert!(Timestamp::new(0, 1_000_000_000).is_err());
+    }
+
+    #[test]
+    fn test_timestamp_valid_nanoseconds_boundary() {
+        assert!(Timestamp::new(0, 0).is_ok());
+        assert!(Timestamp::new(0, 999_999_999).is_ok());
     }
 
     #[test]
@@ -1263,120 +1261,1300 @@ mod tests {
     }
 
     #[test]
-    fn test_timestamp_to_value() {
-        let ts = Timestamp::new(1234567890, 123456789).unwrap();
-        let value = ts.to_value();
-
-        assert_eq!(value["seconds"], 1234567890);
-        assert_eq!(value["nanoseconds"], 123456789);
+    fn test_timestamp_epoch() {
+        let epoch = Timestamp::new(0, 0).unwrap();
+        let dt = epoch.to_datetime();
+        assert_eq!(dt.timestamp(), 0);
     }
 
     #[test]
-    fn test_geo_point_validation() {
-        // Valid points
+    fn test_timestamp_to_protobuf_value() {
+        let ts = Timestamp::new(1234567890, 123456789).unwrap();
+        let value = ts.to_value();
+        
+        match value.value_type {
+            Some(ValueType::TimestampValue(prost_ts)) => {
+                assert_eq!(prost_ts.seconds, 1234567890);
+                assert_eq!(prost_ts.nanos, 123456789);
+            }
+            _ => panic!("Expected TimestampValue"),
+        }
+    }
+
+    #[test]
+    fn test_timestamp_roundtrip() {
+        let original = Timestamp::new(1609459200, 500000000).unwrap();
+        let value = original.to_value();
+        
+        if let Some(ValueType::TimestampValue(prost_ts)) = value.value_type {
+            let reconstructed = Timestamp::new(prost_ts.seconds, prost_ts.nanos).unwrap();
+            assert_eq!(original.seconds, reconstructed.seconds);
+            assert_eq!(original.nanoseconds, reconstructed.nanoseconds);
+        } else {
+            panic!("Expected TimestampValue");
+        }
+    }
+
+    #[test]
+    fn test_timestamp_negative_seconds() {
+        // Unix timestamps can be negative (before epoch)
+        let ts = Timestamp::new(-1000, 0).unwrap();
+        assert_eq!(ts.seconds, -1000);
+    }
+
+    #[test]
+    fn test_timestamp_large_values() {
+        // Test with large timestamp values (year 2100+)
+        let ts = Timestamp::new(4102444800, 999999999).unwrap();
+        assert_eq!(ts.seconds, 4102444800);
+        assert_eq!(ts.nanoseconds, 999999999);
+    }
+
+    // ============================================================================
+    // GeoPoint Tests (10 tests)
+    // ============================================================================
+
+    #[test]
+    fn test_geopoint_creation_valid() {
+        let gp = GeoPoint::new(37.7749, -122.4194).unwrap();
+        assert_eq!(gp.latitude, 37.7749);
+        assert_eq!(gp.longitude, -122.4194);
+    }
+
+    #[test]
+    fn test_geopoint_origin() {
         assert!(GeoPoint::new(0.0, 0.0).is_ok());
-        assert!(GeoPoint::new(90.0, 180.0).is_ok());
-        assert!(GeoPoint::new(-90.0, -180.0).is_ok());
+    }
 
-        // Invalid latitude
+    #[test]
+    fn test_geopoint_north_pole() {
+        assert!(GeoPoint::new(90.0, 0.0).is_ok());
+    }
+
+    #[test]
+    fn test_geopoint_south_pole() {
+        assert!(GeoPoint::new(-90.0, 0.0).is_ok());
+    }
+
+    #[test]
+    fn test_geopoint_dateline() {
+        assert!(GeoPoint::new(0.0, 180.0).is_ok());
+        assert!(GeoPoint::new(0.0, -180.0).is_ok());
+    }
+
+    #[test]
+    fn test_geopoint_invalid_latitude_too_high() {
         assert!(GeoPoint::new(91.0, 0.0).is_err());
-        assert!(GeoPoint::new(-91.0, 0.0).is_err());
+    }
 
-        // Invalid longitude
+    #[test]
+    fn test_geopoint_invalid_latitude_too_low() {
+        assert!(GeoPoint::new(-91.0, 0.0).is_err());
+    }
+
+    #[test]
+    fn test_geopoint_invalid_longitude_too_high() {
         assert!(GeoPoint::new(0.0, 181.0).is_err());
+    }
+
+    #[test]
+    fn test_geopoint_invalid_longitude_too_low() {
         assert!(GeoPoint::new(0.0, -181.0).is_err());
     }
 
     #[test]
-    fn test_geo_point_to_value() {
+    fn test_geopoint_to_protobuf_value() {
         let gp = GeoPoint::new(37.7749, -122.4194).unwrap();
         let value = gp.to_value();
 
-        assert_eq!(value["latitude"], 37.7749);
-        assert_eq!(value["longitude"], -122.4194);
+        match value.value_type {
+            Some(ValueType::GeoPointValue(geo)) => {
+                assert_eq!(geo.latitude, 37.7749);
+                assert_eq!(geo.longitude, -122.4194);
+            }
+            _ => panic!("Expected GeoPointValue"),
+        }
     }
 
-    #[test]
-    fn test_document_reference() {
-        let doc_ref = DocumentReference::new("users/alice");
-        assert_eq!(doc_ref.id(), "alice");
-        assert_eq!(doc_ref.parent_path(), Some("users"));
-
-        let root_ref = DocumentReference::new("single");
-        assert_eq!(root_ref.id(), "single");
-        assert_eq!(root_ref.parent_path(), None);
-    }
+    // ============================================================================
+    // DocumentSnapshot Tests (10 tests)
+    // ============================================================================
+    // Note: Full DocumentSnapshot tests with DocumentReference require integration tests
+    // These tests focus on SnapshotMetadata and MapValue field access
 
     #[test]
-    fn test_document_snapshot_empty() {
-        // Test DocumentSnapshot with no data (deleted document)
-        // Can't create DocumentReference without Firestore, so this is limited
-        // Full integration tests would test actual snapshots
+    fn test_document_snapshot_metadata_default() {
         let metadata = SnapshotMetadata::default();
         assert!(!metadata.has_pending_writes);
         assert!(!metadata.is_from_cache);
     }
 
-    // WriteBatch tests moved to integration tests since they require Firestore instance
-    // Unit tests for WriteBatch structure:
     #[test]
-    fn test_write_operation_types() {
-        use std::collections::HashMap;
+    fn test_document_snapshot_metadata_pending_writes() {
+        let metadata = SnapshotMetadata {
+            has_pending_writes: true,
+            is_from_cache: false,
+        };
+        assert!(metadata.has_pending_writes);
+    }
+
+    #[test]
+    fn test_document_snapshot_metadata_from_cache() {
+        let metadata = SnapshotMetadata {
+            has_pending_writes: false,
+            is_from_cache: true,
+        };
+        assert!(metadata.is_from_cache);
+    }
+
+    #[test]
+    fn test_document_snapshot_metadata_all_flags() {
+        let metadata = SnapshotMetadata {
+            has_pending_writes: true,
+            is_from_cache: true,
+        };
+        assert!(metadata.has_pending_writes);
+        assert!(metadata.is_from_cache);
+    }
+
+    #[test]
+    fn test_map_value_empty() {
+        let map = MapValue {
+            fields: HashMap::new(),
+        };
+        assert_eq!(map.fields.len(), 0);
+    }
+
+    #[test]
+    fn test_map_value_single_field() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Alice".to_string())),
+            },
+        );
+
+        let map = MapValue { fields };
+        assert_eq!(map.fields.len(), 1);
+        assert!(map.fields.contains_key("name"));
+    }
+
+    #[test]
+    fn test_map_value_multiple_fields() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Bob".to_string())),
+            },
+        );
+        fields.insert(
+            "age".to_string(),
+            Value {
+                value_type: Some(ValueType::IntegerValue(30)),
+            },
+        );
+        fields.insert(
+            "active".to_string(),
+            Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            },
+        );
+
+        let map = MapValue { fields };
+        assert_eq!(map.fields.len(), 3);
         
-        // Test that WriteOperation enum variants work correctly
-        let map_value = MapValue { fields: HashMap::new() };
+        let name = map.fields.get("name").unwrap();
+        match &name.value_type {
+            Some(ValueType::StringValue(s)) => assert_eq!(s, "Bob"),
+            _ => panic!("Expected string value"),
+        }
+    }
+
+    #[test]
+    fn test_map_value_get_field_missing() {
+        let map = MapValue {
+            fields: HashMap::new(),
+        };
+        assert!(map.fields.get("nonexistent").is_none());
+    }
+
+    #[test]
+    fn test_map_value_field_types() {
+        let mut fields = HashMap::new();
         
+        // String
+        fields.insert(
+            "str".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("test".to_string())),
+            },
+        );
+        
+        // Integer
+        fields.insert(
+            "int".to_string(),
+            Value {
+                value_type: Some(ValueType::IntegerValue(42)),
+            },
+        );
+        
+        // Boolean
+        fields.insert(
+            "bool".to_string(),
+            Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            },
+        );
+        
+        // Null
+        fields.insert(
+            "null".to_string(),
+            Value {
+                value_type: Some(ValueType::NullValue(0)),
+            },
+        );
+
+        let map = MapValue { fields };
+        assert_eq!(map.fields.len(), 4);
+    }
+
+    #[test]
+    fn test_map_value_nested_map() {
+        let mut inner_fields = HashMap::new();
+        inner_fields.insert(
+            "city".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("SF".to_string())),
+            },
+        );
+
+        let mut outer_fields = HashMap::new();
+        outer_fields.insert(
+            "address".to_string(),
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: inner_fields,
+                })),
+            },
+        );
+
+        let map = MapValue {
+            fields: outer_fields,
+        };
+        
+        let address = map.fields.get("address").unwrap();
+        match &address.value_type {
+            Some(ValueType::MapValue(inner)) => {
+                assert!(inner.fields.contains_key("city"));
+            }
+            _ => panic!("Expected map value"),
+        }
+    }
+
+    // ============================================================================
+    // WriteBatch Operation Tests (15 tests)
+    // ============================================================================
+
+    #[test]
+    fn test_write_operation_set_variant() {
+        let map_value = MapValue {
+            fields: HashMap::new(),
+        };
+
         let set_op = WriteOperation::Set {
             path: "users/alice".to_string(),
             data: map_value.clone(),
         };
-        
+
         match set_op {
             WriteOperation::Set { path, .. } => assert_eq!(path, "users/alice"),
             _ => panic!("Expected Set operation"),
         }
-        
-        let delete_op = WriteOperation::Delete {
-            path: "users/bob".to_string(),
+    }
+
+    #[test]
+    fn test_write_operation_update_variant() {
+        let map_value = MapValue {
+            fields: HashMap::new(),
         };
-        
+
+        let update_op = WriteOperation::Update {
+            path: "users/bob".to_string(),
+            data: map_value,
+        };
+
+        match update_op {
+            WriteOperation::Update { path, .. } => assert_eq!(path, "users/bob"),
+            _ => panic!("Expected Update operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_delete_variant() {
+        let delete_op = WriteOperation::Delete {
+            path: "users/charlie".to_string(),
+        };
+
         match delete_op {
-            WriteOperation::Delete { path } => assert_eq!(path, "users/bob"),
+            WriteOperation::Delete { path } => assert_eq!(path, "users/charlie"),
             _ => panic!("Expected Delete operation"),
         }
-
-        assert_eq!(batch.operations.len(), 3);
     }
 
     #[test]
-    fn test_value_serialization() {
-        let value = json!("test");
-        let json_str = serde_json::to_string(&value).unwrap();
-        assert!(json_str.contains("test"));
+    fn test_write_operation_set_with_data() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Alice".to_string())),
+            },
+        );
 
-        let array = json!([1, 2]);
-        let json_str = serde_json::to_string(&array).unwrap();
-        assert!(json_str.contains("1"));
-        assert!(json_str.contains("2"));
+        let map_value = MapValue { fields };
+        let set_op = WriteOperation::Set {
+            path: "users/alice".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                assert_eq!(data.fields.len(), 1);
+                assert!(data.fields.contains_key("name"));
+            }
+            _ => panic!("Expected Set operation"),
+        }
     }
 
     #[test]
-    fn test_complex_document() {
+    fn test_write_operation_update_with_data() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "age".to_string(),
+            Value {
+                value_type: Some(ValueType::IntegerValue(25)),
+            },
+        );
+
+        let map_value = MapValue { fields };
+        let update_op = WriteOperation::Update {
+            path: "users/bob".to_string(),
+            data: map_value,
+        };
+
+        match update_op {
+            WriteOperation::Update { data, .. } => {
+                assert_eq!(data.fields.len(), 1);
+                let age_val = data.fields.get("age").unwrap();
+                match age_val.value_type {
+                    Some(ValueType::IntegerValue(i)) => assert_eq!(i, 25),
+                    _ => panic!("Expected integer"),
+                }
+            }
+            _ => panic!("Expected Update operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_clone() {
+        let delete_op = WriteOperation::Delete {
+            path: "users/test".to_string(),
+        };
+        let cloned = delete_op.clone();
+
+        match cloned {
+            WriteOperation::Delete { path } => assert_eq!(path, "users/test"),
+            _ => panic!("Expected Delete operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_multiple_fields() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Test".to_string())),
+            },
+        );
+        fields.insert(
+            "count".to_string(),
+            Value {
+                value_type: Some(ValueType::IntegerValue(42)),
+            },
+        );
+        fields.insert(
+            "active".to_string(),
+            Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            },
+        );
+
+        let map_value = MapValue { fields };
+        let set_op = WriteOperation::Set {
+            path: "docs/test".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                assert_eq!(data.fields.len(), 3);
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_empty_data() {
+        let map_value = MapValue {
+            fields: HashMap::new(),
+        };
+
+        let set_op = WriteOperation::Set {
+            path: "docs/empty".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                assert_eq!(data.fields.len(), 0);
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_nested_path() {
+        let delete_op = WriteOperation::Delete {
+            path: "users/alice/posts/post1".to_string(),
+        };
+
+        match delete_op {
+            WriteOperation::Delete { path } => {
+                assert_eq!(path, "users/alice/posts/post1");
+                assert!(path.contains('/'));
+            }
+            _ => panic!("Expected Delete operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_root_collection() {
+        let map_value = MapValue {
+            fields: HashMap::new(),
+        };
+
+        let set_op = WriteOperation::Set {
+            path: "root_doc".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { path, .. } => {
+                assert_eq!(path, "root_doc");
+                assert!(!path.contains('/'));
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_with_timestamp() {
         let ts = Timestamp::new(1234567890, 0).unwrap();
+        let mut fields = HashMap::new();
+        fields.insert("created".to_string(), ts.to_value());
+
+        let map_value = MapValue { fields };
+        let set_op = WriteOperation::Set {
+            path: "docs/timestamped".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                let created = data.fields.get("created").unwrap();
+                match &created.value_type {
+                    Some(ValueType::TimestampValue(_)) => (),
+                    _ => panic!("Expected timestamp value"),
+                }
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_with_geopoint() {
         let gp = GeoPoint::new(37.7749, -122.4194).unwrap();
+        let mut fields = HashMap::new();
+        fields.insert("location".to_string(), gp.to_value());
 
-        let doc = json!({
-            "name": "San Francisco Office",
-            "location": gp.to_value(),
-            "created": ts.to_value(),
-            "active": true,
-            "employees": 150
-        });
+        let map_value = MapValue { fields };
+        let update_op = WriteOperation::Update {
+            path: "places/sf".to_string(),
+            data: map_value,
+        };
 
-        assert_eq!(doc["name"], "San Francisco Office");
-        assert_eq!(doc["location"]["latitude"], 37.7749);
-        assert_eq!(doc["created"]["seconds"], 1234567890);
-        assert_eq!(doc["active"], true);
-        assert_eq!(doc["employees"], 150);
+        match update_op {
+            WriteOperation::Update { data, .. } => {
+                let location = data.fields.get("location").unwrap();
+                match &location.value_type {
+                    Some(ValueType::GeoPointValue(_)) => (),
+                    _ => panic!("Expected geopoint value"),
+                }
+            }
+            _ => panic!("Expected Update operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_with_array() {
+        use proto::google::firestore::v1::ArrayValue;
+
+        let array = ArrayValue {
+            values: vec![
+                Value {
+                    value_type: Some(ValueType::IntegerValue(1)),
+                },
+                Value {
+                    value_type: Some(ValueType::IntegerValue(2)),
+                },
+                Value {
+                    value_type: Some(ValueType::IntegerValue(3)),
+                },
+            ],
+        };
+
+        let mut fields = HashMap::new();
+        fields.insert(
+            "numbers".to_string(),
+            Value {
+                value_type: Some(ValueType::ArrayValue(array)),
+            },
+        );
+
+        let map_value = MapValue { fields };
+        let set_op = WriteOperation::Set {
+            path: "docs/array_doc".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                let numbers = data.fields.get("numbers").unwrap();
+                match &numbers.value_type {
+                    Some(ValueType::ArrayValue(arr)) => {
+                        assert_eq!(arr.values.len(), 3);
+                    }
+                    _ => panic!("Expected array value"),
+                }
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_with_nested_map() {
+        let mut inner_fields = HashMap::new();
+        inner_fields.insert(
+            "city".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("SF".to_string())),
+            },
+        );
+
+        let inner_map = MapValue {
+            fields: inner_fields,
+        };
+
+        let mut outer_fields = HashMap::new();
+        outer_fields.insert(
+            "address".to_string(),
+            Value {
+                value_type: Some(ValueType::MapValue(inner_map)),
+            },
+        );
+
+        let outer_map = MapValue {
+            fields: outer_fields,
+        };
+
+        let update_op = WriteOperation::Update {
+            path: "users/alice".to_string(),
+            data: outer_map,
+        };
+
+        match update_op {
+            WriteOperation::Update { data, .. } => {
+                let address = data.fields.get("address").unwrap();
+                match &address.value_type {
+                    Some(ValueType::MapValue(inner)) => {
+                        assert!(inner.fields.contains_key("city"));
+                    }
+                    _ => panic!("Expected map value"),
+                }
+            }
+            _ => panic!("Expected Update operation"),
+        }
+    }
+
+    #[test]
+    fn test_write_operation_with_double() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "price".to_string(),
+            Value {
+                value_type: Some(ValueType::DoubleValue(19.99)),
+            },
+        );
+
+        let map_value = MapValue { fields };
+        let set_op = WriteOperation::Set {
+            path: "products/item1".to_string(),
+            data: map_value,
+        };
+
+        match set_op {
+            WriteOperation::Set { data, .. } => {
+                let price = data.fields.get("price").unwrap();
+                match price.value_type {
+                    Some(ValueType::DoubleValue(d)) => {
+                        assert!((d - 19.99).abs() < 0.01);
+                    }
+                    _ => panic!("Expected double value"),
+                }
+            }
+            _ => panic!("Expected Set operation"),
+        }
+    }
+
+    // ============================================================================
+    // Protobuf Value Tests (20 tests)
+    // ============================================================================
+
+    #[test]
+    fn test_value_null() {
+        let null_val = Value {
+            value_type: Some(ValueType::NullValue(0)),
+        };
+
+        match null_val.value_type {
+            Some(ValueType::NullValue(_)) => (),
+            _ => panic!("Expected null value"),
+        }
+    }
+
+    #[test]
+    fn test_value_boolean_true() {
+        let bool_val = Value {
+            value_type: Some(ValueType::BooleanValue(true)),
+        };
+
+        match bool_val.value_type {
+            Some(ValueType::BooleanValue(b)) => assert!(b),
+            _ => panic!("Expected boolean value"),
+        }
+    }
+
+    #[test]
+    fn test_value_boolean_false() {
+        let bool_val = Value {
+            value_type: Some(ValueType::BooleanValue(false)),
+        };
+
+        match bool_val.value_type {
+            Some(ValueType::BooleanValue(b)) => assert!(!b),
+            _ => panic!("Expected boolean value"),
+        }
+    }
+
+    #[test]
+    fn test_value_integer_positive() {
+        let int_val = Value {
+            value_type: Some(ValueType::IntegerValue(42)),
+        };
+
+        match int_val.value_type {
+            Some(ValueType::IntegerValue(i)) => assert_eq!(i, 42),
+            _ => panic!("Expected integer value"),
+        }
+    }
+
+    #[test]
+    fn test_value_integer_negative() {
+        let int_val = Value {
+            value_type: Some(ValueType::IntegerValue(-100)),
+        };
+
+        match int_val.value_type {
+            Some(ValueType::IntegerValue(i)) => assert_eq!(i, -100),
+            _ => panic!("Expected integer value"),
+        }
+    }
+
+    #[test]
+    fn test_value_integer_zero() {
+        let int_val = Value {
+            value_type: Some(ValueType::IntegerValue(0)),
+        };
+
+        match int_val.value_type {
+            Some(ValueType::IntegerValue(i)) => assert_eq!(i, 0),
+            _ => panic!("Expected integer value"),
+        }
+    }
+
+    #[test]
+    fn test_value_double_positive() {
+        let double_val = Value {
+            value_type: Some(ValueType::DoubleValue(3.14159)),
+        };
+
+        match double_val.value_type {
+            Some(ValueType::DoubleValue(d)) => {
+                assert!((d - 3.14159).abs() < 0.0001);
+            }
+            _ => panic!("Expected double value"),
+        }
+    }
+
+    #[test]
+    fn test_value_double_negative() {
+        let double_val = Value {
+            value_type: Some(ValueType::DoubleValue(-273.15)),
+        };
+
+        match double_val.value_type {
+            Some(ValueType::DoubleValue(d)) => {
+                assert!((d + 273.15).abs() < 0.01);
+            }
+            _ => panic!("Expected double value"),
+        }
+    }
+
+    #[test]
+    fn test_value_string_ascii() {
+        let str_val = Value {
+            value_type: Some(ValueType::StringValue("hello world".to_string())),
+        };
+
+        match str_val.value_type {
+            Some(ValueType::StringValue(s)) => assert_eq!(s, "hello world"),
+            _ => panic!("Expected string value"),
+        }
+    }
+
+    #[test]
+    fn test_value_string_unicode() {
+        let str_val = Value {
+            value_type: Some(ValueType::StringValue("你好世界 🌍".to_string())),
+        };
+
+        match str_val.value_type {
+            Some(ValueType::StringValue(s)) => assert_eq!(s, "你好世界 🌍"),
+            _ => panic!("Expected string value"),
+        }
+    }
+
+    #[test]
+    fn test_value_string_empty() {
+        let str_val = Value {
+            value_type: Some(ValueType::StringValue(String::new())),
+        };
+
+        match str_val.value_type {
+            Some(ValueType::StringValue(s)) => assert_eq!(s, ""),
+            _ => panic!("Expected string value"),
+        }
+    }
+
+    #[test]
+    fn test_value_bytes() {
+        let bytes_val = Value {
+            value_type: Some(ValueType::BytesValue(vec![0x01, 0x02, 0x03, 0xFF])),
+        };
+
+        match bytes_val.value_type {
+            Some(ValueType::BytesValue(b)) => {
+                assert_eq!(b, vec![0x01, 0x02, 0x03, 0xFF]);
+            }
+            _ => panic!("Expected bytes value"),
+        }
+    }
+
+    #[test]
+    fn test_value_reference() {
+        let ref_val = Value {
+            value_type: Some(ValueType::ReferenceValue(
+                "projects/test/databases/(default)/documents/users/alice".to_string(),
+            )),
+        };
+
+        match ref_val.value_type {
+            Some(ValueType::ReferenceValue(r)) => {
+                assert!(r.contains("users/alice"));
+            }
+            _ => panic!("Expected reference value"),
+        }
+    }
+
+    #[test]
+    fn test_value_timestamp() {
+        use prost_types::Timestamp as ProstTimestamp;
+
+        let ts_val = Value {
+            value_type: Some(ValueType::TimestampValue(ProstTimestamp {
+                seconds: 1234567890,
+                nanos: 123456789,
+            })),
+        };
+
+        match ts_val.value_type {
+            Some(ValueType::TimestampValue(ts)) => {
+                assert_eq!(ts.seconds, 1234567890);
+                assert_eq!(ts.nanos, 123456789);
+            }
+            _ => panic!("Expected timestamp value"),
+        }
+    }
+
+    #[test]
+    fn test_value_geopoint() {
+        use proto::google::r#type::LatLng;
+
+        let geo_val = Value {
+            value_type: Some(ValueType::GeoPointValue(LatLng {
+                latitude: 37.7749,
+                longitude: -122.4194,
+            })),
+        };
+
+        match geo_val.value_type {
+            Some(ValueType::GeoPointValue(geo)) => {
+                assert_eq!(geo.latitude, 37.7749);
+                assert_eq!(geo.longitude, -122.4194);
+            }
+            _ => panic!("Expected geopoint value"),
+        }
+    }
+
+    #[test]
+    fn test_value_array_empty() {
+        use proto::google::firestore::v1::ArrayValue;
+
+        let array_val = Value {
+            value_type: Some(ValueType::ArrayValue(ArrayValue {
+                values: vec![],
+            })),
+        };
+
+        match array_val.value_type {
+            Some(ValueType::ArrayValue(arr)) => {
+                assert_eq!(arr.values.len(), 0);
+            }
+            _ => panic!("Expected array value"),
+        }
+    }
+
+    #[test]
+    fn test_value_array_mixed_types() {
+        use proto::google::firestore::v1::ArrayValue;
+
+        let array_val = Value {
+            value_type: Some(ValueType::ArrayValue(ArrayValue {
+                values: vec![
+                    Value {
+                        value_type: Some(ValueType::IntegerValue(42)),
+                    },
+                    Value {
+                        value_type: Some(ValueType::StringValue("hello".to_string())),
+                    },
+                    Value {
+                        value_type: Some(ValueType::BooleanValue(true)),
+                    },
+                ],
+            })),
+        };
+
+        match array_val.value_type {
+            Some(ValueType::ArrayValue(arr)) => {
+                assert_eq!(arr.values.len(), 3);
+            }
+            _ => panic!("Expected array value"),
+        }
+    }
+
+    #[test]
+    fn test_value_map_empty() {
+        let map_val = Value {
+            value_type: Some(ValueType::MapValue(MapValue {
+                fields: HashMap::new(),
+            })),
+        };
+
+        match map_val.value_type {
+            Some(ValueType::MapValue(map)) => {
+                assert_eq!(map.fields.len(), 0);
+            }
+            _ => panic!("Expected map value"),
+        }
+    }
+
+    #[test]
+    fn test_value_map_with_fields() {
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Alice".to_string())),
+            },
+        );
+        fields.insert(
+            "age".to_string(),
+            Value {
+                value_type: Some(ValueType::IntegerValue(30)),
+            },
+        );
+
+        let map_val = Value {
+            value_type: Some(ValueType::MapValue(MapValue { fields })),
+        };
+
+        match map_val.value_type {
+            Some(ValueType::MapValue(map)) => {
+                assert_eq!(map.fields.len(), 2);
+                assert!(map.fields.contains_key("name"));
+                assert!(map.fields.contains_key("age"));
+            }
+            _ => panic!("Expected map value"),
+        }
+    }
+
+    #[test]
+    fn test_value_nested_map() {
+        let mut inner_fields = HashMap::new();
+        inner_fields.insert(
+            "street".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("123 Main St".to_string())),
+            },
+        );
+
+        let mut outer_fields = HashMap::new();
+        outer_fields.insert(
+            "address".to_string(),
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: inner_fields,
+                })),
+            },
+        );
+
+        let map_val = Value {
+            value_type: Some(ValueType::MapValue(MapValue {
+                fields: outer_fields,
+            })),
+        };
+
+        match map_val.value_type {
+            Some(ValueType::MapValue(map)) => {
+                let address = map.fields.get("address").unwrap();
+                match &address.value_type {
+                    Some(ValueType::MapValue(inner)) => {
+                        assert!(inner.fields.contains_key("street"));
+                    }
+                    _ => panic!("Expected inner map"),
+                }
+            }
+            _ => panic!("Expected map value"),
+        }
+    }
+
+    // ============================================================================
+    // Transaction Tests (10 tests)
+    // ============================================================================
+
+    #[test]
+    fn test_transaction_creation() {
+        let transaction = Transaction::new("test-project".to_string(), "(default)".to_string(), "test-key".to_string());
+        assert_eq!(transaction.project_id, "test-project");
+        assert_eq!(transaction.database_id, "(default)");
+    }
+
+    #[test]
+    fn test_transaction_id_initially_none() {
+        let transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        assert!(transaction.id().is_none());
+    }
+
+    #[test]
+    fn test_transaction_operations_initially_empty() {
+        let transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        assert_eq!(transaction.operations().len(), 0);
+    }
+
+    #[test]
+    fn test_transaction_set_operation() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        let map = MapValue {
+            fields: HashMap::new(),
+        };
+        transaction.set("users/alice", map);
+        assert_eq!(transaction.operations().len(), 1);
+    }
+
+    #[test]
+    fn test_transaction_update_operation() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        let map = MapValue {
+            fields: HashMap::new(),
+        };
+        transaction.update("users/bob", map);
+        assert_eq!(transaction.operations().len(), 1);
+    }
+
+    #[test]
+    fn test_transaction_delete_operation() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        transaction.delete("users/charlie");
+        assert_eq!(transaction.operations().len(), 1);
+    }
+
+    #[test]
+    fn test_transaction_multiple_operations() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        
+        transaction.set("users/alice", MapValue { fields: HashMap::new() });
+        transaction.update("users/bob", MapValue { fields: HashMap::new() });
+        transaction.delete("users/charlie");
+        
+        assert_eq!(transaction.operations().len(), 3);
+    }
+
+    #[test]
+    fn test_transaction_reads_tracking() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        
+        // Simulate adding reads (this would normally happen in get())
+        transaction.add_read("users/alice".to_string());
+        transaction.add_read("users/bob".to_string());
+        
+        // Can't directly test reads vector as it's private, but we've tracked them
+        assert_eq!(transaction.operations().len(), 0); // No write operations yet
+    }
+
+    #[test]
+    fn test_transaction_set_with_data() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        
+        let mut fields = HashMap::new();
+        fields.insert(
+            "name".to_string(),
+            Value {
+                value_type: Some(ValueType::StringValue("Alice".to_string())),
+            },
+        );
+        
+        transaction.set("users/alice", MapValue { fields });
+        assert_eq!(transaction.operations().len(), 1);
+    }
+
+    #[test]
+    fn test_transaction_operation_ordering() {
+        let mut transaction = Transaction::new("test".to_string(), "(default)".to_string(), "key".to_string());
+        
+        // Add operations in specific order
+        transaction.set("doc1", MapValue { fields: HashMap::new() });
+        transaction.update("doc2", MapValue { fields: HashMap::new() });
+        transaction.delete("doc3");
+        
+        let ops = transaction.operations();
+        assert_eq!(ops.len(), 3);
+        
+        // Verify order is maintained
+        match &ops[0] {
+            WriteOperation::Set { path, .. } => assert!(path.contains("doc1")),
+            _ => panic!("Expected first operation to be Set"),
+        }
+        
+        match &ops[1] {
+            WriteOperation::Update { path, .. } => assert!(path.contains("doc2")),
+            _ => panic!("Expected second operation to be Update"),
+        }
+        
+        match &ops[2] {
+            WriteOperation::Delete { path } => assert!(path.contains("doc3")),
+            _ => panic!("Expected third operation to be Delete"),
+        }
+    }
+
+    // ============================================================================
+    // Additional Value Type Tests (10 more tests)
+    // ============================================================================
+
+    #[test]
+    fn test_value_integer_max() {
+        let int_val = Value {
+            value_type: Some(ValueType::IntegerValue(i64::MAX)),
+        };
+
+        match int_val.value_type {
+            Some(ValueType::IntegerValue(i)) => assert_eq!(i, i64::MAX),
+            _ => panic!("Expected integer value"),
+        }
+    }
+
+    #[test]
+    fn test_value_integer_min() {
+        let int_val = Value {
+            value_type: Some(ValueType::IntegerValue(i64::MIN)),
+        };
+
+        match int_val.value_type {
+            Some(ValueType::IntegerValue(i)) => assert_eq!(i, i64::MIN),
+            _ => panic!("Expected integer value"),
+        }
+    }
+
+    #[test]
+    fn test_value_double_infinity() {
+        let double_val = Value {
+            value_type: Some(ValueType::DoubleValue(f64::INFINITY)),
+        };
+
+        match double_val.value_type {
+            Some(ValueType::DoubleValue(d)) => assert!(d.is_infinite() && d.is_sign_positive()),
+            _ => panic!("Expected double value"),
+        }
+    }
+
+    #[test]
+    fn test_value_double_neg_infinity() {
+        let double_val = Value {
+            value_type: Some(ValueType::DoubleValue(f64::NEG_INFINITY)),
+        };
+
+        match double_val.value_type {
+            Some(ValueType::DoubleValue(d)) => assert!(d.is_infinite() && d.is_sign_negative()),
+            _ => panic!("Expected double value"),
+        }
+    }
+
+    #[test]
+    fn test_value_double_nan() {
+        let double_val = Value {
+            value_type: Some(ValueType::DoubleValue(f64::NAN)),
+        };
+
+        match double_val.value_type {
+            Some(ValueType::DoubleValue(d)) => assert!(d.is_nan()),
+            _ => panic!("Expected double value"),
+        }
+    }
+
+    #[test]
+    fn test_value_string_special_chars() {
+        let str_val = Value {
+            value_type: Some(ValueType::StringValue("Line1\nLine2\tTabbed".to_string())),
+        };
+
+        match str_val.value_type {
+            Some(ValueType::StringValue(s)) => {
+                assert!(s.contains('\n'));
+                assert!(s.contains('\t'));
+            }
+            _ => panic!("Expected string value"),
+        }
+    }
+
+    #[test]
+    fn test_value_bytes_empty() {
+        let bytes_val = Value {
+            value_type: Some(ValueType::BytesValue(vec![])),
+        };
+
+        match bytes_val.value_type {
+            Some(ValueType::BytesValue(b)) => assert_eq!(b.len(), 0),
+            _ => panic!("Expected bytes value"),
+        }
+    }
+
+    #[test]
+    fn test_value_bytes_large() {
+        let large_bytes = vec![0xFF; 1024];
+        let bytes_val = Value {
+            value_type: Some(ValueType::BytesValue(large_bytes.clone())),
+        };
+
+        match bytes_val.value_type {
+            Some(ValueType::BytesValue(b)) => {
+                assert_eq!(b.len(), 1024);
+                assert_eq!(b, large_bytes);
+            }
+            _ => panic!("Expected bytes value"),
+        }
+    }
+
+    #[test]
+    fn test_value_reference_full_path() {
+        let ref_val = Value {
+            value_type: Some(ValueType::ReferenceValue(
+                "projects/my-project/databases/(default)/documents/users/alice/posts/post1".to_string(),
+            )),
+        };
+
+        match ref_val.value_type {
+            Some(ValueType::ReferenceValue(r)) => {
+                assert!(r.starts_with("projects/"));
+                assert!(r.contains("/databases/"));
+                assert!(r.contains("/documents/"));
+            }
+            _ => panic!("Expected reference value"),
+        }
+    }
+
+    #[test]
+    fn test_value_array_nested() {
+        use proto::google::firestore::v1::ArrayValue;
+
+        let inner_array = ArrayValue {
+            values: vec![
+                Value {
+                    value_type: Some(ValueType::IntegerValue(1)),
+                },
+                Value {
+                    value_type: Some(ValueType::IntegerValue(2)),
+                },
+            ],
+        };
+
+        let outer_array = ArrayValue {
+            values: vec![
+                Value {
+                    value_type: Some(ValueType::ArrayValue(inner_array)),
+                },
+                Value {
+                    value_type: Some(ValueType::IntegerValue(3)),
+                },
+            ],
+        };
+
+        let array_val = Value {
+            value_type: Some(ValueType::ArrayValue(outer_array)),
+        };
+
+        match array_val.value_type {
+            Some(ValueType::ArrayValue(arr)) => {
+                assert_eq!(arr.values.len(), 2);
+                match &arr.values[0].value_type {
+                    Some(ValueType::ArrayValue(inner)) => {
+                        assert_eq!(inner.values.len(), 2);
+                    }
+                    _ => panic!("Expected nested array"),
+                }
+            }
+            _ => panic!("Expected array value"),
+        }
     }
 }
