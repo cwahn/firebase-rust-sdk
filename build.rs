@@ -38,10 +38,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("cargo:rerun-if-changed={}", dest.display());
     }
     
-    // Compile protobuf definitions
+    // Compile protobuf definitions with gRPC client generation
     // Must compile all proto files in a single call so cross-package references work
     tonic_build::configure()
         .build_server(false)
+        .build_client(true)  // Enable gRPC client generation
         .compile_protos(
             &[
                 proto_dir.join("google/firestore/v1/firestore.proto"),

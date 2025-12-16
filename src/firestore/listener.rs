@@ -9,24 +9,13 @@
 #![allow(missing_docs)]
 #![allow(clippy::all)]
 
-// Include generated protobuf code
-// build.rs creates proto.rs with proper module structure for cross-references
-#[allow(clippy::all)]
-mod proto {
-    include!(concat!(env!("OUT_DIR"), "/proto.rs"));
-}
-
-// Convenient alias for firestore types
+use crate::error::FirebaseError;
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, proto};
+use proto::google::firestore::v1 as firestore_proto;
 use firestore_proto::firestore_client::FirestoreClient;
 use firestore_proto::listen_response::ResponseType;
-use firestore_proto::value::ValueType;
 use firestore_proto::{ListenRequest, Target};
-use proto::google::firestore::v1 as firestore_proto;
-
-use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata};
 use futures::stream::StreamExt;
-use serde_json::json;
 use std::collections::HashMap;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
@@ -281,7 +270,7 @@ fn process_listen_response(
             // Convert protobuf document to DocumentSnapshot
             // Mirrors C++ conversion in document_reference_main.cc
             let path = doc.name.clone();
-            let data = convert_proto_fields_to_json(&doc.fields)?;
+            let fields = doc.fields; // Use protobuf MapFieldValue directly
 
             // Extract just the document path (remove the database prefix)
             // Path format: "projects/{project}/databases/{database}/documents/{doc_path}"
@@ -291,20 +280,10 @@ fn process_listen_response(
                 .map(|p| p.to_string())
                 .unwrap_or(path);
 
-            // Create DocumentSnapshot with simplified DocumentReference
-            // The DocumentReference only needs the path
-            Ok(Some(DocumentSnapshot {
-                reference: DocumentReference::new(doc_path),
-                data: Some(data),
-                // TODO: Compute actual metadata from ListenResponse
-                // has_pending_writes: should check if document has local uncommitted writes
-                // is_from_cache: should be true if this is initial data from cache, false for server updates
-                // See C++ WatchStream::OnDocumentChange and DocumentSnapshot::FromDocument
-                metadata: SnapshotMetadata {
-                    has_pending_writes: false, // PLACEHOLDER: should check pending writes
-                    is_from_cache: false,      // PLACEHOLDER: should check if from cache or server
-                },
-            }))
+            // TODO: Update listener to work with new Firestore architecture
+            // Need to pass Firestore instance to create DocumentReference properly
+            // For now, return error
+            Err(FirebaseError::Firestore(crate::error::FirestoreError::Unimplemented))
         }
         Some(ResponseType::DocumentDelete(delete)) => {
             // Document was deleted - return snapshot with no data
@@ -315,17 +294,8 @@ fn process_listen_response(
                 .map(|p| p.to_string())
                 .unwrap_or_else(|| delete.document.clone());
             
-            Ok(Some(DocumentSnapshot {
-                reference: DocumentReference::new(doc_path),
-                data: None, // None indicates document was deleted
-                // TODO: Compute actual metadata - has_pending_writes should check local write cache
-                // is_from_cache should be true if this is initial data from cache, false for server updates
-                // See C++ WatchStream::OnDocumentChange and DocumentSnapshot::FromDocument
-                metadata: SnapshotMetadata {
-                    has_pending_writes: false, // PLACEHOLDER: should check pending writes
-                    is_from_cache: false,      // PLACEHOLDER: should check if from cache or server
-                },
-            }))
+            // TODO: Update listener to work with new Firestore architecture
+            Err(FirebaseError::Firestore(crate::error::FirestoreError::Unimplemented))
         }
         Some(ResponseType::DocumentRemove(_remove)) => {
             // Document removed from query result set (different from deletion)
@@ -370,77 +340,6 @@ fn process_listen_response(
             Ok(None)
         }
         None => Ok(None),
-    }
-}
-
-/// Convert protobuf fields map to serde_json::Value
-///
-/// Mirrors C++ Serializer field conversion
-fn convert_proto_fields_to_json(
-    fields: &HashMap<String, firestore_proto::Value>,
-) -> Result<serde_json::Value, FirebaseError> {
-    let mut map = serde_json::Map::new();
-
-    for (key, value) in fields {
-        let json_value = convert_proto_value_to_json(value)?;
-        map.insert(key.clone(), json_value);
-    }
-
-    Ok(serde_json::Value::Object(map))
-}
-
-/// Convert a single protobuf Value to serde_json::Value
-///
-/// Mirrors C++ Serializer::DecodeFieldValue
-fn convert_proto_value_to_json(
-    value: &firestore_proto::Value,
-) -> Result<serde_json::Value, FirebaseError> {
-    match &value.value_type {
-        Some(ValueType::NullValue(_)) => Ok(serde_json::Value::Null),
-        Some(ValueType::BooleanValue(b)) => Ok(serde_json::Value::Bool(*b)),
-        Some(ValueType::IntegerValue(i)) => Ok(json!(i)),
-        Some(ValueType::DoubleValue(d)) => Ok(json!(d)),
-        Some(ValueType::StringValue(s)) => Ok(serde_json::Value::String(s.clone())),
-        Some(ValueType::ArrayValue(arr)) => {
-            let mut json_arr = Vec::new();
-            for item in &arr.values {
-                json_arr.push(convert_proto_value_to_json(item)?);
-            }
-            Ok(serde_json::Value::Array(json_arr))
-        }
-        Some(ValueType::MapValue(map)) => convert_proto_fields_to_json(&map.fields),
-        Some(ValueType::TimestampValue(ts)) => {
-            let Some(dt) = chrono::DateTime::from_timestamp(ts.seconds, ts.nanos as u32) else {
-                return Err(FirebaseError::internal("Invalid timestamp"));
-            };
-            Ok(serde_json::Value::String(dt.to_rfc3339()))
-        }
-        Some(ValueType::GeoPointValue(geo)) => Ok(serde_json::json!({
-            "latitude": geo.latitude,
-            "longitude": geo.longitude,
-        })),
-        Some(ValueType::ReferenceValue(r)) => Ok(serde_json::Value::String(r.clone())),
-        Some(ValueType::BytesValue(b)) => {
-            // Encode as hex string
-            Ok(serde_json::Value::String(
-                b.iter().map(|byte| format!("{:02x}", byte)).collect(),
-            ))
-        }
-        // New value types added in recent Firestore versions
-        Some(ValueType::FieldReferenceValue(field_ref)) => {
-            Ok(serde_json::Value::String(field_ref.clone()))
-        }
-        Some(ValueType::FunctionValue(_func)) => {
-            // Function values are not directly serializable
-            // TODO: Decide if we should error or return a special marker
-            todo!("Implement function value serialization or return error")
-        }
-        Some(ValueType::PipelineValue(_pipeline)) => {
-            // Pipeline values are not directly serializable
-            // TODO: Decide if we should error or return a special marker
-            todo!("Implement pipeline value serialization or return error")
-        }
-        None => Ok(serde_json::Value::Null),
     }
 }
 

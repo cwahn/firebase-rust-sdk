@@ -216,6 +216,10 @@ pub enum FirestoreError {
     #[error("Unauthenticated")]
     Unauthenticated,
 
+    /// Connection or network error
+    #[error("Connection error: {0}")]
+    Connection(String),
+
     /// Unknown error with code
     #[error("Unknown Firestore error: code {0}")]
     Unknown(i32),

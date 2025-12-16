@@ -4,17 +4,34 @@
 //! - `firestore/src/include/firebase/firestore/field_value.h`
 //! - `firestore/src/include/firebase/firestore/timestamp.h`
 //! - `firestore/src/include/firebase/firestore/geo_point.h`
+//! - `firestore/src/include/firebase/firestore/map_field_value.h`
 //!
-//! Note: FieldValue is replaced by serde_json::Value for flexibility
+//! Uses protobuf Value and MapValue types directly, matching C++ SDK's FieldValue design
 
 use crate::error::FirestoreError;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use std::collections::HashMap;
 
-// FieldValue enum is replaced by serde_json::Value
-// This provides better flexibility and matches Rust ecosystem standards
-// For Firestore-specific types like Timestamp and GeoPoint, use the dedicated structs below
+// Re-export protobuf types for public API
+// Matches C++ SDK's FieldValue and MapValue pattern
+#[allow(clippy::all)]
+pub(crate) mod proto {
+    include!(concat!(env!("OUT_DIR"), "/proto.rs"));
+}
+
+/// Firestore Value type - matches C++ SDK's FieldValue
+/// 
+/// # C++ Reference
+/// - `firestore/src/include/firebase/firestore/field_value.h`
+pub use proto::google::firestore::v1::Value;
+
+/// Map of field values - matches C++ SDK's MapValue
+/// Uses protobuf MapValue which contains HashMap<String, Value>
+/// 
+/// # C++ Reference  
+/// - `firestore/src/include/firebase/firestore/map_field_value.h:30`
+pub use proto::google::firestore::v1::MapValue;
 
 /// Filter operators for Firestore queries
 ///
@@ -22,7 +39,7 @@ use serde_json::Value;
 /// - `firestore/src/include/firebase/firestore/query.h:142` (Filter)
 /// - `firestore/src/include/firebase/firestore/filter.h:268` (And)
 /// - `firestore/src/include/firebase/firestore/filter.h:308` (Or)
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum FilterCondition {
     /// field == value
     Equal(String, Value),
@@ -285,12 +302,15 @@ impl Timestamp {
         dt
     }
 
-    /// Convert to serde_json::Value for use in documents
+    /// Convert to protobuf Value for use in documents
     pub fn to_value(&self) -> Value {
-        serde_json::json!({
-            "seconds": self.seconds,
-            "nanoseconds": self.nanoseconds
-        })
+        use proto::google::firestore::v1::value::ValueType;
+        Value {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
+                seconds: self.seconds,
+                nanos: self.nanoseconds,
+            })),
+        }
     }
 }
 
@@ -335,12 +355,15 @@ impl GeoPoint {
         })
     }
 
-    /// Convert to serde_json::Value for use in documents
+    /// Convert to protobuf Value for use in documents
     pub fn to_value(&self) -> Value {
-        serde_json::json!({
-            "latitude": self.latitude,
-            "longitude": self.longitude
-        })
+        use proto::google::firestore::v1::value::ValueType;
+        Value {
+            value_type: Some(ValueType::GeoPointValue(proto::google::r#type::LatLng {
+                latitude: self.latitude,
+                longitude: self.longitude,
+            })),
+        }
     }
 }
 
@@ -348,19 +371,33 @@ impl GeoPoint {
 ///
 /// # C++ Reference
 /// - `firestore/src/include/firebase/firestore/document_reference.h:71`
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct DocumentReference {
     /// Full document path (e.g., "users/alice")
     pub path: String,
+    /// Reference to Firestore client (for operations like set/get/update/delete)
+    /// 
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.h:129` - std::shared_ptr<Firestore> firestore_
+    pub(crate) firestore: std::sync::Arc<crate::firestore::firestore::FirestoreInner>,
 }
 
 impl DocumentReference {
     /// Create a new document reference
-    pub fn new(path: impl Into<String>) -> Self {
-        Self { path: path.into() }
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:40`
+    pub(crate) fn new(path: impl Into<String>, firestore: std::sync::Arc<crate::firestore::firestore::FirestoreInner>) -> Self {
+        Self { 
+            path: path.into(),
+            firestore,
+        }
     }
 
     /// Get the document ID (last segment of path)
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:53` - document_id()
     pub fn id(&self) -> &str {
         self.path.rsplit('/').next().unwrap_or(&self.path)
     }
@@ -368,6 +405,176 @@ impl DocumentReference {
     /// Get the parent collection path
     pub fn parent_path(&self) -> Option<&str> {
         self.path.rsplit_once('/').map(|(parent, _)| parent)
+    }
+
+    /// Get the full document path with database prefix
+    /// Format: projects/{project_id}/databases/{database_id}/documents/{document_path}
+    pub(crate) fn full_path(&self) -> String {
+        format!("{}/documents/{}", 
+            format!("projects/{}/databases/{}", self.firestore.project_id, self.firestore.database_id),
+            self.path
+        )
+    }
+
+    /// Set document data
+    ///
+    /// # Arguments
+    /// * `data` - Document data as protobuf MapValue
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:67` - SetData()
+    /// - `firebase-ios-sdk/Firestore/core/src/remote/datastore.cc` - CommitMutationsWithCredentials()
+    pub async fn set(&self, data: MapValue) -> Result<(), crate::error::FirebaseError> {
+        use proto::google::firestore::v1::{CommitRequest, Write, write::Operation};
+        
+        let database_path = format!("projects/{}/databases/{}", 
+            self.firestore.project_id, self.firestore.database_id);
+        
+        // Create a Write mutation with Update operation (which acts as set)
+        let write = Write {
+            operation: Some(Operation::Update(proto::google::firestore::v1::Document {
+                name: self.full_path(),
+                fields: data.fields,
+                create_time: None,
+                update_time: None,
+            })),
+            update_mask: None,  // None means replace entire document
+            update_transforms: vec![],
+            current_document: None,
+        };
+        
+        let request = CommitRequest {
+            database: database_path,
+            writes: vec![write],
+            transaction: vec![],
+        };
+        
+        let mut client = self.firestore.grpc_client.clone();
+        let _response = client.commit(request)
+            .await
+            .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
+        
+        Ok(())
+    }
+
+    /// Update document fields
+    ///
+    /// # Arguments
+    /// * `data` - Fields to update as protobuf MapValue
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:74` - UpdateData()
+    pub async fn update(&self, data: MapValue) -> Result<(), crate::error::FirebaseError> {
+        use proto::google::firestore::v1::{CommitRequest, Write, write::Operation, DocumentMask};
+        
+        let database_path = format!("projects/{}/databases/{}", 
+            self.firestore.project_id, self.firestore.database_id);
+        
+        // Create update mask with field paths
+        let field_paths: Vec<String> = data.fields.keys().cloned().collect();
+        
+        let write = Write {
+            operation: Some(Operation::Update(proto::google::firestore::v1::Document {
+                name: self.full_path(),
+                fields: data.fields,
+                create_time: None,
+                update_time: None,
+            })),
+            update_mask: Some(DocumentMask { field_paths }),
+            update_transforms: vec![],
+            current_document: Some(proto::google::firestore::v1::Precondition {
+                condition_type: Some(proto::google::firestore::v1::precondition::ConditionType::Exists(true)),
+            }),
+        };
+        
+        let request = CommitRequest {
+            database: database_path,
+            writes: vec![write],
+            transaction: vec![],
+        };
+        
+        let mut client = self.firestore.grpc_client.clone();
+        let _response = client.commit(request)
+            .await
+            .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
+        
+        Ok(())
+    }
+
+    /// Delete the document
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:82` - DeleteDocument()
+    pub async fn delete(&self) -> Result<(), crate::error::FirebaseError> {
+        use proto::google::firestore::v1::{CommitRequest, Write, write::Operation};
+        
+        let database_path = format!("projects/{}/databases/{}", 
+            self.firestore.project_id, self.firestore.database_id);
+        
+        let write = Write {
+            operation: Some(Operation::Delete(self.full_path())),
+            update_mask: None,
+            update_transforms: vec![],
+            current_document: None,
+        };
+        
+        let request = CommitRequest {
+            database: database_path,
+            writes: vec![write],
+            transaction: vec![],
+        };
+        
+        let mut client = self.firestore.grpc_client.clone();
+        let _response = client.commit(request)
+            .await
+            .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
+        
+        Ok(())
+    }
+
+    /// Get the document snapshot
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/document_reference.cc:87` - GetDocument()
+    /// - `firebase-ios-sdk/Firestore/core/src/remote/datastore.cc` - LookupDocumentsWithCredentials()
+    pub async fn get(&self) -> Result<DocumentSnapshot, crate::error::FirebaseError> {
+        use proto::google::firestore::v1::GetDocumentRequest;
+        
+        let request = GetDocumentRequest {
+            name: self.full_path(),
+            consistency_selector: None,
+            mask: None,
+        };
+        
+        let mut client = self.firestore.grpc_client.clone();
+        let response = client.get_document(request)
+            .await
+            .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC get_document failed: {}", e)))?;
+        
+        let doc = response.into_inner();
+        
+        // Convert Document to DocumentSnapshot
+        let data = if doc.fields.is_empty() {
+            None
+        } else {
+            Some(MapValue { fields: doc.fields })
+        };
+        
+        Ok(DocumentSnapshot {
+            reference: self.clone(),
+            data,
+            metadata: SnapshotMetadata::default(),
+        })
+    }
+}
+
+impl std::fmt::Debug for DocumentReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DocumentReference")
+            .field("path", &self.path)
+            .field("project_id", &self.firestore.project_id)
+            .field("database_id", &self.firestore.database_id)
+            .finish()
     }
 }
 
@@ -381,7 +588,11 @@ pub struct DocumentSnapshot {
     pub reference: DocumentReference,
 
     /// Document data (None if document doesn't exist)
-    pub data: Option<Value>,
+    /// Contains protobuf MapValue
+    /// 
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_snapshot.h:186` - GetData() returns MapValue
+    pub data: Option<MapValue>,
 
     /// Document metadata
     pub metadata: SnapshotMetadata,
@@ -389,16 +600,22 @@ pub struct DocumentSnapshot {
 
 impl DocumentSnapshot {
     /// Check if document exists
+    /// 
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_snapshot.h:172`
     pub fn exists(&self) -> bool {
         self.data.is_some()
     }
 
     /// Get a field value by path
+    /// 
+    /// # C++ Reference
+    /// - `firestore/src/include/firebase/firestore/document_snapshot.h:196`
     pub fn get(&self, field: &str) -> Option<&Value> {
         let Some(data) = &self.data else {
             return None;
         };
-        data.get(field)
+        data.fields.get(field)
     }
 
     /// Get document ID
@@ -426,6 +643,63 @@ impl Default for SnapshotMetadata {
             has_pending_writes: false,
             is_from_cache: false,
         }
+    }
+}
+
+/// Reference to a Firestore collection
+///
+/// # C++ Reference
+/// - `firebase-ios-sdk/Firestore/core/src/api/collection_reference.h:38`
+#[derive(Clone)]
+pub struct CollectionReference {
+    /// Collection path (e.g., "users")
+    pub path: String,
+    /// Reference to Firestore client
+    pub(crate) firestore: std::sync::Arc<crate::firestore::firestore::FirestoreInner>,
+}
+
+impl CollectionReference {
+    /// Create a new collection reference
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/collection_reference.cc:28`
+    pub(crate) fn new(path: impl Into<String>, firestore: std::sync::Arc<crate::firestore::firestore::FirestoreInner>) -> Self {
+        Self { 
+            path: path.into(),
+            firestore,
+        }
+    }
+
+    /// Get collection ID (last segment of path)
+    pub fn id(&self) -> &str {
+        self.path.rsplit('/').next().unwrap_or(&self.path)
+    }
+
+    /// Get a document reference within this collection
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/collection_reference.cc:41` - Document()
+    pub fn document(&self, document_id: impl AsRef<str>) -> DocumentReference {
+        let path = format!("{}/{}", self.path, document_id.as_ref());
+        DocumentReference::new(path, std::sync::Arc::clone(&self.firestore))
+    }
+
+    /// Add a new document with auto-generated ID
+    ///
+    /// # C++ Reference
+    /// - `firebase-ios-sdk/Firestore/core/src/api/collection_reference.cc:46` - AddDocument()
+    pub async fn add(&self, data: MapValue) -> Result<DocumentReference, crate::error::FirebaseError> {
+        // Generate auto ID
+        use rand::Rng;
+        let auto_id: String = rand::thread_rng()
+            .sample_iter(&rand::distributions::Alphanumeric)
+            .take(20)
+            .map(char::from)
+            .collect();
+        
+        let doc_ref = self.document(&auto_id);
+        doc_ref.set(data).await?;
+        Ok(doc_ref)
     }
 }
 
@@ -568,14 +842,14 @@ pub enum WriteOperation {
         /// Document path
         path: String,
         /// Document data
-        data: Value,
+        data: MapValue,
     },
     /// Update specific fields in a document
     Update {
         /// Document path
         path: String,
         /// Fields to update
-        data: Value,
+        data: MapValue,
     },
     /// Delete a document
     Delete {
@@ -591,7 +865,7 @@ impl WriteBatch {
     }
 
     /// Set document data
-    pub fn set(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+    pub fn set(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
         self.operations.push(WriteOperation::Set {
             path: path.into(),
             data,
@@ -600,7 +874,7 @@ impl WriteBatch {
     }
 
     /// Update document fields
-    pub fn update(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+    pub fn update(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
         self.operations.push(WriteOperation::Update {
             path: path.into(),
             data,
@@ -746,8 +1020,8 @@ impl Transaction {
     ///
     /// # Arguments
     /// * `path` - Document path (e.g. "users/alice")
-    /// * `data` - Document data as JSON value
-    pub fn set(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+    /// * `data` - Document data as MapValue
+    pub fn set(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
         self.operations.push(WriteOperation::Set {
             path: path.into(),
             data,
@@ -762,8 +1036,8 @@ impl Transaction {
     ///
     /// # Arguments
     /// * `path` - Document path (e.g. "users/alice")
-    /// * `data` - Fields to update as JSON value
-    pub fn update(&mut self, path: impl Into<String>, data: Value) -> &mut Self {
+    /// * `data` - Fields to update as MapValue
+    pub fn update(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
         self.operations.push(WriteOperation::Update {
             path: path.into(),
             data,
@@ -855,99 +1129,9 @@ impl Transaction {
             // For now, we rely on the commit phase to use the transaction ID if needed
         }
 
-        // Error-first: check for HTTP errors
-        if !response.status().is_success() {
-            if response.status() == 404 {
-                // Document doesn't exist - return empty snapshot
-                return Ok(DocumentSnapshot {
-                    reference: DocumentReference {
-                        path: path_string.clone(),
-                    },
-                    data: None,
-                    metadata: SnapshotMetadata::default(),
-                });
-            }
-
-            let status = response.status();
-            let error_text = response.text().await.unwrap_or_default();
-            return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
-                "Get document failed: {status} - {error_text}",
-            ))));
-        }
-
-        let doc = match response.json::<serde_json::Value>().await {
-            Err(err) => {
-                return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
-                    "Failed to parse document: {err}"
-                ))))
-            }
-            Ok(d) => d,
-        };
-
-        // Parse document fields
-        let data = match doc.get("fields") {
-            None => None,
-            Some(fields) => Some(Self::convert_firestore_fields(fields)),
-        };
-
-        Ok(DocumentSnapshot {
-            reference: DocumentReference { path: path_string },
-            data,
-            metadata: SnapshotMetadata::default(),
-        })
-    }
-
-    /// Convert Firestore fields format to plain JSON (internal helper)
-    fn convert_firestore_fields(fields: &serde_json::Value) -> serde_json::Value {
-        use serde_json::{json, Map, Value as JsonValue};
-
-        if let Some(obj) = fields.as_object() {
-            let mut result = Map::new();
-            for (key, value) in obj {
-                result.insert(key.clone(), Self::convert_firestore_value(value));
-            }
-            JsonValue::Object(result)
-        } else {
-            json!({})
-        }
-    }
-
-    /// Convert a single Firestore value to plain JSON
-    fn convert_firestore_value(value: &serde_json::Value) -> serde_json::Value {
-        use serde_json::json;
-
-        // Firestore format: {"integerValue": "123"} or {"stringValue": "hello"}
-        if let Some(obj) = value.as_object() {
-            if let Some(string_val) = obj.get("stringValue") {
-                return string_val.clone();
-            } else if let Some(int_val) = obj.get("integerValue") {
-                if let Some(s) = int_val.as_str() {
-                    if let Ok(n) = s.parse::<i64>() {
-                        return json!(n);
-                    }
-                }
-                return int_val.clone();
-            } else if let Some(double_val) = obj.get("doubleValue") {
-                return double_val.clone();
-            } else if let Some(bool_val) = obj.get("booleanValue") {
-                return bool_val.clone();
-            } else if let Some(_null_val) = obj.get("nullValue") {
-                return json!(null);
-            } else if let Some(array_val) = obj.get("arrayValue") {
-                if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
-                    return json!(values
-                        .iter()
-                        .map(|v| Self::convert_firestore_value(v))
-                        .collect::<Vec<_>>());
-                }
-            } else if let Some(map_val) = obj.get("mapValue") {
-                if let Some(fields) = map_val.get("fields") {
-                    return Self::convert_firestore_fields(fields);
-                }
-            }
-        }
-
-        value.clone()
+        // TODO: Convert Transaction.get() to gRPC - this is old REST code
+        // For now, return error as this needs to be reimplemented with gRPC BatchGetDocuments
+        Err(FirebaseError::Firestore(FirestoreError::Unimplemented))
     }
 }
 
@@ -1042,10 +1226,10 @@ mod tests {
 
     #[test]
     fn test_document_snapshot() {
-        let data = json!({
+        let data = crate::firestore::conversion::json_to_map(&json!({
             "name": "Alice",
             "age": 30
-        });
+        }));
 
         let snapshot = DocumentSnapshot {
             reference: DocumentReference::new("users/alice"),
@@ -1062,9 +1246,9 @@ mod tests {
     #[test]
     fn test_write_batch() {
         let mut batch = WriteBatch::new();
-        let data = json!({
+        let data = crate::firestore::conversion::json_to_map(&json!({
             "name": "Bob"
-        });
+        }));
 
         batch
             .set("users/bob", data.clone())

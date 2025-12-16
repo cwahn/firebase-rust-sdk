@@ -44,19 +44,20 @@ pub mod auth {
 
 // Firestore module  
 pub mod firestore {
-    //! Cloud Firestore
+    //! Cloud Firestore (gRPC-based)
     
     pub mod types;
     pub mod firestore;
     pub mod listener;
     
-    pub use firestore::{Firestore, CollectionReference, Query};
-    pub use listener::{ListenerRegistration, ListenerOptions, add_document_listener};
+    pub use firestore::{Firestore, FirestoreInner};
     pub use types::{
-        DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, 
+        DocumentReference, CollectionReference, DocumentSnapshot, 
+        FilterCondition, OrderDirection, 
         GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
-        DocumentChangeType, Settings, Source
+        DocumentChangeType, Settings, Source, Value, MapValue
     };
+    pub use listener::{ListenerRegistration, ListenerOptions, add_document_listener};
 }
 
 // Re-exports for convenience

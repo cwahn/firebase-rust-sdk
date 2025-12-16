@@ -18,17 +18,19 @@ integration-tests = [] # Enable integration tests with real Firebase
 tokio = { version = "1.40", features = ["full"] }
 futures = "0.3"
 async-stream = "0.3"
-reqwest = { version = "0.12", features = ["json", "stream"] }
+# reqwest only for Auth REST API (Firestore uses gRPC)
+reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde_json = "1.0"  # Only for Auth REST API
 serde_bytes = "0.11"
 thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
 once_cell = "1.20"
 rand = "0.8"
 uuid = { version = "1.11", features = ["v4"] }
+base64 = "0.22"
 
-# gRPC for listeners (cross-platform)
+# gRPC for Firestore (cross-platform)
 tonic = { version = "0.12", default-features = false, features = ["transport", "codegen", "prost", "tls", "tls-webpki-roots"] }
 prost = "0.13"
 prost-types = "0.13"
