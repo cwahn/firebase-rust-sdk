@@ -392,21 +392,27 @@ pub trait Query: Clone + Sized {
     fn listen(&self, metadata_changes: Option<super::MetadataChanges>) -> super::QuerySnapshotStream {
         use tokio::sync::{mpsc, oneshot};
         
-        let (_tx, rx) = mpsc::unbounded_channel();
-        let (cancel_tx, cancel_rx) = oneshot::channel();
+        let (tx, rx) = mpsc::unbounded_channel();
+        let (cancel_tx, mut cancel_rx) = oneshot::channel();
         
-        // Spawn background task to handle the listener
+        // Clone necessary data for the async task
         let _state = self.query_state().clone();
         let _include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
         
+        // Spawn background task to handle the listener
         tokio::spawn(async move {
-            // TODO: Integrate with existing listener infrastructure from listener.rs
-            // For now, this is a placeholder that will be implemented in the next step
-            tokio::select! {
-                _ = cancel_rx => {
-                    // Stream was dropped, cleanup
-                }
-            }
+            // TODO: Implement listen_query in listener.rs
+            // Query listening requires:
+            // 1. Convert QueryState to gRPC StructuredQuery
+            // 2. Create Target with query instead of documents
+            // 3. Track document changes (additions, modifications, removals)
+            // 4. Build QuerySnapshot from accumulated results
+            //
+            // For now, send an error explaining this is not yet implemented
+            let _ = tx.send(Err(crate::error::FirestoreError::Unimplemented.into()));
+            
+            // Wait for cancellation
+            let _ = cancel_rx.await;
         });
         
         super::QuerySnapshotStream::new(rx, cancel_tx)

@@ -6,6 +6,7 @@
 use super::document_snapshot::{DocumentSnapshot, SnapshotMetadata};
 use super::field_value::{MapValue, proto};
 use crate::firestore::firestore::FirestoreInner;
+use std::sync::Arc;
 
 /// Reference to a Firestore document
 ///
@@ -246,20 +247,66 @@ impl DocumentReference {
     /// - Rust uses async streams with Drop cleanup instead of explicit remove()
     pub fn listen(&self, metadata_changes: Option<super::MetadataChanges>) -> super::DocumentSnapshotStream {
         use tokio::sync::{mpsc, oneshot};
+        use futures::StreamExt;
         
-        let (_tx, rx) = mpsc::unbounded_channel();
-        let (cancel_tx, cancel_rx) = oneshot::channel();
+        let (tx, rx) = mpsc::unbounded_channel();
+        let (cancel_tx, mut cancel_rx) = oneshot::channel();
+        
+        // Clone necessary data for the async task
+        let doc_ref = self.clone();
+        let include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
         
         // Spawn background task to handle the listener
-        let _doc_ref = self.clone();
-        let _include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
-        
         tokio::spawn(async move {
-            // TODO: Integrate with existing listener infrastructure from listener.rs
-            // For now, this is a placeholder that will be implemented in the next step
-            tokio::select! {
-                _ = cancel_rx => {
-                    // Stream was dropped, cleanup
+            // Get authentication token if available
+            let auth_token = doc_ref.firestore.id_token.clone().unwrap_or_default();
+            
+            // Create listener options
+            let options = super::listener::ListenerOptions {
+                include_metadata_changes: include_metadata,
+            };
+            
+            // Start listening using existing infrastructure
+            // This will fail gracefully if there's no valid auth or if Firestore is not set up
+            let listener_result = super::listener::listen_document(
+                &super::Firestore { inner: Arc::clone(&doc_ref.firestore) },
+                auth_token,
+                doc_ref.firestore.project_id.clone(),
+                doc_ref.firestore.database_id.clone(),
+                doc_ref.path.clone(),
+                options,
+            ).await;
+            
+            match listener_result {
+                Ok(mut stream) => {
+                    // Forward events from gRPC stream to our channel until cancelled
+                    loop {
+                        tokio::select! {
+                            _ = &mut cancel_rx => {
+                                // Stream was dropped, cleanup and exit
+                                break;
+                            }
+                            event = stream.next() => {
+                                match event {
+                                    Some(result) => {
+                                        // Forward the result to the channel
+                                        if tx.send(result).is_err() {
+                                            // Receiver dropped, exit
+                                            break;
+                                        }
+                                    }
+                                    None => {
+                                        // Stream ended
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    // Send the error and close the stream
+                    let _ = tx.send(Err(e));
                 }
             }
         });
