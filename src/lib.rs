@@ -43,35 +43,21 @@ pub mod auth {
 }
 
 // Firestore module  
-pub mod firestore {
-    //! Cloud Firestore (gRPC-based)
-    
-    pub mod types;
-    pub mod firestore;
-    pub mod listener;
-    pub mod transaction;
-    
-    pub use firestore::{Firestore, FirestoreInner};
-    pub use types::{
-        DocumentReference, CollectionReference, DocumentSnapshot, 
-        FilterCondition, OrderDirection, 
-        GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
-        DocumentChangeType, Settings, Source, Value, MapValue, ValueType, WriteBatch
-    };
-    pub use listener::{DocumentSnapshotStream, ListenerOptions, listen_document};
-    pub use transaction::Transaction;
-}
+pub mod firestore;
 
 // Re-exports for convenience
 pub use error::{FirebaseError, AuthError, FirestoreError};
 
 // Auth re-exports
 pub use auth::{Auth, types::{User, Credential, AuthResult}};
-// Auth re-exports (will be added as implemented)
-// pub use auth::{Auth, User, Credential, AuthResult};
 
-// Firestore re-exports (will be added as implemented)
-// pub use firestore::{Firestore, DocumentReference, FieldValue};
+// Firestore re-exports
+pub use firestore::{
+    Firestore, 
+    DocumentReference, CollectionReference, DocumentSnapshot,
+    Value, MapValue, Timestamp, GeoPoint,
+    WriteBatch, Transaction
+};
 
 #[cfg(test)]
 mod tests {

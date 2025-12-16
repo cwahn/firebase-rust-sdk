@@ -340,7 +340,7 @@ impl Firestore {
             }
         }
 
-        Err(crate::error::FirestoreError::Unknown(
+        Err(crate::error::FirestoreError::Internal(
             "Transaction failed after maximum retries".to_string()
         ).into())
     }

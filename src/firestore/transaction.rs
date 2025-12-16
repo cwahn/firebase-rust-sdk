@@ -5,7 +5,9 @@
 ///! - `firebase-ios-sdk/Firestore/core/src/core/transaction.h`
 
 use crate::error::{FirebaseError, FirestoreError};
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, MapValue};
+use crate::firestore::document_reference::DocumentReference;
+use crate::firestore::document_snapshot::DocumentSnapshot;
+use crate::firestore::field_value::MapValue;
 use std::sync::Arc;
 use std::collections::HashMap;
 
@@ -124,7 +126,7 @@ impl Transaction {
         }
 
         // Perform the read using gRPC BatchGetDocuments with transaction ID
-        use crate::firestore::types::proto::google::firestore::v1::{
+        use crate::firestore::field_value::proto::google::firestore::v1::{
             BatchGetDocumentsRequest,
             batch_get_documents_request::ConsistencySelector,
         };
@@ -163,11 +165,11 @@ impl Transaction {
         let response = stream
             .next()
             .await
-            .ok_or_else(|| FirestoreError::NotFound("Document not found".to_string()))?
+            .ok_or_else(|| FirestoreError::Internal("Document not found".to_string()))?
             .map_err(|e| FirestoreError::Connection(format!("Failed to read response: {}", e)))?;
 
         // Parse response
-        use crate::firestore::types::proto::google::firestore::v1::batch_get_documents_response::Result as BatchResult;
+        use crate::firestore::field_value::proto::google::firestore::v1::batch_get_documents_response::Result as BatchResult;
         
         let snapshot = match response.result {
             Some(BatchResult::Found(doc)) => {
@@ -176,7 +178,7 @@ impl Transaction {
                     path: path.clone(),
                     data: doc.fields.into_iter().map(|(k, v)| (k, v.into())).collect(),
                     exists: true,
-                    metadata: crate::firestore::types::SnapshotMetadata::default(),
+                    metadata: crate::firestore::document_snapshot::SnapshotMetadata::default(),
                 })
             }
             Some(BatchResult::Missing(_)) => {

@@ -1,0 +1,77 @@
+//! Cloud Firestore module
+//!
+//! # C++ SDK Structure Mapping
+//! Following the C++ SDK's header file organization:
+//! - `field_value.h` → `field_value.rs` (Value, MapValue, FilterCondition)
+//! - `timestamp.h` → `timestamp.rs`
+//! - `geo_point.h` → `geo_point.rs`
+//! - `settings.h` → `settings.rs`
+//! - `document_reference.h` → `document_reference.rs`
+//! - `document_snapshot.h` → `document_snapshot.rs`
+//! - `collection_reference.h` → `collection_reference.rs`
+//! - `query_snapshot.h` → `query_snapshot.rs`
+//! - `write_batch.h` → `write_batch.rs`
+//! - `transaction.h` → `transaction.rs`
+//! - `listener.h` → `listener.rs`
+
+// Individual type modules (following C++ SDK structure)
+pub mod field_value;
+pub mod timestamp;
+pub mod geo_point;
+pub mod settings;
+pub mod document_reference;
+pub mod document_snapshot;
+pub mod collection_reference;
+pub mod query_snapshot;
+pub mod write_batch;
+
+// Core modules
+pub mod firestore;
+pub mod listener;
+pub mod transaction;
+
+// Legacy types module for backwards compatibility
+// TODO: Remove this once all code is updated to use direct module imports
+pub mod types;
+
+// Re-export main Firestore client
+pub use firestore::{Firestore, FirestoreInner};
+
+// Re-export from field_value module
+pub use field_value::{
+    Value, MapValue, ValueType, 
+    FilterCondition, OrderDirection
+};
+
+// Proto is pub(crate) only
+pub(crate) use field_value::proto;
+
+// Re-export from timestamp module
+pub use timestamp::Timestamp;
+
+// Re-export from geo_point module
+pub use geo_point::GeoPoint;
+
+// Re-export from settings module
+pub use settings::{Settings, Source};
+
+// Re-export from document_reference module
+pub use document_reference::DocumentReference;
+
+// Re-export from document_snapshot module
+pub use document_snapshot::{DocumentSnapshot, SnapshotMetadata};
+
+// Re-export from collection_reference module
+pub use collection_reference::CollectionReference;
+
+// Re-export from query_snapshot module
+pub use query_snapshot::{QuerySnapshot, DocumentChange, DocumentChangeType};
+
+// Re-export from write_batch module
+pub use write_batch::{WriteBatch, WriteOperation};
+
+// Re-export from listener module
+pub use listener::{DocumentSnapshotStream, ListenerOptions, listen_document};
+
+// Re-export from transaction module
+pub use transaction::Transaction;
