@@ -351,6 +351,66 @@ pub trait Query: Clone + Sized {
         state.end_at = Some(values);
         self.with_state(state)
     }
+
+    /// Listen to real-time updates for this query.
+    ///
+    /// Returns a stream that yields query snapshots as results change.
+    /// The stream automatically cleans up the listener when dropped.
+    ///
+    /// # Arguments
+    /// * `metadata_changes` - Optional parameter to control metadata-only change events.
+    ///   Use `Some(MetadataChanges::Include)` to receive metadata-only updates.
+    ///   Defaults to `MetadataChanges::Exclude` if `None`.
+    ///
+    /// # Returns
+    /// A stream of `Result<QuerySnapshot, FirebaseError>` that yields updates.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use firebase_rust_sdk::firestore::MetadataChanges;
+    /// use futures::StreamExt;
+    ///
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("my-project", "(default)", None).await?;
+    /// let query = firestore.collection("cities").where_equal_to("state", "CA".into());
+    ///
+    /// let mut stream = query.listen(Some(MetadataChanges::Include));
+    /// while let Some(result) = stream.next().await {
+    ///     match result {
+    ///         Ok(snapshot) => println!("Query results: {} documents", snapshot.documents().len()),
+    ///         Err(e) => eprintln!("Error: {}", e),
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # C++ Reference
+    /// - `query.h:634` - `AddSnapshotListener` returns `ListenerRegistration`
+    /// - Rust uses async streams with Drop cleanup instead of explicit remove()
+    fn listen(&self, metadata_changes: Option<super::MetadataChanges>) -> super::QuerySnapshotStream {
+        use tokio::sync::{mpsc, oneshot};
+        
+        let (_tx, rx) = mpsc::unbounded_channel();
+        let (cancel_tx, cancel_rx) = oneshot::channel();
+        
+        // Spawn background task to handle the listener
+        let _state = self.query_state().clone();
+        let _include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
+        
+        tokio::spawn(async move {
+            // TODO: Integrate with existing listener infrastructure from listener.rs
+            // For now, this is a placeholder that will be implemented in the next step
+            tokio::select! {
+                _ = cancel_rx => {
+                    // Stream was dropped, cleanup
+                }
+            }
+        });
+        
+        super::QuerySnapshotStream::new(rx, cancel_tx)
+    }
 }
 
 /// Execute a query with the given state

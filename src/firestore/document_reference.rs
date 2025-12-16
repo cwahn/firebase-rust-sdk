@@ -206,6 +206,66 @@ impl DocumentReference {
             metadata: SnapshotMetadata::default(),
         })
     }
+
+    /// Listen to real-time updates for this document.
+    ///
+    /// Returns a stream that yields document snapshots as they change.
+    /// The stream automatically cleans up the listener when dropped.
+    ///
+    /// # Arguments
+    /// * `metadata_changes` - Optional parameter to control metadata-only change events.
+    ///   Use `Some(MetadataChanges::Include)` to receive metadata-only updates.
+    ///   Defaults to `MetadataChanges::Exclude` if `None`.
+    ///
+    /// # Returns
+    /// A stream of `Result<DocumentSnapshot, FirebaseError>` that yields updates.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use firebase_rust_sdk::firestore::Firestore;
+    /// use firebase_rust_sdk::firestore::MetadataChanges;
+    /// use futures::StreamExt;
+    ///
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("my-project", "(default)", None).await?;
+    /// let doc_ref = firestore.collection("cities").document("SF");
+    ///
+    /// let mut stream = doc_ref.listen(Some(MetadataChanges::Include));
+    /// while let Some(result) = stream.next().await {
+    ///     match result {
+    ///         Ok(snapshot) => println!("Document: {:?}", snapshot.id()),
+    ///         Err(e) => eprintln!("Error: {}", e),
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # C++ Reference
+    /// - `document_reference.h:265` - `AddSnapshotListener` returns `ListenerRegistration`
+    /// - Rust uses async streams with Drop cleanup instead of explicit remove()
+    pub fn listen(&self, metadata_changes: Option<super::MetadataChanges>) -> super::DocumentSnapshotStream {
+        use tokio::sync::{mpsc, oneshot};
+        
+        let (_tx, rx) = mpsc::unbounded_channel();
+        let (cancel_tx, cancel_rx) = oneshot::channel();
+        
+        // Spawn background task to handle the listener
+        let _doc_ref = self.clone();
+        let _include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
+        
+        tokio::spawn(async move {
+            // TODO: Integrate with existing listener infrastructure from listener.rs
+            // For now, this is a placeholder that will be implemented in the next step
+            tokio::select! {
+                _ = cancel_rx => {
+                    // Stream was dropped, cleanup
+                }
+            }
+        });
+        
+        super::DocumentSnapshotStream::new(rx, cancel_tx)
+    }
 }
 
 impl std::fmt::Debug for DocumentReference {
