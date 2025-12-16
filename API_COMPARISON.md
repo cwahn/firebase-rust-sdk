@@ -1,7 +1,8 @@
 # Firebase Rust SDK vs C++ SDK - Public API Comparison
 
 **Date:** December 16, 2025  
-**Version:** 0.1.0-alpha.1
+**Version:** 0.1.0-alpha.2 (in progress)  
+**Last Updated:** December 16, 2025 - Added SendEmailVerificationBeforeUpdatingEmail, CollectionGroup, RunTransaction
 
 ## Overview
 
@@ -12,12 +13,12 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 ## 📊 Summary Statistics
 
 ### Firebase Authentication
-- **✅ Implemented:** 17/35 major methods (~49%)
-- **❌ Missing:** 18/35 major methods (~51%)
+- **✅ Implemented:** 18/35 major methods (~51%)
+- **❌ Missing:** 17/35 major methods (~49%)
 
 ### Cloud Firestore
-- **✅ Implemented:** 21/45 major methods (~47%)
-- **❌ Missing:** 24/45 major methods (~53%)
+- **✅ Implemented:** 23/45 major methods (~51%)
+- **❌ Missing:** 22/45 major methods (~49%)
 
 ---
 
@@ -25,7 +26,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 
 ### Auth Class
 
-#### ✅ Implemented (17 methods)
+#### ✅ Implemented (18 methods)
 
 | Rust Method | C++ Reference | Notes |
 |------------|---------------|-------|
@@ -47,7 +48,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 | `send_password_reset_email()` | `SendPasswordResetEmail()` | Full implementation |
 | `fetch_providers_for_email()` | `FetchProvidersForEmail()` | Full implementation |
 
-#### ❌ Missing (18 methods)
+#### ❌ Missing (17 methods)
 
 | C++ Method | Status | Priority |
 |-----------|--------|----------|
@@ -57,8 +58,6 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 | `ReauthenticateWithCredential()` | 🔴 Not implemented | Medium - Sensitive operations |
 | `ConfirmPasswordReset()` | 🔴 Not implemented | High - Password reset flow |
 | `VerifyPasswordResetCode()` | 🔴 Not implemented | High - Password reset flow |
-| `SendEmailVerification()` | 🔴 Not implemented | Medium - Email verification |
-| `SendEmailVerificationBeforeUpdatingEmail()` | 🔴 Not implemented | Medium - Email update |
 | `ApplyActionCode()` | 🔴 Not implemented | Medium - Action codes |
 | `CheckActionCode()` | 🔴 Not implemented | Medium - Action codes |
 | `AddIdTokenListener()` | 🔴 Not implemented | Low - Token refresh events |
@@ -72,7 +71,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 
 ### User Class
 
-#### ✅ Implemented (8 methods)
+#### ✅ Implemented (9 methods)
 
 | Rust Method | C++ Reference | Notes |
 |------------|---------------|-------|
@@ -84,8 +83,9 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 | `reload()` | `Reload()` | Refresh user data |
 | `reauthenticate()` | `Reauthenticate()` | Full implementation |
 | `send_email_verification()` | `SendEmailVerification()` | Full implementation |
+| `send_email_verification_before_updating_email()` | `SendEmailVerificationBeforeUpdatingEmail()` | **NEW** - Verify new email before update |
 
-#### ❌ Missing (5 methods)
+#### ❌ Missing (4 methods)
 
 | C++ Method | Status | Priority |
 |-----------|--------|----------|
@@ -124,7 +124,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 
 ### Firestore Class
 
-#### ✅ Implemented (6 methods)
+#### ✅ Implemented (8 methods)
 
 | Rust Method | C++ Reference | Notes |
 |------------|---------------|-------|
@@ -134,13 +134,13 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 | `document(path)` | `Document()` | Returns DocumentReference |
 | `collection(path)` | `Collection()` | Returns CollectionReference |
 | `batch()` | `batch()` | Returns WriteBatch |
+| `collection_group(id)` | `CollectionGroup()` | **NEW** - Cross-collection queries |
+| `run_transaction(fn)` | `RunTransaction()` | **NEW** - Atomic operations with retries |
 
-#### ❌ Missing (9 methods)
+#### ❌ Missing (7 methods)
 
 | C++ Method | Status | Priority |
 |-----------|--------|----------|
-| `CollectionGroup()` | 🔴 Not implemented | High - Cross-collection queries |
-| `RunTransaction()` | 🟡 Partial | **Partial** - Transaction struct exists but needs integration |
 | `EnableNetwork()` | 🔴 Not implemented | Medium - Online/offline mode |
 | `DisableNetwork()` | 🔴 Not implemented | Medium - Online/offline mode |
 | `WaitForPendingWrites()` | 🔴 Not implemented | Medium - Sync control |
@@ -258,7 +258,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 
 ### Transaction Class
 
-#### ✅ Implemented (5 methods)
+#### ✅ Implemented (5 methods) - **FULLY INTEGRATED**
 
 | Rust Method | C++ Reference | Notes |
 |------------|---------------|-------|
@@ -266,9 +266,9 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
 | `set(doc_ref, data)` | `Set()` | Write in transaction |
 | `update(doc_ref, data)` | `Update()` | Update in transaction |
 | `delete(doc_ref)` | `Delete()` | Delete in transaction |
-| `commit()` | Internal | Execute transaction |
+| `run_transaction()` | `RunTransaction()` | **NEW** - Fully integrated with Firestore |
 
-**⚠️ Note:** Transaction struct exists but `Firestore::run_transaction()` is not yet implemented.
+**✅ Fully Implemented:** Transaction struct fully integrated via `Firestore::run_transaction()` with automatic retry logic (up to 5 attempts), read-before-write enforcement, and BeginTransaction/Commit/Rollback gRPC calls.
 
 ### DocumentSnapshot Class
 
@@ -328,14 +328,14 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
    - `SendEmailVerification()`
 
 #### Firestore
-1. **Collection Group Queries**
-   - `CollectionGroup()` for cross-collection queries
-2. **Server-side Field Values**
+1. **Server-side Field Values**
    - `ServerTimestamp()` for automatic timestamps
-3. **Transaction Support**
-   - `Firestore::run_transaction()` integration
-4. **Aggregation Queries**
+2. **Aggregation Queries**
    - `Count()` for efficient counting
+3. ✅ **COMPLETED: Collection Group Queries**
+   - `CollectionGroup()` for cross-collection queries
+4. ✅ **COMPLETED: Transaction Support**
+   - `Firestore::run_transaction()` integration
 
 ### 🟡 Medium Priority (Important Features)
 
@@ -347,7 +347,7 @@ This document compares the public APIs of the Firebase Rust SDK with the origina
    - `ReauthenticateWithCredential()`
 3. **Phone Authentication**
    - `PhoneAuthProvider` implementation
-4. **Email Update Flow**
+4. ✅ **COMPLETED: Email Update Flow**
    - `SendEmailVerificationBeforeUpdatingEmail()`
 5. **Persistence**
    - `SetPersistence()` for offline support
