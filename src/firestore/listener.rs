@@ -16,27 +16,20 @@ use proto::google::firestore::v1 as firestore_proto;
 use firestore_proto::firestore_client::FirestoreClient;
 use firestore_proto::listen_response::ResponseType;
 use firestore_proto::{ListenRequest, Target};
-use futures::stream::StreamExt;
+use futures::stream::{Stream, StreamExt};
 use std::collections::HashMap;
+use std::pin::Pin;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::transport::Channel;
 use tonic::Request;
 
-/// Handle for removing a snapshot listener
+/// Stream of document snapshots from Firestore listener
 ///
-/// Based on C++ ListenerRegistration pattern
-pub struct ListenerRegistration {
-    cancel_tx: mpsc::Sender<()>,
-}
-
-impl ListenerRegistration {
-    /// Removes the listener and stops receiving updates
-    pub async fn remove(self) {
-        let _ = self.cancel_tx.send(()).await;
-    }
-}
+/// This stream yields `Result<DocumentSnapshot, FirebaseError>` items as the document changes.
+/// The stream will continue until dropped or an error occurs.
+pub type DocumentSnapshotStream = Pin<Box<dyn Stream<Item = Result<DocumentSnapshot, FirebaseError>> + Send>>;
 
 /// Options for configuring snapshot listeners
 #[derive(Debug, Clone, Default)]
@@ -83,14 +76,29 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
     Ok(channel)
 }
 
-/// Adds a real-time listener to a Firestore document using gRPC streaming
+/// Creates a real-time listener stream for a Firestore document using gRPC streaming
 ///
-/// This implements the C++ WatchStream pattern:
-/// 1. Creates bidirectional gRPC stream to /google.firestore.v1.Firestore/Listen
-/// 2. Sends ListenRequest with document target
-/// 3. Receives ListenResponse stream with changes
-/// 4. Calls callback on each change
-/// 5. Returns ListenerRegistration for cleanup
+/// This implements the C++ WatchStream pattern but returns a Rust Stream for idiomatic async iteration.
+/// 
+/// # Example
+/// ```rust,no_run
+/// use futures::stream::StreamExt;
+/// 
+/// let mut stream = firestore.listen_document(
+///     auth_token,
+///     project_id,
+///     database_id,
+///     "users/123",
+///     ListenerOptions::default()
+/// ).await?;
+/// 
+/// while let Some(result) = stream.next().await {
+///     match result {
+///         Ok(snapshot) => println!("Document updated: {:?}", snapshot),
+///         Err(e) => eprintln!("Listener error: {}", e),
+///     }
+/// }
+/// ```
 ///
 /// # Arguments
 /// * `firestore` - Firestore instance for creating DocumentReferences
@@ -99,23 +107,18 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 /// * `database_id` - Firestore database ID (usually "default")
 /// * `document_path` - Full document path (e.g., "users/123")
 /// * `options` - Listener configuration options
-/// * `callback` - Function called with document snapshots or errors
 ///
 /// # Returns
-/// `ListenerRegistration` handle to remove the listener
+/// Stream of `Result<DocumentSnapshot, FirebaseError>` that yields updates as they occur
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn add_document_listener<F>(
+pub async fn listen_document(
     firestore: &Firestore,
     auth_token: String,
     project_id: String,
     database_id: String,
     document_path: String,
     options: ListenerOptions,
-    mut callback: F,
-) -> Result<ListenerRegistration, FirebaseError>
-where
-    F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
-{
+) -> Result<DocumentSnapshotStream, FirebaseError> {
     let firestore_inner = Arc::clone(&firestore.inner);
     // Create gRPC channel
     let channel = create_authenticated_channel(&auth_token).await?;
@@ -199,61 +202,55 @@ where
         Ok(stream) => stream.into_inner(),
     };
 
-    // Create cancellation channel
-    let (cancel_tx, mut cancel_rx) = mpsc::channel::<()>(1);
+    // Create channel for streaming snapshots to caller
+    let (snapshot_tx, snapshot_rx) = mpsc::channel::<Result<DocumentSnapshot, FirebaseError>>(100);
 
-    // Spawn task to process stream
-    // Mirrors C++ Stream::OnStreamRead processing
+    // Spawn task to process gRPC stream and forward to snapshot channel
     tokio::spawn(async move {
         let mut stream = response_stream;
         let _request_sender = request_sender; // Keep sender alive to maintain bidirectional stream
 
         loop {
-            tokio::select! {
-                _ = cancel_rx.recv() => {
-                    // Listener cancelled - mirrors C++ ListenerRegistration::Remove()
+            let message = stream.next().await;
+
+            let Some(msg) = message else {
+                // Stream ended normally
+                break;
+            };
+
+            match msg {
+                Err(e) => {
+                    // Stream error - send error and stop
+                    let _ = snapshot_tx.send(Err(FirebaseError::internal(format!("Stream error: {}", e)))).await;
                     break;
                 }
-                message = stream.next() => {
-
-
-                    let Some(msg) = message else {
-                        // Stream ended normally
-                        break;
-                    };
-
-                    match msg {
+                Ok(response) => {
+                    // Process the listen response
+                    let snapshot = match process_listen_response(response, &options, &firestore_inner, &document_path) {
                         Err(e) => {
-                            // Stream error - mirrors C++ Stream::OnStreamFinish
-                            callback(Err(FirebaseError::internal(format!("Stream error: {}", e))));
+                            let _ = snapshot_tx.send(Err(e)).await;
                             break;
                         }
-                        Ok(response) => {
-                            // Process the listen response
-                            // Mirrors C++ WatchStream::NotifyStreamResponse
-                            let snapshot = match process_listen_response(response, &options, &firestore_inner, &document_path) {
-                                Err(e) => {
-                                    callback(Err(e));
-                                    break;
-                                }
-                                Ok(result) => result,
-                            };
+                        Ok(result) => result,
+                    };
 
-                            let Some(snapshot) = snapshot else {
-                                // Metadata-only change or filtered out
-                                continue;
-                            };
+                    let Some(snapshot) = snapshot else {
+                        // Metadata-only change or filtered out
+                        continue;
+                    };
 
-                            callback(Ok(snapshot));
-                            // Continue listening for more updates
-                        }
+                    // Send snapshot to caller
+                    if snapshot_tx.send(Ok(snapshot)).await.is_err() {
+                        // Receiver dropped - stop listening
+                        break;
                     }
                 }
             }
         }
     });
 
-    Ok(ListenerRegistration { cancel_tx })
+    // Return stream that yields snapshots from the channel
+    Ok(Box::pin(ReceiverStream::new(snapshot_rx)))
 }
 
 /// Process a ListenResponse and convert to DocumentSnapshot
@@ -363,18 +360,14 @@ fn process_listen_response(
 
 // WASM support will be added using tonic-web-wasm-client
 #[cfg(target_arch = "wasm32")]
-pub async fn add_document_listener<F>(
+pub async fn listen_document(
     _firestore: &Firestore,
     _auth_token: String,
     _project_id: String,
     _database_id: String,
     _document_path: String,
     _options: ListenerOptions,
-    _callback: F,
-) -> Result<ListenerRegistration, FirebaseError>
-where
-    F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
-{
+) -> Result<DocumentSnapshotStream, FirebaseError> {
     // TODO: Implement using tonic-web-wasm-client
     Err(FirebaseError::internal(
         "WASM listener support not yet implemented",

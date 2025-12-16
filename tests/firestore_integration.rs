@@ -7,7 +7,8 @@
 //!
 //! Note: Uses gRPC API (not REST). Matches C++ SDK architecture.
 
-use firebase_rust_sdk::{App, AppOptions, Auth, firestore::{Firestore, MapValue, Value, ValueType, FilterCondition, add_document_listener, ListenerOptions}};
+use firebase_rust_sdk::{App, AppOptions, Auth, firestore::{Firestore, MapValue, Value, ValueType, FilterCondition, listen_document, ListenerOptions}};
+use futures::stream::StreamExt;
 use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, Mutex};
@@ -447,19 +448,25 @@ async fn test_snapshot_listener() {
     doc_ref.set(initial_data).await
         .expect("Failed to create document");
     
-    // Track updates received
-    let updates = Arc::new(Mutex::new(Vec::new()));
-    let updates_clone = updates.clone();
-    
-    // Set up listener
-    let registration = add_document_listener(
+    // Set up listener stream
+    let mut stream = listen_document(
         &firestore,
         auth_token,
         project_id,
         database_id,
         doc_path.clone(),
         ListenerOptions::default(),
-        move |result| {
+    )
+    .await
+    .expect("Failed to start listener");
+    
+    // Track updates received
+    let updates = Arc::new(Mutex::new(Vec::new()));
+    let updates_clone = updates.clone();
+    
+    // Spawn task to consume the stream
+    let stream_task = tokio::spawn(async move {
+        while let Some(result) = stream.next().await {
             if let Ok(snapshot) = result {
                 if let Some(data) = &snapshot.data {
                     if let Some(value_field) = data.fields.get("value") {
@@ -470,10 +477,8 @@ async fn test_snapshot_listener() {
                     }
                 }
             }
-        },
-    )
-    .await
-    .expect("Failed to start listener");
+        }
+    });
     
     // Wait for initial snapshot
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
@@ -497,8 +502,8 @@ async fn test_snapshot_listener() {
     
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
     
-    // Stop listening
-    registration.remove().await;
+    // Stop listening by aborting the stream task
+    stream_task.abort();
     
     // Verify we received updates
     let collected = updates.lock().unwrap();

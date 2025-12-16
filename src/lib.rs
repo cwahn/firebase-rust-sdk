@@ -57,7 +57,7 @@ pub mod firestore {
         GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
         DocumentChangeType, Settings, Source, Value, MapValue, ValueType, WriteBatch
     };
-    pub use listener::{ListenerRegistration, ListenerOptions, add_document_listener};
+    pub use listener::{DocumentSnapshotStream, ListenerOptions, listen_document};
 }
 
 // Re-exports for convenience
