@@ -142,12 +142,16 @@ async fn test_update_document() {
     // Verify count was updated
     let count = snapshot.get("count").expect("count field missing");
     match count.value_type {
-        Some(ValueType::IntegerValue(i)) => assert_eq!(i, 42),
+        Some(ValueType::IntegerValue(i)) => assert_eq!(i, 42, "Count should be updated to 42"),
         _ => panic!("Expected integer value for count"),
     }
     
-    // Verify name still exists (update doesn't replace entire document)
-    assert!(snapshot.get("name").is_some());
+    // Verify name still exists with original value (update doesn't replace entire document)
+    let name = snapshot.get("name").expect("name field should still exist after update");
+    match &name.value_type {
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "Test", "Name should still be 'Test' after update"),
+        _ => panic!("Expected string value for name"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete document");
@@ -311,7 +315,14 @@ async fn test_nested_documents() {
     let snapshot = child_ref.get().await
         .expect("Failed to read child");
     
-    assert!(snapshot.exists());
+    assert!(snapshot.exists(), "Child document should exist");
+    
+    // Verify child type field
+    let child_type = snapshot.get("type").expect("type field missing");
+    match &child_type.value_type {
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "child", "Child type should be 'child'"),
+        _ => panic!("Expected string value for type"),
+    }
     
     // Clean up (delete child and parent)
     child_ref.delete().await.ok();
@@ -466,6 +477,7 @@ async fn test_snapshot_listener() {
     
     // Spawn task to consume the stream
     let stream_task = tokio::spawn(async move {
+        let mut count = 0;
         while let Some(result) = stream.next().await {
             if let Ok(snapshot) = result {
                 if let Some(data) = &snapshot.data {
@@ -473,6 +485,11 @@ async fn test_snapshot_listener() {
                         if let Some(ValueType::IntegerValue(val)) = &value_field.value_type {
                             updates_clone.lock().unwrap().push(*val);
                             println!("📡 Listener received value: {}", val);
+                            count += 1;
+                            // Stop after receiving 3 updates (initial + 2 updates)
+                            if count >= 3 {
+                                break;
+                            }
                         }
                     }
                 }
@@ -480,8 +497,8 @@ async fn test_snapshot_listener() {
         }
     });
     
-    // Wait for initial snapshot
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    // Wait a bit for initial snapshot
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
     
     // Update the document (should trigger listener)
     let update_data = create_map(vec![
@@ -490,9 +507,6 @@ async fn test_snapshot_listener() {
     doc_ref.set(update_data).await
         .expect("Failed to update document");
     
-    // Wait for update to propagate
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    
     // Another update
     let update_data2 = create_map(vec![
         ("value", ValueType::IntegerValue(100)),
@@ -500,20 +514,25 @@ async fn test_snapshot_listener() {
     doc_ref.set(update_data2).await
         .expect("Failed to update document");
     
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    
-    // Stop listening by aborting the stream task
-    stream_task.abort();
+    // Wait for task to complete with timeout
+    tokio::time::timeout(
+        tokio::time::Duration::from_secs(5),
+        stream_task
+    ).await
+        .expect("Timeout waiting for listener updates")
+        .expect("Stream task panicked");
     
     // Verify we received updates
     let collected = updates.lock().unwrap();
     println!("📊 Received {} updates: {:?}", collected.len(), *collected);
     
     assert!(!collected.is_empty(), "Should have received at least one update");
-    assert!(
-        collected.contains(&42) || collected.contains(&100),
-        "Should have received one of the updated values"
-    );
+    assert_eq!(collected.len(), 3, "Should have received exactly 3 updates (initial + 2 changes)");
+    
+    // Verify we got initial value (0), then update (42), then final update (100)
+    assert_eq!(collected[0], 0, "First update should be initial value 0");
+    assert_eq!(collected[1], 42, "Second update should be 42");
+    assert_eq!(collected[2], 100, "Third update should be 100");
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete document");
@@ -595,12 +614,15 @@ async fn test_minimal_document() {
     let snapshot = doc_ref.get().await
         .expect("Failed to get document");
     
-    assert!(snapshot.exists());
-    assert!(snapshot.data.is_some());
-    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 1);
+    assert!(snapshot.exists(), "Document should exist");
+    assert!(snapshot.data.is_some(), "Document should have data");
+    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 1, "Document should have exactly 1 field");
     
     let exists_field = snapshot.get("exists").expect("exists field missing");
-    assert!(matches!(exists_field.value_type, Some(ValueType::BooleanValue(true))));
+    match &exists_field.value_type {
+        Some(ValueType::BooleanValue(v)) => assert_eq!(*v, true, "exists field should be true"),
+        _ => panic!("Expected boolean value for exists"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete");
@@ -631,23 +653,38 @@ async fn test_multiple_data_types() {
     let snapshot = doc_ref.get().await
         .expect("Failed to get document");
     
-    assert!(snapshot.exists());
+    assert!(snapshot.exists(), "Document should exist");
     
-    // Verify each type
+    // Verify each type and value
     let string_val = snapshot.get("string").expect("string missing");
-    assert!(matches!(string_val.value_type, Some(ValueType::StringValue(_))));
+    match &string_val.value_type {
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "hello", "String should be 'hello'"),
+        _ => panic!("Expected string value"),
+    }
     
     let int_val = snapshot.get("integer").expect("integer missing");
-    assert!(matches!(int_val.value_type, Some(ValueType::IntegerValue(_))));
+    match &int_val.value_type {
+        Some(ValueType::IntegerValue(i)) => assert_eq!(*i, 42, "Integer should be 42"),
+        _ => panic!("Expected integer value"),
+    }
     
     let double_val = snapshot.get("double").expect("double missing");
-    assert!(matches!(double_val.value_type, Some(ValueType::DoubleValue(_))));
+    match &double_val.value_type {
+        Some(ValueType::DoubleValue(d)) => assert!((d - 3.14).abs() < 0.001, "Double should be approximately 3.14"),
+        _ => panic!("Expected double value"),
+    }
     
     let bool_val = snapshot.get("boolean").expect("boolean missing");
-    assert!(matches!(bool_val.value_type, Some(ValueType::BooleanValue(_))));
+    match &bool_val.value_type {
+        Some(ValueType::BooleanValue(b)) => assert_eq!(*b, true, "Boolean should be true"),
+        _ => panic!("Expected boolean value"),
+    }
     
     let null_val = snapshot.get("null").expect("null missing");
-    assert!(matches!(null_val.value_type, Some(ValueType::NullValue(_))));
+    match &null_val.value_type {
+        Some(ValueType::NullValue(n)) => assert_eq!(*n, 0, "Null should be 0"),
+        _ => panic!("Expected null value"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete");
@@ -679,15 +716,27 @@ async fn test_large_document() {
     let snapshot = doc_ref.get().await
         .expect("Failed to get large document");
     
-    assert!(snapshot.exists());
-    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 50);
+    assert!(snapshot.exists(), "Document should exist");
+    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 50, "Document should have 50 fields");
     
-    // Verify a few fields
+    // Verify first, middle, and last fields
     let field_0 = snapshot.get("field_0").expect("field_0 missing");
-    assert!(matches!(field_0.value_type, Some(ValueType::IntegerValue(0))));
+    match &field_0.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 0, "field_0 should be 0"),
+        _ => panic!("Expected integer value for field_0"),
+    }
+    
+    let field_25 = snapshot.get("field_25").expect("field_25 missing");
+    match &field_25.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 25, "field_25 should be 25"),
+        _ => panic!("Expected integer value for field_25"),
+    }
     
     let field_49 = snapshot.get("field_49").expect("field_49 missing");
-    assert!(matches!(field_49.value_type, Some(ValueType::IntegerValue(49))));
+    match &field_49.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 49, "field_49 should be 49"),
+        _ => panic!("Expected integer value for field_49"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete");
@@ -773,16 +822,24 @@ async fn test_batch_mixed_operations() {
     
     // Verify results
     let doc1_snapshot = doc1.get().await.expect("Failed to get doc1");
-    let value1 = doc1_snapshot.get("value").unwrap();
-    assert!(matches!(value1.value_type, Some(ValueType::IntegerValue(10))));
+    let value1 = doc1_snapshot.get("value").expect("value field missing in doc1");
+    match &value1.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 10, "doc1 value should be updated to 10"),
+        _ => panic!("Expected integer value for doc1"),
+    }
     
     let doc2 = firestore.document(&format!("{}/doc2", collection));
     let doc2_result = doc2.get().await;
-    assert!(doc2_result.is_err() || !doc2_result.unwrap().exists());
+    assert!(doc2_result.is_err() || !doc2_result.unwrap().exists(), "doc2 should be deleted");
     
     let doc3 = firestore.document(&format!("{}/doc3", collection));
     let doc3_snapshot = doc3.get().await.expect("Failed to get doc3");
-    assert!(doc3_snapshot.exists());
+    assert!(doc3_snapshot.exists(), "doc3 should exist");
+    let value3 = doc3_snapshot.get("value").expect("value field missing in doc3");
+    match &value3.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 3, "doc3 value should be 3"),
+        _ => panic!("Expected integer value for doc3"),
+    }
     
     // Clean up
     doc1.delete().await.ok();
@@ -927,8 +984,14 @@ async fn test_listener_delete_event() {
     let delete_flag = received_delete.clone();
     
     let stream_task = tokio::spawn(async move {
+        let mut got_initial = false;
         while let Some(result) = stream.next().await {
             if let Ok(snapshot) = result {
+                if !got_initial {
+                    got_initial = true;
+                    // Skip initial snapshot
+                    continue;
+                }
                 if !snapshot.exists() {
                     *delete_flag.lock().unwrap() = true;
                     println!("📡 Listener received delete event");
@@ -938,16 +1001,19 @@ async fn test_listener_delete_event() {
         }
     });
     
-    // Wait for initial snapshot
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    // Wait briefly for initial snapshot
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
     
     // Delete the document
     doc_ref.delete().await.expect("Failed to delete");
     
-    // Wait for delete event
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    
-    stream_task.abort();
+    // Wait for task to complete with timeout
+    tokio::time::timeout(
+        tokio::time::Duration::from_secs(3),
+        stream_task
+    ).await
+        .expect("Timeout waiting for delete event")
+        .expect("Stream task panicked");
     
     let got_delete = *received_delete.lock().unwrap();
     assert!(got_delete, "Listener should receive delete event");
@@ -989,10 +1055,24 @@ async fn test_concurrent_writes() {
     
     // Read final state (one of the writes should have won)
     let snapshot = doc_ref.get().await.expect("Failed to get");
-    assert!(snapshot.exists());
+    assert!(snapshot.exists(), "Document should exist after concurrent writes");
     
     let counter = snapshot.get("counter").expect("counter missing");
-    assert!(matches!(counter.value_type, Some(ValueType::IntegerValue(_))));
+    match &counter.value_type {
+        Some(ValueType::IntegerValue(v)) => {
+            assert!(*v >= 1 && *v <= 5, "Counter should be one of the written values (1-5), got {}", v);
+        }
+        _ => panic!("Expected integer value for counter"),
+    }
+    
+    // Verify writer field matches counter (both from same write)
+    let writer = snapshot.get("writer").expect("writer missing");
+    match (&counter.value_type, &writer.value_type) {
+        (Some(ValueType::IntegerValue(c)), Some(ValueType::IntegerValue(w))) => {
+            assert_eq!(c, w, "Counter and writer should match (from same write operation)");
+        }
+        _ => panic!("Expected integer values for counter and writer"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete");
@@ -1021,7 +1101,14 @@ async fn test_deep_nested_path() {
     ])).await.expect("Failed to set deep document");
     
     let snapshot = doc_ref.get().await.expect("Failed to get deep document");
-    assert!(snapshot.exists());
+    assert!(snapshot.exists(), "Deep nested document should exist");
+    
+    // Verify depth field value
+    let depth = snapshot.get("depth").expect("depth field missing");
+    match &depth.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 5, "depth field should be 5"),
+        _ => panic!("Expected integer value for depth"),
+    }
     
     // Clean up
     doc_ref.delete().await.expect("Failed to delete");
@@ -1056,11 +1143,18 @@ async fn test_document_listener_receives_updates() {
     
     assert!(snapshot.exists(), "Initial snapshot should exist");
     
-    // Verify initial data
+    // Verify initial data - counter should be 0
     let counter = snapshot.get("counter").expect("counter field missing");
     match &counter.value_type {
-        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 0),
-        _ => panic!("Expected integer value"),
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 0, "Initial counter should be 0"),
+        _ => panic!("Expected integer value for counter"),
+    }
+    
+    // Verify initial name is "test"
+    let name = snapshot.get("name").expect("name field missing");
+    match &name.value_type {
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "test", "Initial name should be 'test'"),
+        _ => panic!("Expected string value for name"),
     }
     
     // Update document
@@ -1078,19 +1172,20 @@ async fn test_document_listener_receives_updates() {
         .expect("Stream ended")
         .expect("Error in update snapshot");
     
-    assert!(updated_snapshot.exists());
+    assert!(updated_snapshot.exists(), "Updated snapshot should exist");
     
-    // Verify updated data
-    let counter = updated_snapshot.get("counter").expect("counter field missing");
+    // Verify updated counter is 1
+    let counter = updated_snapshot.get("counter").expect("counter field missing in update");
     match &counter.value_type {
-        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 1),
-        _ => panic!("Expected integer value"),
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 1, "Updated counter should be 1"),
+        _ => panic!("Expected integer value for counter"),
     }
     
-    let name = updated_snapshot.get("name").expect("name field missing");
+    // Verify updated name is "updated"
+    let name = updated_snapshot.get("name").expect("name field missing in update");
     match &name.value_type {
-        Some(ValueType::StringValue(s)) => assert_eq!(s, "updated"),
-        _ => panic!("Expected string value"),
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "updated", "Updated name should be 'updated'"),
+        _ => panic!("Expected string value for name"),
     }
     
     // Clean up
@@ -1124,7 +1219,14 @@ async fn test_document_listener_receives_delete() {
         .expect("Stream ended")
         .expect("Error in snapshot");
     
-    assert!(snapshot.exists());
+    assert!(snapshot.exists(), "Initial snapshot should exist");
+    
+    // Verify initial field value
+    let temp = snapshot.get("temp").expect("temp field missing");
+    match &temp.value_type {
+        Some(ValueType::BooleanValue(v)) => assert_eq!(*v, true, "temp field should be true"),
+        _ => panic!("Expected boolean value for temp"),
+    };
     
     // Delete document
     doc_ref.delete().await.expect("Failed to delete");
@@ -1178,8 +1280,21 @@ async fn test_multiple_document_listeners() {
         .expect("Stream2 ended")
         .expect("Error on stream2");
     
-    assert!(snap1.exists());
-    assert!(snap2.exists());
+    assert!(snap1.exists(), "Initial snapshot 1 should exist");
+    assert!(snap2.exists(), "Initial snapshot 2 should exist");
+    
+    // Verify both listeners received initial value of 100
+    let val1_init = snap1.get("value").expect("value missing in snap1");
+    match &val1_init.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 100, "Listener 1 initial value should be 100"),
+        _ => panic!("Expected integer value"),
+    }
+    
+    let val2_init = snap2.get("value").expect("value missing in snap2");
+    match &val2_init.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 100, "Listener 2 initial value should be 100"),
+        _ => panic!("Expected integer value"),
+    }
     
     // Update document
     doc_ref.set(create_map(vec![
@@ -1203,14 +1318,14 @@ async fn test_multiple_document_listeners() {
         .expect("Stream2 ended")
         .expect("Error on stream2 update");
     
-    // Verify both got the update
-    let val1 = update1.get("value").expect("value missing");
-    let val2 = update2.get("value").expect("value missing");
+    // Verify both listeners got the updated value of 200
+    let val1 = update1.get("value").expect("value missing in update1");
+    let val2 = update2.get("value").expect("value missing in update2");
     
     match (&val1.value_type, &val2.value_type) {
         (Some(ValueType::IntegerValue(v1)), Some(ValueType::IntegerValue(v2))) => {
-            assert_eq!(*v1, 200);
-            assert_eq!(*v2, 200);
+            assert_eq!(*v1, 200, "Listener 1 should receive updated value 200");
+            assert_eq!(*v2, 200, "Listener 2 should receive updated value 200");
         }
         _ => panic!("Expected integer values"),
     }
@@ -1239,13 +1354,21 @@ async fn test_listener_cleanup_on_drop() {
         let mut stream = doc_ref.listen(None);
         
         // Receive initial snapshot
-        tokio::time::timeout(
+        let snapshot = tokio::time::timeout(
             std::time::Duration::from_secs(10),
             stream.next()
         ).await
             .expect("Timeout")
             .expect("Stream ended")
             .expect("Error");
+        
+        // Verify initial count is 0
+        assert!(snapshot.exists(), "Initial snapshot should exist");
+        let count = snapshot.get("count").expect("count field missing");
+        match &count.value_type {
+            Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 0, "Initial count should be 0"),
+            _ => panic!("Expected integer value for count"),
+        }
         
         // Stream dropped here
     }
