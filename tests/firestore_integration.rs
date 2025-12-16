@@ -384,11 +384,8 @@ async fn test_nested_collections() {
     println!("✅ Nested collections work!");
 }
 
-/// Test: Real-time snapshot listener
-/// Note: Listener implementation requires different approach with long-polling
-/// Skipped for now as listen_to_document method is not implemented
+/// Test: Real-time snapshot listener using gRPC streaming
 #[tokio::test]
-#[ignore]
 async fn test_snapshot_listener() {
     let (_app, auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("listener");
@@ -399,14 +396,44 @@ async fn test_snapshot_listener() {
     firestore.set_document(&doc_path, json!({"value": 0})).await
         .expect("Failed to create document");
     
-    // TODO: Implement listener test when listen_to_document is available
-    // For now, just clean up the test document
+    // Set up listener with callback to collect updates
+    use std::sync::{Arc, Mutex};
+    let updates = Arc::new(Mutex::new(Vec::new()));
+    let updates_clone = updates.clone();
+    
+    let registration = firestore.listen_to_document(&doc_path, move |result| {
+        if let Ok(snapshot) = result {
+            if let Some(data) = snapshot.data {
+                if let Some(value) = data.get("value").and_then(|v| v.as_i64()) {
+                    updates_clone.lock().unwrap().push(value);
+                }
+            }
+        }
+    }).await.expect("Failed to start listener");
+    
+    // Wait a bit for initial snapshot
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    
+    // Update the document
+    firestore.set_document(&doc_path, json!({"value": 42})).await
+        .expect("Failed to update document");
+    
+    // Wait for update to propagate
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    
+    // Stop listening
+    registration.remove().await;
+    
+    // Verify we received updates
+    let collected_updates = updates.lock().unwrap();
+    assert!(!collected_updates.is_empty(), "Should have received at least one update");
+    assert!(collected_updates.contains(&42), "Should have received the updated value");
     
     // Clean up
     cleanup_collection(&firestore, &collection).await;
     auth.sign_out().await.expect("Failed to sign out");
     
-    println!("✅ Snapshot listener test skipped (method not implemented yet)");
+    println!("✅ Snapshot listener works! Received {} updates", collected_updates.len());
 }
 
 /// Test: Compound filters (And/Or)

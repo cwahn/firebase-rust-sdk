@@ -52,11 +52,23 @@ pub struct ListenerOptions {
 async fn create_authenticated_channel(
     _auth_token: &str,
 ) -> Result<Channel, FirebaseError> {
-    let endpoint = "https://firestore.googleapis.com";
-    let channel = Channel::from_static(endpoint)
+    // Configure TLS with webpki root certificates (similar to C++ SDK's LoadGrpcRootCertificate)
+    let tls_config = tonic::transport::ClientTlsConfig::new()
+        .with_webpki_roots()
+        .domain_name("firestore.googleapis.com");
+    
+    // Connect to Firestore gRPC endpoint with TLS
+    let channel = Channel::from_static("https://firestore.googleapis.com")
+        .tls_config(tls_config)
+        .map_err(|e| FirebaseError::internal(format!("Failed to configure TLS: {}", e)))?
+        .timeout(std::time::Duration::from_secs(30))
+        .connect_timeout(std::time::Duration::from_secs(10))
         .connect()
         .await
-        .map_err(|e| FirebaseError::internal(format!("Failed to connect to Firestore: {}", e)))?;
+        .map_err(|e| {
+            eprintln!("gRPC connection error details: {:?}", e);
+            FirebaseError::internal(format!("Failed to connect to Firestore gRPC: {}", e))
+        })?;
     
     Ok(channel)
 }
@@ -99,18 +111,33 @@ where
     let channel = create_authenticated_channel(&auth_token).await?;
     
     // Create client with authentication interceptor
+    // Mirrors C++ GrpcConnection::CreateContext which adds authorization and x-goog-request-params
     let auth_token_clone = auth_token.clone();
+    let project_id_clone = project_id.clone();
+    let database_id_clone = database_id.clone();
     let mut client = FirestoreClient::with_interceptor(
         channel,
         move |mut req: Request<()>| {
+            // Add Bearer token for authentication
             let token = format!("Bearer {}", auth_token_clone);
             match token.parse() {
                 Ok(val) => {
                     req.metadata_mut().insert("authorization", val);
-                    Ok(req)
                 }
-                Err(_) => Err(tonic::Status::unauthenticated("Invalid token")),
+                Err(_) => return Err(tonic::Status::unauthenticated("Invalid token")),
             }
+            
+            // Add required routing header (mirrors C++ kXGoogRequestParams)
+            // Format: "projects/{project_id}/databases/{database_id}"
+            let resource_prefix = format!("projects/{}/databases/{}", project_id_clone, database_id_clone);
+            match resource_prefix.parse() {
+                Ok(val) => {
+                    req.metadata_mut().insert("x-goog-request-params", val);
+                }
+                Err(_) => return Err(tonic::Status::invalid_argument("Invalid resource prefix")),
+            }
+            
+            Ok(req)
         },
     );
     
@@ -142,8 +169,17 @@ where
     
     // Start bidirectional streaming
     // Mirrors C++ GrpcConnection::CreateStream + Stream::Start
+    // Note: We use a channel to send requests and keep the stream open
+    let (mut request_sender, request_receiver) = mpsc::channel(10);
+    
+    // Send the initial listen request
+    request_sender
+        .send(request)
+        .await
+        .map_err(|e| FirebaseError::internal(format!("Failed to send listen request: {}", e)))?;
+    
     let response_stream = client
-        .listen(tokio_stream::once(request))
+        .listen(tokio_stream::wrappers::ReceiverStream::new(request_receiver))
         .await
         .map_err(|e| FirebaseError::internal(format!("Failed to start listener: {}", e)))?
         .into_inner();
@@ -155,6 +191,7 @@ where
     // Mirrors C++ Stream::OnStreamRead processing
     tokio::spawn(async move {
         let mut stream = response_stream;
+        let _request_sender = request_sender; // Keep sender alive to maintain bidirectional stream
         
         loop {
             tokio::select! {

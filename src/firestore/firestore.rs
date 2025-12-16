@@ -539,6 +539,44 @@ impl Firestore {
     /// # Ok(())
     /// # }
     /// ```
+    #[cfg(not(target_arch = "wasm32"))]
+    pub async fn listen_to_document<F>(
+        &self,
+        path: impl Into<String>,
+        callback: F,
+    ) -> Result<crate::firestore::listener::ListenerRegistration, FirebaseError>
+    where
+        F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
+    {
+        use crate::auth::Auth;
+        
+        let path = path.into();
+        
+        // Get the current user's ID token for authentication
+        let auth = Auth::get_auth(&self.inner.app).await
+            .map_err(|e| FirebaseError::internal(format!("Failed to get Auth: {}", e)))?;
+        
+        let user = auth.current_user().await
+            .ok_or_else(|| FirebaseError::Auth(crate::error::AuthError::UserNotFound))?;
+        
+        let auth_token = user.get_id_token(false).await
+            .map_err(|e| FirebaseError::internal(format!("Failed to get ID token: {}", e)))?;
+        
+        // Call the gRPC listener implementation
+        crate::firestore::listener::add_document_listener(
+            auth_token,
+            self.project_id().to_string(),
+            self.database_id().to_string(),
+            path,
+            crate::firestore::listener::ListenerOptions::default(),
+            callback,
+        ).await
+    }
+    
+    /// Add document snapshot listener (legacy polling implementation)
+    /// 
+    /// **Note:** This uses REST API polling. For production use, prefer `listen_to_document()`
+    /// which uses gRPC bidirectional streaming for real-time updates.
     pub async fn add_document_snapshot_listener(
         &self,
         path: impl Into<String>,
