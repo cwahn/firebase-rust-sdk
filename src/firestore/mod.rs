@@ -19,6 +19,7 @@ pub mod field_value;
 pub mod timestamp;
 pub mod geo_point;
 pub mod settings;
+pub mod query;
 pub mod document_reference;
 pub mod document_snapshot;
 pub mod collection_reference;
@@ -43,8 +44,16 @@ pub use field_value::{
     FilterCondition, OrderDirection
 };
 
-// Proto is pub(crate) only
+// Re-export proto types for internal use
 pub(crate) use field_value::proto;
+
+// Re-export commonly used proto types
+pub use field_value::proto::google::firestore::v1::{
+    Document, ArrayValue, StructuredQuery,
+};
+
+// Re-export from query module
+pub use query::{Query, Direction};
 
 // Re-export from timestamp module
 pub use timestamp::Timestamp;

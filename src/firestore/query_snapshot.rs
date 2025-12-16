@@ -5,35 +5,44 @@
 //! - `firestore/src/include/firebase/firestore/document_change.h:36`
 
 use super::document_snapshot::{DocumentSnapshot, SnapshotMetadata};
+use crate::firestore::firestore::FirestoreInner;
 
 /// Query snapshot containing multiple documents
 ///
 /// # C++ Reference
 /// - `firestore/src/include/firebase/firestore/query_snapshot.h:55`
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct QuerySnapshot {
-    /// The query that produced this snapshot
-    pub query_path: String,
+    /// Raw document protos from gRPC response
+    pub(crate) documents: Vec<super::field_value::proto::google::firestore::v1::Document>,
     
-    /// Documents in the query result
-    pub documents: Vec<DocumentSnapshot>,
-    
-    /// Metadata about this snapshot
-    pub metadata: SnapshotMetadata,
-    
-    /// Document changes since last snapshot (for listeners)
-    pub document_changes: Vec<DocumentChange>,
+    /// Reference to Firestore client
+    pub(crate) firestore: std::sync::Arc<FirestoreInner>,
 }
 
 impl QuerySnapshot {
-    /// Create a new query snapshot
-    pub fn new(query_path: String, documents: Vec<DocumentSnapshot>) -> Self {
-        Self {
-            query_path,
-            documents,
-            metadata: SnapshotMetadata::default(),
-            document_changes: Vec::new(),
-        }
+    /// Get all documents as DocumentSnapshot instances
+    pub fn documents(&self) -> Vec<DocumentSnapshot> {
+        self.documents
+            .iter()
+            .map(|doc| {
+                let data = if doc.fields.is_empty() {
+                    None
+                } else {
+                    Some(super::field_value::MapValue {
+                        fields: doc.fields.clone(),
+                    })
+                };
+                DocumentSnapshot {
+                    data,
+                    reference: super::document_reference::DocumentReference::new(
+                        doc.name.clone(),
+                        std::sync::Arc::clone(&self.firestore),
+                    ),
+                    metadata: SnapshotMetadata::default(),
+                }
+            })
+            .collect()
     }
     
     /// Check if the query result is empty

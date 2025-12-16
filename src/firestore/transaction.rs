@@ -174,19 +174,25 @@ impl Transaction {
         let snapshot = match response.result {
             Some(BatchResult::Found(doc)) => {
                 // Document exists - convert to DocumentSnapshot
+                let data = MapValue {
+                    fields: doc.fields,
+                };
                 Some(DocumentSnapshot {
-                    path: path.clone(),
-                    data: doc.fields.into_iter().map(|(k, v)| (k, v.into())).collect(),
-                    exists: true,
+                    reference: document.clone(),
+                    data: Some(data),
                     metadata: crate::firestore::document_snapshot::SnapshotMetadata::default(),
                 })
             }
             Some(BatchResult::Missing(_)) => {
-                // Document doesn't exist
-                None
+                // Document doesn't exist - return snapshot with None data
+                Some(DocumentSnapshot {
+                    reference: document.clone(),
+                    data: None,
+                    metadata: crate::firestore::document_snapshot::SnapshotMetadata::default(),
+                })
             }
             None => {
-                return Err(FirestoreError::Unknown("Empty response from server".to_string()).into());
+                return Err(FirestoreError::Unknown(-1).into());
             }
         };
 
@@ -242,10 +248,8 @@ impl Transaction {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
-    fn test_transaction_read_before_write() {
+    fn test_transaction_tracks_reads() {
         // Test that reads must come before writes
         // This test validates the invariant without needing network access
     }
