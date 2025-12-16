@@ -49,6 +49,7 @@ pub mod firestore {
     pub mod types;
     pub mod firestore;
     pub mod listener;
+    pub mod transaction;
     
     pub use firestore::{Firestore, FirestoreInner};
     pub use types::{
@@ -58,6 +59,7 @@ pub mod firestore {
         DocumentChangeType, Settings, Source, Value, MapValue, ValueType, WriteBatch
     };
     pub use listener::{DocumentSnapshotStream, ListenerOptions, listen_document};
+    pub use transaction::Transaction;
 }
 
 // Re-exports for convenience
