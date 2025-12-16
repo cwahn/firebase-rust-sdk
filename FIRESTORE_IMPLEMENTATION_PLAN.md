@@ -83,46 +83,56 @@ impl WriteBatch {
 
 ---
 
-## Phase 6: Listeners & Snapshots
+## Phase 6: Listeners & Snapshots ⚙️ (PARTIALLY COMPLETE)
+
+**Status**: Infrastructure complete, gRPC streaming pending  
+**Completion Date**: 2024-12-16 (partial)  
+**Actual Effort**: ~2 hours (foundation only)
 
 **C++ References:**
-- `listener_registration.h:34` - ListenerRegistration
-- `snapshot_metadata.h:35` - SnapshotMetadata (partially done)
+- `listener_main.h:69` - ListenerWithCallback template
+- `document_reference.h:265` - AddSnapshotListener
+- `query.h:634` - AddSnapshotListener  
+- `metadata_changes.h:28` - MetadataChanges enum
 - `document_change.h:36` - DocumentChange
 
-**Files to modify/create:**
-- `src/firestore/listener.rs` (new)
-- Update `document_snapshot.rs` with full SnapshotMetadata
+**Files Created:**
+- `src/firestore/snapshot_stream.rs` - Stream types with Drop cleanup
+- `src/firestore/metadata_changes.rs` - MetadataChanges enum
 
-**Key Features:**
+**Implemented Features:**
 ```rust
-pub struct ListenerRegistration {
-    // Handle to cancel listener
+// Async streams with automatic cleanup (RAII pattern)
+pub struct DocumentSnapshotStream {
+    receiver: mpsc::UnboundedReceiver<Result<DocumentSnapshot, FirebaseError>>,
+    cancel_tx: Option<oneshot::Sender<()>>,
 }
 
-impl ListenerRegistration {
-    pub fn remove(self);
-}
+impl Stream for DocumentSnapshotStream { /* ... */ }
+impl Drop for DocumentSnapshotStream { /* sends cancellation */ }
 
-pub enum DocumentChangeType {
-    Added,
-    Modified,
-    Removed,
-}
+pub struct QuerySnapshotStream { /* same pattern */ }
 
-pub struct DocumentChange {
-    pub document: DocumentSnapshot,
-    pub type_: DocumentChangeType,
-    pub old_index: usize,
-    pub new_index: usize,
+pub enum MetadataChanges {
+    Include,  // Listen to metadata-only changes
+    Exclude,  // Only data changes (default)
 }
 ```
 
-**Design Questions:**
-- How to handle async streams in Rust? Use `tokio::sync::mpsc` or `futures::stream`?
-- Suggest: `async fn add_snapshot_listener<F>(callback: F) -> ListenerRegistration where F: Fn(QuerySnapshot) + Send + 'static`
+**Design Decision - Rust Idioms Over C++ Port:**
+- ❌ **NO ListenerRegistration** - C++ pattern doesn't fit Rust
+- ✅ **Async Streams with Drop** - Rust RAII pattern
+- ✅ **Automatic cleanup** - No explicit `remove()` needed
+- Stream drops → cancellation signal sent → listener cleaned up
 
-**Estimated Complexity:** High (4-6 hours) - involves async streams and lifecycle management
+**Remaining Work:**
+1. Implement gRPC bidirectional Listen streaming
+2. Add `listen()` methods to DocumentReference and Query
+3. Handle ListenRequest/ListenResponse proto conversion
+4. Implement DocumentChange tracking
+5. Integration tests with real Firebase
+
+**Complexity:** High (8-10 hours total) - 2 hours done, 6-8 hours remaining for gRPC streaming
 
 ---
 
