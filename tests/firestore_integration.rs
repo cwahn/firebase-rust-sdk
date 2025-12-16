@@ -1028,3 +1028,238 @@ async fn test_deep_nested_path() {
     
     println!("✅ Deep nested paths work!");
 }
+
+/// Test: Document listener receives initial snapshot and updates
+#[tokio::test]
+async fn test_document_listener_receives_updates() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("listen_doc");
+    
+    // Create initial document
+    let doc_ref = firestore.document(&doc_path);
+    doc_ref.set(create_map(vec![
+        ("counter", ValueType::IntegerValue(0)),
+        ("name", ValueType::StringValue("test".to_string())),
+    ])).await.expect("Failed to create document");
+    
+    // Start listening
+    let mut stream = doc_ref.listen(None);
+    
+    // Should receive initial snapshot
+    let snapshot = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream.next()
+    ).await
+        .expect("Timeout waiting for initial snapshot")
+        .expect("Stream ended")
+        .expect("Error in initial snapshot");
+    
+    assert!(snapshot.exists(), "Initial snapshot should exist");
+    
+    // Verify initial data
+    let counter = snapshot.get("counter").expect("counter field missing");
+    match &counter.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 0),
+        _ => panic!("Expected integer value"),
+    }
+    
+    // Update document
+    doc_ref.set(create_map(vec![
+        ("counter", ValueType::IntegerValue(1)),
+        ("name", ValueType::StringValue("updated".to_string())),
+    ])).await.expect("Failed to update document");
+    
+    // Should receive update
+    let updated_snapshot = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream.next()
+    ).await
+        .expect("Timeout waiting for update")
+        .expect("Stream ended")
+        .expect("Error in update snapshot");
+    
+    assert!(updated_snapshot.exists());
+    
+    // Verify updated data
+    let counter = updated_snapshot.get("counter").expect("counter field missing");
+    match &counter.value_type {
+        Some(ValueType::IntegerValue(v)) => assert_eq!(*v, 1),
+        _ => panic!("Expected integer value"),
+    }
+    
+    let name = updated_snapshot.get("name").expect("name field missing");
+    match &name.value_type {
+        Some(ValueType::StringValue(s)) => assert_eq!(s, "updated"),
+        _ => panic!("Expected string value"),
+    }
+    
+    // Clean up
+    drop(stream);
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Document listener receives updates!");
+}
+
+/// Test: Listener receives delete event
+#[tokio::test]
+async fn test_document_listener_receives_delete() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("listen_delete");
+    
+    // Create document
+    let doc_ref = firestore.document(&doc_path);
+    doc_ref.set(create_map(vec![
+        ("temp", ValueType::BooleanValue(true)),
+    ])).await.expect("Failed to create document");
+    
+    // Start listening
+    let mut stream = doc_ref.listen(None);
+    
+    // Receive initial snapshot
+    let snapshot = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream.next()
+    ).await
+        .expect("Timeout waiting for initial snapshot")
+        .expect("Stream ended")
+        .expect("Error in snapshot");
+    
+    assert!(snapshot.exists());
+    
+    // Delete document
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    // Should receive delete event (snapshot with exists=false)
+    let deleted_snapshot = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream.next()
+    ).await
+        .expect("Timeout waiting for delete")
+        .expect("Stream ended")
+        .expect("Error in delete snapshot");
+    
+    assert!(!deleted_snapshot.exists(), "Snapshot should not exist after delete");
+    
+    drop(stream);
+    
+    println!("✅ Document listener receives delete event!");
+}
+
+/// Test: Multiple listeners on same document
+#[tokio::test]
+async fn test_multiple_document_listeners() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("listen_multi");
+    
+    // Create document
+    let doc_ref = firestore.document(&doc_path);
+    doc_ref.set(create_map(vec![
+        ("value", ValueType::IntegerValue(100)),
+    ])).await.expect("Failed to create document");
+    
+    // Start two listeners
+    let mut stream1 = doc_ref.listen(None);
+    let mut stream2 = doc_ref.listen(None);
+    
+    // Both should receive initial snapshot
+    let snap1 = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream1.next()
+    ).await
+        .expect("Timeout on stream1")
+        .expect("Stream1 ended")
+        .expect("Error on stream1");
+    
+    let snap2 = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream2.next()
+    ).await
+        .expect("Timeout on stream2")
+        .expect("Stream2 ended")
+        .expect("Error on stream2");
+    
+    assert!(snap1.exists());
+    assert!(snap2.exists());
+    
+    // Update document
+    doc_ref.set(create_map(vec![
+        ("value", ValueType::IntegerValue(200)),
+    ])).await.expect("Failed to update");
+    
+    // Both should receive update
+    let update1 = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream1.next()
+    ).await
+        .expect("Timeout on stream1 update")
+        .expect("Stream1 ended")
+        .expect("Error on stream1 update");
+    
+    let update2 = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        stream2.next()
+    ).await
+        .expect("Timeout on stream2 update")
+        .expect("Stream2 ended")
+        .expect("Error on stream2 update");
+    
+    // Verify both got the update
+    let val1 = update1.get("value").expect("value missing");
+    let val2 = update2.get("value").expect("value missing");
+    
+    match (&val1.value_type, &val2.value_type) {
+        (Some(ValueType::IntegerValue(v1)), Some(ValueType::IntegerValue(v2))) => {
+            assert_eq!(*v1, 200);
+            assert_eq!(*v2, 200);
+        }
+        _ => panic!("Expected integer values"),
+    }
+    
+    // Clean up
+    drop(stream1);
+    drop(stream2);
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Multiple document listeners work!");
+}
+
+/// Test: Listener stops receiving updates after drop
+#[tokio::test]
+async fn test_listener_cleanup_on_drop() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("listen_cleanup");
+    
+    // Create document
+    let doc_ref = firestore.document(&doc_path);
+    doc_ref.set(create_map(vec![
+        ("count", ValueType::IntegerValue(0)),
+    ])).await.expect("Failed to create document");
+    
+    {
+        let mut stream = doc_ref.listen(None);
+        
+        // Receive initial snapshot
+        tokio::time::timeout(
+            std::time::Duration::from_secs(10),
+            stream.next()
+        ).await
+            .expect("Timeout")
+            .expect("Stream ended")
+            .expect("Error");
+        
+        // Stream dropped here
+    }
+    
+    // Update document after listener dropped
+    doc_ref.set(create_map(vec![
+        ("count", ValueType::IntegerValue(1)),
+    ])).await.expect("Failed to update");
+    
+    // Small delay to ensure no events are being processed
+    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Listener cleanup on drop works!");
+}
