@@ -25,6 +25,8 @@ pub mod document_snapshot;
 pub mod collection_reference;
 pub mod query_snapshot;
 pub mod write_batch;
+pub mod metadata_changes;
+pub mod snapshot_stream;
 
 // Core modules
 pub mod firestore;
@@ -79,8 +81,14 @@ pub use query_snapshot::{QuerySnapshot, DocumentChange, DocumentChangeType};
 // Re-export from write_batch module
 pub use write_batch::{WriteBatch, WriteOperation};
 
+// Re-export from metadata_changes module
+pub use metadata_changes::MetadataChanges;
+
+// Re-export from snapshot_stream module
+pub use snapshot_stream::{DocumentSnapshotStream, QuerySnapshotStream};
+
 // Re-export from listener module
-pub use listener::{DocumentSnapshotStream, ListenerOptions, listen_document};
+pub use listener::{ListenerOptions, listen_document};
 
 // Re-export from transaction module
 pub use transaction::Transaction;
