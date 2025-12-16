@@ -22,8 +22,12 @@
 #[cfg(feature = "tracker")]
 pub mod implementation_tracker;
 
-// Core modules (to be implemented)
+// Core modules
 pub mod error;
+pub mod app;
+
+// Re-export App for convenience
+pub use app::{App, AppOptions};
 
 // Auth module
 pub mod auth {
@@ -34,6 +38,7 @@ pub mod auth {
     // pub mod providers;
     
     pub use auth::Auth;
+    pub(crate) use auth::AuthInner;
     pub use types::{User, UserInfo, Credential, AuthResult, AdditionalUserInfo, UserProfile};
 }
 
@@ -43,12 +48,14 @@ pub mod firestore {
     
     pub mod types;
     pub mod firestore;
+    pub mod listener;
     
     pub use firestore::{Firestore, CollectionReference, Query};
+    pub use listener::{ListenerRegistration, ListenerOptions, add_document_listener};
     pub use types::{
         DocumentReference, DocumentSnapshot, FilterCondition, OrderDirection, 
         GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
-        DocumentChangeType, ListenerRegistration, Settings, Source
+        DocumentChangeType, Settings, Source
     };
 }
 

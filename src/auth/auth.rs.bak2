@@ -12,7 +12,7 @@ use futures::Stream;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tokio::sync::{RwLock, broadcast};
 
 /// Global map of App names to Auth instances
@@ -429,23 +429,17 @@ impl Auth {
             self.inner.api_key
         );
 
-        let response = match self.inner.http_client
+        let response = self.inner.http_client
             .post(&url)
             .json(&serde_json::json!({
                 "returnSecureToken": true
             }))
             .send()
-            .await {
-            Err(e) => return Err(FirebaseError::Internal(format!("Request failed: {}", e))),
-            Ok(resp) => resp,
-        };
+            .await?;
 
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body = match response.json::<serde_json::Value>().await {
-                Err(e) => return Err(FirebaseError::Internal(format!("Parse error: {}", e))),
-                Ok(body) => body,
-            };
+            let error_body: serde_json::Value = response.json().await?;
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("UNKNOWN_ERROR");
@@ -508,7 +502,7 @@ impl Auth {
             self.inner.api_key
         );
         
-        let (provider_id, _token, id_token, access_token): (String, Option<String>, Option<String>, Option<String>) = match credential {
+        let (provider_id, token, id_token, access_token): (String, Option<String>, Option<String>, Option<String>) = match credential {
             // Error-first: unsupported credential types
             Credential::EmailPassword { .. } => {
                 return Err(FirebaseError::Auth(
@@ -906,13 +900,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_current_user_initially_none() {
-        let auth = Auth::get_auth(&test_app("test_api_key_3", "project3", "test_app_3").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_api_key_3", "project3").await).await.unwrap();
         assert!(auth.current_user().await.is_none());
     }
 
     #[tokio::test]
     async fn test_sign_out_clears_user() {
-        let auth = Auth::get_auth(&test_app("test_api_key_4", "project4", "test_app_4").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_api_key_4", "project4").await).await.unwrap();
         
         // Set a user manually for testing
         use crate::auth::types::UserMetadata;
@@ -944,8 +938,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_different_api_keys_different_instances() {
-        let auth1 = Auth::get_auth(&test_app("key_a", "project_a", "test_app_a").await).await.unwrap();
-        let auth2 = Auth::get_auth(&test_app("key_b", "project_b", "test_app_b").await).await.unwrap();
+        let auth1 = Auth::get_auth(&test_app("key_a", "project_a").await).await.unwrap();
+        let auth2 = Auth::get_auth(&test_app("key_b", "project_b").await).await.unwrap();
         
         // Should be different instances
         assert!(!Arc::ptr_eq(&auth1.inner, &auth2.inner));
@@ -955,35 +949,35 @@ mod tests {
 
     #[tokio::test]
     async fn test_sign_in_validates_email() {
-        let auth = Auth::get_auth(&test_app("test_key", "project", "test_app_key").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key", "project").await).await.unwrap();
         let result = auth.sign_in_with_email_and_password("", "password").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidEmail))));
     }
 
     #[tokio::test]
     async fn test_sign_in_validates_password() {
-        let auth = Auth::get_auth(&test_app("test_key", "project", "test_app_key").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key", "project").await).await.unwrap();
         let result = auth.sign_in_with_email_and_password("test@example.com", "").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidPassword))));
     }
 
     #[tokio::test]
     async fn test_create_user_validates_email() {
-        let auth = Auth::get_auth(&test_app("test_key", "project", "test_app_key").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key", "project").await).await.unwrap();
         let result = auth.create_user_with_email_and_password("", "password123").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidEmail))));
     }
 
     #[tokio::test]
     async fn test_create_user_validates_password() {
-        let auth = Auth::get_auth(&test_app("test_key", "project", "test_app_key").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key", "project").await).await.unwrap();
         let result = auth.create_user_with_email_and_password("new@example.com", "").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidPassword))));
     }
 
     #[tokio::test]
     async fn test_sign_in_anonymously_returns_user() {
-        let auth = Auth::get_auth(&test_app("test_anon_key", "project_anon", "test_app_anon").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_anon_key", "project_anon").await).await.unwrap();
         
         // This will fail without real Firebase, but validates the structure
         // In real usage, this would create an anonymous user
@@ -997,7 +991,7 @@ mod tests {
     async fn test_anonymous_user_updates_current_user() {
         use crate::auth::types::UserMetadata;
         
-        let auth = Auth::get_auth(&test_app("test_anon_key2", "project_anon2", "test_app_anon2").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_anon_key2", "project_anon2").await).await.unwrap();
         
         // Initially no user
         assert!(auth.current_user().await.is_none());
@@ -1033,7 +1027,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_password_reset_validates_email() {
-        let auth = Auth::get_auth(&test_app("test_password_reset_key", "project_reset", "test_app_reset").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_password_reset_key", "project_reset").await).await.unwrap();
         let result = auth.send_password_reset_email("").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidEmail))));
     }
@@ -1042,7 +1036,7 @@ mod tests {
     async fn test_password_reset_does_not_affect_current_user() {
         use crate::auth::types::UserMetadata;
         
-        let auth = Auth::get_auth(&test_app("test_password_reset_key2", "project_reset2", "test_app_reset2").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_password_reset_key2", "project_reset2").await).await.unwrap();
         
         // Sign in a user
         let user = Arc::new(User {
@@ -1079,7 +1073,7 @@ mod tests {
     async fn test_auth_state_changes_initial() {
         use futures::StreamExt;
         
-        let auth = Auth::get_auth(&test_app("test_key_state1", "project_state1", "test_app_state1").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key_state1", "project_state1").await).await.unwrap();
         let mut stream = auth.auth_state_changes().await;
         
         // Should immediately yield None (no user signed in)
@@ -1093,7 +1087,7 @@ mod tests {
         use futures::StreamExt;
         use crate::auth::types::UserMetadata;
         
-        let auth = Auth::get_auth(&test_app("test_key_state2", "project_state2", "test_app_state2").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key_state2", "project_state2").await).await.unwrap();
         let mut stream = auth.auth_state_changes().await;
         
         // Get initial state (None)
@@ -1134,7 +1128,7 @@ mod tests {
         use futures::StreamExt;
         use crate::auth::types::UserMetadata;
         
-        let auth = Auth::get_auth(&test_app("test_key_state3", "project_state3", "test_app_state3").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_key_state3", "project_state3").await).await.unwrap();
         
         // Set initial user
         let user = Arc::new(User {
@@ -1177,7 +1171,7 @@ mod tests {
         use crate::auth::types::Credential;
         use crate::error::AuthError;
         
-        let auth = Auth::get_auth(&test_app("test_google_key", "project_google", "test_app_google").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_google_key", "project_google").await).await.unwrap();
         
         // Test with invalid credential (no tokens)
         let invalid_cred = Credential::Google {
@@ -1220,7 +1214,7 @@ mod tests {
         use crate::auth::types::Credential;
         use crate::error::AuthError;
         
-        let auth = Auth::get_auth(&test_app("test_oauth_key", "project_oauth", "test_app_oauth").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_oauth_key", "project_oauth").await).await.unwrap();
         
         // Test with invalid OAuth credential (no tokens)
         let invalid_cred = Credential::OAuth {
@@ -1247,7 +1241,7 @@ mod tests {
         use crate::auth::types::Credential;
         use crate::error::AuthError;
         
-        let auth = Auth::get_auth(&test_app("test_validation_key", "project_validation", "test_app_validation").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_validation_key", "project_validation").await).await.unwrap();
         
         // Email/password should use dedicated method
         let email_cred = Credential::EmailPassword {
@@ -1274,7 +1268,7 @@ mod tests {
     async fn test_sign_in_with_custom_token_validates_empty() {
         use crate::error::AuthError;
         
-        let auth = Auth::get_auth(&test_app("test_custom_token_key", "project_custom", "test_app_custom").await).await.unwrap();
+        let auth = Auth::get_auth(&test_app("test_custom_token_key", "project_custom").await).await.unwrap();
         
         let result = auth.sign_in_with_custom_token("").await;
         assert!(matches!(result, Err(FirebaseError::Auth(AuthError::InvalidCredential(_)))));

@@ -47,6 +47,53 @@ pub struct UserInfo {
     pub provider_id: String,
 }
 
+/// Authentication credential trait
+///
+/// # C++ Reference
+/// - `auth/src/include/firebase/auth/credential.h:42` - Credential class
+///
+/// Base trait for all authentication credentials (email/password, OAuth tokens, etc.)
+pub trait AuthCredential {
+    /// Get the provider ID for this credential (e.g., "password", "google.com")
+    fn provider(&self) -> &str;
+}
+
+/// Email and password authentication credential
+///
+/// # C++ Reference
+/// - `auth/src/include/firebase/auth/credential.h` - EmailAuthProvider
+#[derive(Debug, Clone)]
+pub struct EmailAuthCredential {
+    email: String,
+    password: String,
+}
+
+impl EmailAuthCredential {
+    /// Create a new email/password credential
+    pub fn new(email: impl Into<String>, password: impl Into<String>) -> Self {
+        Self {
+            email: email.into(),
+            password: password.into(),
+        }
+    }
+    
+    /// Get the email address
+    pub fn email(&self) -> &str {
+        &self.email
+    }
+    
+    /// Get the password
+    pub fn password(&self) -> &str {
+        &self.password
+    }
+}
+
+impl AuthCredential for EmailAuthCredential {
+    fn provider(&self) -> &str {
+        "password"
+    }
+}
+
 /// Authentication credential
 ///
 /// # C++ Reference
@@ -230,7 +277,7 @@ impl User {
         let url = format!("https://securetoken.googleapis.com/v1/token?key={}", api_key);
         
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&serde_json::json!({
                 "grant_type": "refresh_token",
@@ -238,12 +285,17 @@ impl User {
             }))
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Token refresh failed: {}", e)))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Token refresh failed: {}", e))),
+            Ok(resp) => resp,
+        };
         
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("TOKEN_REFRESH_FAILED");
@@ -251,8 +303,10 @@ impl User {
         }
         
         // Parse refresh response
-        let token_response: serde_json::Value = response.json().await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e)))?;
+        let token_response = match response.json::<serde_json::Value>().await {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e))),
+            Ok(resp) => resp,
+        };
         
         let new_id_token = token_response["id_token"]
             .as_str()
@@ -288,19 +342,24 @@ impl User {
         );
         
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&serde_json::json!({
                 "idToken": id_token
             }))
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Delete account failed: {}", e)))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Delete account failed: {}", e))),
+            Ok(resp) => resp,
+        };
         
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("DELETE_ACCOUNT_FAILED");
@@ -342,17 +401,22 @@ impl User {
         });
 
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&body)
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(e.to_string()))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(e.to_string())),
+            Ok(resp) => resp,
+        };
 
         // Error-first: handle HTTP errors
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("RELOAD_FAILED");
@@ -360,8 +424,10 @@ impl User {
         }
 
         // Parse successful response and update user data
-        let response_data: serde_json::Value = response.json().await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e)))?;
+        let response_data = match response.json::<serde_json::Value>().await {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e))),
+            Ok(data) => data,
+        };
 
         // Error-first: validate response structure
         let Some(users) = response_data["users"].as_array() else {
@@ -420,17 +486,22 @@ impl User {
         });
 
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&body)
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(e.to_string()))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(e.to_string())),
+            Ok(resp) => resp,
+        };
 
         // Error-first: handle HTTP errors
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("SEND_EMAIL_VERIFICATION_FAILED");
@@ -474,7 +545,7 @@ impl User {
         );
         
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&serde_json::json!({
                 "idToken": id_token,
@@ -483,12 +554,17 @@ impl User {
             }))
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Update email failed: {}", e)))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Update email failed: {}", e))),
+            Ok(resp) => resp,
+        };
         
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("EMAIL_UPDATE_FAILED");
@@ -530,7 +606,7 @@ impl User {
         );
         
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&serde_json::json!({
                 "idToken": id_token,
@@ -539,12 +615,17 @@ impl User {
             }))
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Update password failed: {}", e)))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Update password failed: {}", e))),
+            Ok(resp) => resp,
+        };
         
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("PASSWORD_UPDATE_FAILED");
@@ -618,17 +699,22 @@ impl User {
         );
         
         let client = reqwest::Client::new();
-        let response = client
+        let response = match client
             .post(&url)
             .json(&request_body)
             .send()
             .await
-            .map_err(|e| AuthError::NetworkRequestFailed(format!("Update profile failed: {}", e)))?;
+        {
+            Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Update profile failed: {}", e))),
+            Ok(resp) => resp,
+        };
         
         // Handle error responses first
         if !response.status().is_success() {
-            let error_body: serde_json::Value = response.json().await
-                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_body = match response.json::<serde_json::Value>().await {
+                Err(e) => return Err(AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e))),
+                Ok(body) => body,
+            };
             let error_message = error_body["error"]["message"]
                 .as_str()
                 .unwrap_or("PROFILE_UPDATE_FAILED");
@@ -639,6 +725,82 @@ impl User {
         // Note: In a real implementation, self.display_name and self.photo_url would be updated
         // Since User is immutable, caller should fetch fresh User after this operation
         Ok(())
+    }
+
+    /// Reauthenticate the user with a credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/user.h:461` - Reauthenticate
+    /// - `auth/src/desktop/user_desktop.cc:618` - Reauthenticate implementation
+    ///
+    /// Required before performing sensitive operations like deleting the account
+    /// or changing the primary email address.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let user: firebase_rust_sdk::auth::User = todo!();
+    /// use firebase_rust_sdk::auth::EmailAuthCredential;
+    ///
+    /// let credential = EmailAuthCredential::new("user@example.com", "password");
+    /// user.reauthenticate(&credential).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn reauthenticate(&self, _credential: &dyn AuthCredential) -> Result<(), AuthError> {
+        // TODO: Implement reauthentication via verifyPassword or verifyAssertion
+        todo!("User reauthentication not yet implemented")
+    }
+
+    /// Link this user account with a credential
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/user.h:369` - LinkWithCredential
+    /// - `auth/src/desktop/user_desktop.cc:553` - LinkWithCredential implementation
+    ///
+    /// Allows linking additional authentication providers to an existing account.
+    /// For example, linking a Google account to an email/password account.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let user: firebase_rust_sdk::auth::User = todo!();
+    /// use firebase_rust_sdk::auth::EmailAuthCredential;
+    ///
+    /// let credential = EmailAuthCredential::new("user@example.com", "password");
+    /// let result = user.link_with_credential(&credential).await?;
+    /// println!("Linked user: {}", result.user.uid);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn link_with_credential(&self, _credential: &dyn AuthCredential) -> Result<crate::auth::AuthResult, AuthError> {
+        // TODO: Implement account linking via setAccountInfo with idToken
+        todo!("User account linking not yet implemented")
+    }
+
+    /// Unlink an authentication provider from this user
+    ///
+    /// # C++ Reference
+    /// - `auth/src/include/firebase/auth/user.h:445` - Unlink
+    /// - `auth/src/desktop/user_desktop.cc:595` - Unlink implementation
+    ///
+    /// Removes a linked authentication provider from the user's account.
+    ///
+    /// # Arguments
+    /// * `provider_id` - Provider ID to unlink (e.g., "google.com", "password")
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let mut user: firebase_rust_sdk::auth::User = todo!();
+    ///
+    /// user.unlink("google.com").await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn unlink(&self, _provider_id: &str) -> Result<(), AuthError> {
+        // TODO: Implement provider unlinking via setAccountInfo
+        todo!("User provider unlinking not yet implemented")
     }
 }
 

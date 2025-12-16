@@ -4,7 +4,7 @@
 //! - `firestore/src/include/firebase/firestore.h:91` - Firestore class
 
 use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, Settings};
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, Settings, Source};
 use crate::app::App;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
@@ -404,12 +404,9 @@ impl Firestore {
         let doc_data: serde_json::Value = response.json().await?;
         let fields = doc_data.get("fields").cloned();
         
-        // Convert Firestore fields format back to plain JSON
-        let data = fields.map(|f| convert_firestore_fields_to_value(&f));
-        
         Ok(DocumentSnapshot {
             reference: DocumentReference::new(path.as_ref()),
-            data,
+            data: fields,
             metadata: SnapshotMetadata {
                 has_pending_writes: false,
                 is_from_cache: false,
@@ -429,7 +426,7 @@ impl Firestore {
             path.as_ref()
         );
         
-        let doc = serde_json::json!({ "fields": convert_value_to_firestore_fields(&data) });
+        let doc = serde_json::json!({ "fields": data });
         
         let response = self.build_request(reqwest::Method::PATCH, &url).await
             .json(&doc)
@@ -461,7 +458,7 @@ impl Firestore {
             update_mask.join("&updateMask.fieldPaths=")
         );
         
-        let doc = serde_json::json!({ "fields": convert_value_to_firestore_fields(&data) });
+        let doc = serde_json::json!({ "fields": data });
         
         let response = self.build_request(reqwest::Method::PATCH, &url).await
             .json(&doc)
@@ -547,6 +544,7 @@ impl Firestore {
         std::pin::Pin<Box<dyn futures::Stream<Item = Result<crate::firestore::types::DocumentSnapshot, FirebaseError>> + Send>>,
     ), FirebaseError> {
         use crate::firestore::types::{DocumentSnapshot, ListenerRegistration};
+        use futures::stream::StreamExt;
         
         let path = path.into();
         let listener_id = format!("doc_listener_{}", uuid::Uuid::new_v4());
@@ -660,7 +658,7 @@ impl Firestore {
         // Create a stream that polls the query periodically
         let stream = async_stream::stream! {
             let mut last_doc_count = 0;
-            let _last_update_times: Vec<Option<String>> = Vec::new();
+            let mut last_update_times: Vec<Option<String>> = Vec::new();
             
             while !cancelled.load(std::sync::atomic::Ordering::SeqCst) {
                 // Execute the query
@@ -862,7 +860,7 @@ impl Firestore {
     pub async fn run_transaction<F, Fut>(&self, callback: F) -> Result<(), FirebaseError>
     where
         F: Fn(crate::firestore::types::Transaction) -> Fut,
-        Fut: std::future::Future<Output = Result<crate::firestore::types::Transaction, FirebaseError>>,
+        Fut: std::future::Future<Output = Result<(), FirebaseError>>,
     {
         self.run_transaction_with_options(callback, 5).await
     }
@@ -882,10 +880,10 @@ impl Firestore {
     ) -> Result<(), FirebaseError>
     where
         F: Fn(crate::firestore::types::Transaction) -> Fut,
-        Fut: std::future::Future<Output = Result<crate::firestore::types::Transaction, FirebaseError>>,
+        Fut: std::future::Future<Output = Result<(), FirebaseError>>,
     {
         use crate::error::FirestoreError;
-        use crate::firestore::types::Transaction;
+        use crate::firestore::types::{Transaction, WriteOperation};
 
         // Error-first: validate max_attempts
         if max_attempts == 0 {
@@ -898,20 +896,20 @@ impl Firestore {
 
         for attempt in 0..max_attempts {
             // Create a new transaction for this attempt
-            let txn = Transaction::new(
+            let mut txn = Transaction::new(
                 self.project_id().to_string(),
                 self.database_id().to_string(),
                 self.inner.app.options().api_key.clone(),
             );
 
-            // Run the callback and get the modified transaction back
-            let txn = match callback(txn).await {
-                Err(e) => {
-                    last_error = Some(e);
-                    continue;
-                }
-                Ok(txn) => txn,
-            };
+            // Run the callback
+            let callback_result = callback(txn.clone()).await;
+            
+            // Error-first: check if callback failed
+            if let Err(e) = callback_result {
+                last_error = Some(e);
+                continue;
+            }
 
             // Try to commit the transaction
             match self.commit_transaction(&txn).await {
@@ -1186,7 +1184,7 @@ impl Firestore {
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/query.h:318` - Get()
     async fn execute_query(&self, query: Query) -> Result<Vec<DocumentSnapshot>, FirebaseError> {
-        use crate::firestore::types::OrderDirection;
+        use crate::firestore::types::{FilterCondition, OrderDirection};
 
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents:runQuery",
@@ -1298,12 +1296,9 @@ impl Firestore {
                     let path = name.split("/documents/").nth(1)?;
                     let fields = doc.get("fields").cloned();
                     
-                    // Convert Firestore fields format back to plain JSON
-                    let data = fields.map(|f| convert_firestore_fields_to_value(&f));
-                    
                     Some(DocumentSnapshot {
                         reference: DocumentReference::new(path),
-                        data,
+                        data: fields,
                         metadata: SnapshotMetadata {
                             has_pending_writes: false,
                             is_from_cache: false,
@@ -1317,8 +1312,6 @@ impl Firestore {
     }
 }
 
-// TODO Should support timestamps in both directions
-// ? Need to figure if reference types are needed
 /// Convert serde_json::Value to Firestore value format
 fn convert_value_to_firestore(value: serde_json::Value) -> serde_json::Value {
     match value {
@@ -1385,7 +1378,7 @@ fn convert_firestore_fields_to_value(fields: &serde_json::Value) -> serde_json::
 
 /// Convert a single Firestore value to plain JSON
 fn convert_firestore_value_to_json(value: &serde_json::Value) -> serde_json::Value {
-    use serde_json::json;
+    use serde_json::{json, Value as JsonValue};
 
     // Firestore format: {"integerValue": "123"} or {"stringValue": "hello"}
     if let Some(obj) = value.as_object() {
@@ -2199,7 +2192,7 @@ mod tests {
         
         let mut txn = Transaction::new(
             "test-project".to_string(),
-            "default".to_string(),
+            "(default)".to_string(),
             "test-key".to_string(),
         );
 
@@ -2261,7 +2254,7 @@ mod tests {
         let firestore = Firestore::get_instance(&app).await.unwrap();
 
         let result = firestore.run_transaction_with_options(
-            |txn| async move { Ok(txn) },
+            |mut _txn| async move { Ok(()) },
             0 // invalid: must be at least 1
         ).await;
 

@@ -74,7 +74,7 @@ async fn cleanup_collection(firestore: &Firestore, collection_path: &str) {
 /// Test: Create and read document
 #[tokio::test]
 async fn test_create_read_document() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("create_read");
     
     let doc_path = format!("{}/test_doc", collection);
@@ -108,7 +108,7 @@ async fn test_create_read_document() {
 /// Test: Update document
 #[tokio::test]
 async fn test_update_document() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("update");
     
     let doc_path = format!("{}/test_doc", collection);
@@ -137,7 +137,7 @@ async fn test_update_document() {
 /// Test: Delete document
 #[tokio::test]
 async fn test_delete_document() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("delete");
     
     let doc_path = format!("{}/test_doc", collection);
@@ -166,7 +166,7 @@ async fn test_delete_document() {
 /// Test: Query with filters
 #[tokio::test]
 async fn test_query_filters() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("query");
     
     // Create test documents
@@ -200,7 +200,7 @@ async fn test_query_filters() {
 /// Test: Query with pagination
 #[tokio::test]
 async fn test_query_pagination() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("pagination");
     
     // Create test documents
@@ -249,7 +249,7 @@ async fn test_query_pagination() {
 /// Test: Batch writes
 #[tokio::test]
 async fn test_batch_writes() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("batch");
     
     // Create batch
@@ -286,7 +286,7 @@ async fn test_batch_writes() {
 /// Test: Transactions
 #[tokio::test]
 async fn test_transactions() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("transaction");
     
     let counter_path = format!("{}/counter", collection);
@@ -302,7 +302,7 @@ async fn test_transactions() {
             let doc = txn.get(&path).await?;
             let count = doc.get("count").and_then(|v| v.as_i64()).unwrap_or(0);
             txn.set(&path, json!({"count": count + 1}));
-            Ok(txn)
+            Ok(())
         }
     }).await.expect("Failed to run transaction");
     
@@ -322,7 +322,7 @@ async fn test_transactions() {
 /// Test: Add document with auto-generated ID
 #[tokio::test]
 async fn test_add_document() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("add");
     
     // Add document with auto-generated ID
@@ -354,7 +354,7 @@ async fn test_add_document() {
 /// Test: Nested collections
 #[tokio::test]
 async fn test_nested_collections() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("nested");
     
     let parent_path = format!("{}/parent_doc", collection);
@@ -390,7 +390,7 @@ async fn test_nested_collections() {
 #[tokio::test]
 #[ignore]
 async fn test_snapshot_listener() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("listener");
     
     let doc_path = format!("{}/watched_doc", collection);
@@ -412,7 +412,7 @@ async fn test_snapshot_listener() {
 /// Test: Compound filters (And/Or)
 #[tokio::test]
 async fn test_compound_filters() {
-    let (_app, auth, firestore) = get_authenticated_firestore().await;
+    let (_app, _auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("compound");
     
     // Create test documents

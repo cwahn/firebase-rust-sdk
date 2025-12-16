@@ -886,7 +886,7 @@ impl Transaction {
 
     /// Convert a single Firestore value to plain JSON
     fn convert_firestore_value(value: &serde_json::Value) -> serde_json::Value {
-        use serde_json::{json, Value as JsonValue};
+        use serde_json::json;
 
         // Firestore format: {"integerValue": "123"} or {"stringValue": "hello"}
         if let Some(obj) = value.as_object() {
@@ -903,7 +903,7 @@ impl Transaction {
                 return double_val.clone();
             } else if let Some(bool_val) = obj.get("booleanValue") {
                 return bool_val.clone();
-            } else if let Some(null_val) = obj.get("nullValue") {
+            } else if let Some(_null_val) = obj.get("nullValue") {
                 return json!(null);
             } else if let Some(array_val) = obj.get("arrayValue") {
                 if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
