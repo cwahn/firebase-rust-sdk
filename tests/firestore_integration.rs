@@ -1,42 +1,40 @@
 //! Integration tests for Firestore
 //!
-//! These tests interact with real Firestore and require:
-//! 1. A Firebase project with Firestore enabled
+//! TEST SUCCESS CRITERIA: ALL 31 tests MUST pass when run in parallel with --test-threads=31
+//!
+//! Requirements:
+//! 1. Firebase project with Firestore enabled
 //! 2. Environment variables set in .env file
-//! 3. Supports parallel execution with shared auth instance
+//! 3. ALL tests must pass consistently (5 consecutive runs)
 //!
-//! Parallel Execution Strategy:
-//! - Uses a single shared Firestore instance with one auth token (via OnceCell)
-//! - Simulates production: single auth processing multiple concurrent requests
-//! - Unique collection names (timestamp-based) prevent test interference
-//! - **Recommended**: `cargo test --test firestore_integration -- --test-threads=3`
-//!   - 3 threads provides good balance: ~2x speedup with acceptable stability
-//!   - Full parallelism (default threads) may cause gRPC transport errors
+//! Parallel Execution Requirements:
+//! - ALL tests share a SINGLE Firestore instance (production pattern)
+//! - ALL 31 tests run concurrently (--test-threads=31)
+//! - Zero random delays - tests must handle real concurrent load
+//! - Unique collection names prevent test data conflicts
+//! - Connection must be ready immediately (use connect() not connect_lazy())
 //!
-//! Performance Comparison:
-//! - Sequential (--test-threads=1): ~20s for 31 tests, 100% stable
-//! - Parallel (--test-threads=3): ~10s for 31 tests, ~90% stable
-//! - Full parallel (default): ~5s for 31 tests, ~60% stable (transport errors)
+//! Acceptance:
+//! - Run: cargo test --test firestore_integration -- --test-threads=31
+//! - Result: test result: ok. 31 passed; 0 failed
+//! - Must pass 5 consecutive times without failures
 //!
-//! Limitations:
-//! - gRPC connection limits: Single Firestore instance shares one HTTP/2 connection
-//! - Too many concurrent streams can cause "transport error" or "Service was not ready"
-//! - Listener tests are most sensitive to concurrency due to long-lived streams
-//! 
-//! Note: Uses gRPC API (not REST). Matches C++ SDK architecture.
+//! Note: Uses gRPC API. Tests real-world concurrent access pattern.
 
 use firebase_rust_sdk::{App, AppOptions, Auth, firestore::{Firestore, MapValue, Value, ValueType, FilterCondition, listen_document, ListenerOptions}};
 use futures::stream::StreamExt;
 use std::collections::HashMap;
 use std::env;
-use std::sync::{Arc, Mutex};
-use tokio::sync::OnceCell;
+use std::sync::Arc;
+use tokio::sync::{OnceCell, Mutex};
+use rand::Rng;
+use tracing::{info, error, debug, warn};
 
-/// Shared Firestore instance for all tests - initialized once, used by all parallel tests
-static FIRESTORE_INSTANCE: OnceCell<Arc<Firestore>> = OnceCell::const_new();
+/// Shared Firestore instance - initialized once, shared by ALL tests
+/// This tests production usage pattern (single instance, concurrent access)
+static SHARED_FIRESTORE: OnceCell<Arc<Firestore>> = OnceCell::const_new();
 
-/// Initialize and return the shared Firestore instance
-/// This is called once and the result is cached for all subsequent tests
+/// Initialize shared Firestore instance - called once, result cached and shared
 async fn init_firestore() -> Arc<Firestore> {
     dotenvy::dotenv().ok();
     
@@ -77,12 +75,29 @@ async fn init_firestore() -> Arc<Firestore> {
     Arc::new(firestore)
 }
 
-/// Get the shared Firestore instance - safe to call from parallel tests
-async fn get_firestore() -> Arc<Firestore> {
-    FIRESTORE_INSTANCE
+/// Get the SHARED Firestore instance (all tests use same instance)
+/// This tests production usage: single instance handling concurrent operations
+/// Returns &'static reference to keep the shared instance alive for entire test run
+async fn get_firestore() -> &'static Arc<Firestore> {
+    // Initialize tracing once
+    static TRACING_INIT: OnceCell<()> = OnceCell::const_new();
+    TRACING_INIT.get_or_init(|| async {
+        tracing_subscriber::fmt()
+            .with_env_filter(
+                tracing_subscriber::EnvFilter::from_default_env()
+                    .add_directive(tracing::Level::DEBUG.into())
+            )
+            .with_target(true)
+            .with_thread_ids(true)
+            .with_line_number(true)
+            .init();
+        info!("Tracing initialized");
+    }).await;
+    
+    // Return reference to the OnceCell's Arc - keeps it alive for entire program
+    SHARED_FIRESTORE
         .get_or_init(|| init_firestore())
         .await
-        .clone()
 }
 
 /// Helper to create a MapValue from key-value pairs
@@ -516,7 +531,7 @@ async fn test_snapshot_listener() {
                 if let Some(data) = &snapshot.data {
                     if let Some(value_field) = data.fields.get("value") {
                         if let Some(ValueType::IntegerValue(val)) = &value_field.value_type {
-                            updates_clone.lock().unwrap().push(*val);
+                            updates_clone.lock().await.push(*val);
                             println!("📡 Listener received value: {}", val);
                             count += 1;
                             // Stop after receiving 3 updates (initial + 2 updates)
@@ -556,7 +571,7 @@ async fn test_snapshot_listener() {
         .expect("Stream task panicked");
     
     // Verify we received updates
-    let collected = updates.lock().unwrap();
+    let collected = updates.lock().await;
     println!("📊 Received {} updates: {:?}", collected.len(), *collected);
     
     assert!(!collected.is_empty(), "Should have received at least one update");
@@ -1026,7 +1041,7 @@ async fn test_listener_delete_event() {
                     continue;
                 }
                 if !snapshot.exists() {
-                    *delete_flag.lock().unwrap() = true;
+                    *delete_flag.lock().await = true;
                     println!("📡 Listener received delete event");
                     break;
                 }
@@ -1048,7 +1063,7 @@ async fn test_listener_delete_event() {
         .expect("Timeout waiting for delete event")
         .expect("Stream task panicked");
     
-    let got_delete = *received_delete.lock().unwrap();
+    let got_delete = *received_delete.lock().await;
     assert!(got_delete, "Listener should receive delete event");
     
     println!("✅ Listener delete event works!");

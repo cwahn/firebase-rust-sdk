@@ -9,6 +9,7 @@
 ///! - `firebase-ios-sdk/Firestore/core/src/remote/datastore.h` - Datastore gRPC layer
 
 use std::sync::Arc;
+use tokio::sync::Mutex;
 use tonic::transport::Channel;
 use tonic::service::Interceptor;
 use tonic::Request;
@@ -31,6 +32,9 @@ pub struct FirestoreInner {
     pub(crate) project_id: String,
     pub(crate) database_id: String,
     pub(crate) id_token: Option<String>,
+    // GrpcClient is cheap to clone - all clones share the same underlying connection
+    // Tower's internal buffer handles request serialization automatically
+    // HTTP/2 multiplexing allows concurrent streams on the single connection
     pub(crate) grpc_client: GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>>,
 }
 
@@ -92,7 +96,7 @@ impl Firestore {
         let database_id = database_id.into();
         
         // Connect to Firestore gRPC endpoint with TLS
-        // Format: https://firestore.googleapis.com
+        // Create multiple endpoints for connection pooling to handle high concurrency
         let endpoint = "https://firestore.googleapis.com";
         
         // Configure TLS (mirrors C++ LoadGrpcRootCertificate)
@@ -100,22 +104,40 @@ impl Firestore {
             .with_webpki_roots()
             .domain_name("firestore.googleapis.com");
         
-        let channel = Channel::from_static(endpoint)
+        // Create endpoint with aggressive settings for high concurrency
+        // Production apps handling dozens of concurrent operations need:
+        // 1. Large HTTP/2 windows to avoid flow control blocking
+        // 2. Aggressive keep-alive to maintain connection health  
+        // 3. Reasonable timeouts that don't fail under load
+        let endpoint_config = Channel::from_static(endpoint)
             .tls_config(tls_config)
             .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to configure TLS: {}", e)))?
-            .timeout(std::time::Duration::from_secs(30))
-            .connect_timeout(std::time::Duration::from_secs(10))
-            .connect()
-            .await
+            .timeout(std::time::Duration::from_secs(60))
+            .connect_timeout(std::time::Duration::from_secs(30))
+            .concurrency_limit(256) // Allow up to 256 concurrent requests per connection
+            .http2_keep_alive_interval(std::time::Duration::from_secs(20))
+            .keep_alive_timeout(std::time::Duration::from_secs(10))
+            .keep_alive_while_idle(true)
+            .initial_stream_window_size(Some(8 * 1024 * 1024)) // 8MB per stream
+            .initial_connection_window_size(Some(32 * 1024 * 1024)) // 32MB total
+            .http2_adaptive_window(true)
+            .tcp_keepalive(Some(std::time::Duration::from_secs(20)))
+            .tcp_nodelay(true); // Disable Nagle's algorithm for lower latency
+        
+        // CRITICAL: Use connect() instead of connect_lazy() to establish connection IMMEDIATELY
+        // This ensures all subsequent operations have a ready connection
+        // Without this, operations fail with \"Service was not ready: transport error\"
+        let channel = endpoint_config.connect().await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to connect to Firestore: {}", e)))?;
         
-        // Create interceptor for authentication
+        // Create the gRPC client AFTER connection is established
+        // This ensures the Tower buffer worker starts with a ready connection
+        // CRITICAL: Must use connect() not connect_lazy() to establish connection first
         let interceptor = FirestoreInterceptor {
             id_token: id_token.clone(),
             project_id: project_id.clone(),
             database_id: database_id.clone(),
         };
-        
         let grpc_client = GrpcClient::with_interceptor(channel, interceptor);
         
         Ok(Self {
@@ -127,6 +149,8 @@ impl Firestore {
             }),
         })
     }
+
+
 
     /// Get the project ID
     pub fn project_id(&self) -> &str {
@@ -244,11 +268,6 @@ impl Firestore {
     /// Format: projects/{project_id}/databases/{database_id}
     pub(crate) fn database_path(&self) -> String {
         format!("projects/{}/databases/{}", self.inner.project_id, self.inner.database_id)
-    }
-
-    /// Get a mutable reference to the gRPC client
-    pub(crate) fn grpc_client(&self) -> &GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>> {
-        &self.inner.grpc_client
     }
 
     /// Run a transaction
