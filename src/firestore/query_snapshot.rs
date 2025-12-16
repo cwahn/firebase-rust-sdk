@@ -15,7 +15,7 @@ use crate::firestore::firestore::FirestoreInner;
 pub struct QuerySnapshot {
     /// Raw document protos from gRPC response
     pub(crate) documents: Vec<super::field_value::proto::google::firestore::v1::Document>,
-    
+
     /// Reference to Firestore client
     pub(crate) firestore: std::sync::Arc<FirestoreInner>,
 }
@@ -44,12 +44,12 @@ impl QuerySnapshot {
             })
             .collect()
     }
-    
+
     /// Check if the query result is empty
     pub fn is_empty(&self) -> bool {
         self.documents.is_empty()
     }
-    
+
     /// Get the number of documents in the snapshot
     pub fn len(&self) -> usize {
         self.documents.len()
@@ -78,13 +78,13 @@ pub enum DocumentChangeType {
 pub struct DocumentChange {
     /// Type of change
     pub change_type: DocumentChangeType,
-    
+
     /// The document that changed
     pub document: DocumentSnapshot,
-    
+
     /// The old index of the document (-1 if added)
     pub old_index: i32,
-    
+
     /// The new index of the document (-1 if removed)
     pub new_index: i32,
 }

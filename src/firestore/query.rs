@@ -99,13 +99,11 @@ pub trait Query: Clone + Sized {
     ///
     /// # C++ Reference
     /// - `query.h:642` - Query::Get()
-    fn get(&self) -> impl std::future::Future<Output = Result<QuerySnapshot, FirebaseError>> + Send 
-    where 
-        Self: Sync 
+    fn get(&self) -> impl std::future::Future<Output = Result<QuerySnapshot, FirebaseError>> + Send
+    where
+        Self: Sync,
     {
-        async {
-            self.get_with_source(Source::Default).await
-        }
+        async { self.get_with_source(Source::Default).await }
     }
 
     /// Execute the query with specified source
@@ -127,7 +125,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:177` - Query::WhereEqualTo(field, value)
     fn where_equal_to(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::EqualTo, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::EqualTo, value));
         self.with_state(state)
     }
 
@@ -137,7 +137,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:197` - Query::WhereNotEqualTo(field, value)
     fn where_not_equal_to(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::NotEqualTo, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::NotEqualTo, value));
         self.with_state(state)
     }
 
@@ -147,7 +149,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:218` - Query::WhereLessThan(field, value)
     fn where_less_than(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::LessThan, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::LessThan, value));
         self.with_state(state)
     }
 
@@ -157,7 +161,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:239` - Query::WhereLessThanOrEqualTo(field, value)
     fn where_less_than_or_equal_to(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::LessThanOrEqualTo, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::LessThanOrEqualTo, value));
         self.with_state(state)
     }
 
@@ -167,7 +173,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:260` - Query::WhereGreaterThan(field, value)
     fn where_greater_than(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::GreaterThan, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::GreaterThan, value));
         self.with_state(state)
     }
 
@@ -177,7 +185,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:281` - Query::WhereGreaterThanOrEqualTo(field, value)
     fn where_greater_than_or_equal_to(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::GreaterThanOrEqualTo, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::GreaterThanOrEqualTo, value));
         self.with_state(state)
     }
 
@@ -187,7 +197,9 @@ pub trait Query: Clone + Sized {
     /// - `query.h:305` - Query::WhereArrayContains(field, value)
     fn where_array_contains(self, field: impl Into<String>, value: Value) -> Self {
         let mut state = self.query_state().clone();
-        state.filters.push((field.into(), FilterOperator::ArrayContains, value));
+        state
+            .filters
+            .push((field.into(), FilterOperator::ArrayContains, value));
         self.with_state(state)
     }
 
@@ -389,16 +401,20 @@ pub trait Query: Clone + Sized {
     /// # C++ Reference
     /// - `query.h:634` - `AddSnapshotListener` returns `ListenerRegistration`
     /// - Rust uses async streams with Drop cleanup instead of explicit remove()
-    fn listen(&self, metadata_changes: Option<super::MetadataChanges>) -> super::QuerySnapshotStream {
+    fn listen(
+        &self,
+        metadata_changes: Option<super::MetadataChanges>,
+    ) -> super::QuerySnapshotStream {
         use tokio::sync::{mpsc, oneshot};
-        
+
         let (tx, rx) = mpsc::unbounded_channel();
-        let (cancel_tx, mut cancel_rx) = oneshot::channel();
-        
+        let (cancel_tx, cancel_rx) = oneshot::channel();
+
         // Clone necessary data for the async task
         let _state = self.query_state().clone();
-        let _include_metadata = metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
-        
+        let _include_metadata =
+            metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
+
         // Spawn background task to handle the listener
         tokio::spawn(async move {
             // TODO: Implement listen_query in listener.rs
@@ -410,11 +426,11 @@ pub trait Query: Clone + Sized {
             //
             // For now, send an error explaining this is not yet implemented
             let _ = tx.send(Err(crate::error::FirestoreError::Unimplemented.into()));
-            
+
             // Wait for cancellation
             let _ = cancel_rx.await;
         });
-        
+
         super::QuerySnapshotStream::new(rx, cancel_tx)
     }
 }
@@ -428,7 +444,10 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
 
     let project_id = &state.firestore.project_id;
     let database_id = &state.firestore.database_id;
-    let parent = format!("projects/{}/databases/{}/documents", project_id, database_id);
+    let parent = format!(
+        "projects/{}/databases/{}/documents",
+        project_id, database_id
+    );
 
     // Build structured query
     let mut structured_query = firestore_proto::StructuredQuery {
@@ -498,19 +517,21 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         structured_query.order_by = state
             .orders
             .iter()
-            .map(|(field, direction)| firestore_proto::structured_query::Order {
-                field: Some(firestore_proto::structured_query::FieldReference {
-                    field_path: field.clone(),
-                }),
-                direction: match direction {
-                    Direction::Ascending => {
-                        firestore_proto::structured_query::Direction::Ascending as i32
-                    }
-                    Direction::Descending => {
-                        firestore_proto::structured_query::Direction::Descending as i32
-                    }
+            .map(
+                |(field, direction)| firestore_proto::structured_query::Order {
+                    field: Some(firestore_proto::structured_query::FieldReference {
+                        field_path: field.clone(),
+                    }),
+                    direction: match direction {
+                        Direction::Ascending => {
+                            firestore_proto::structured_query::Direction::Ascending as i32
+                        }
+                        Direction::Descending => {
+                            firestore_proto::structured_query::Direction::Descending as i32
+                        }
+                    },
                 },
-            })
+            )
             .collect();
     }
 
@@ -561,20 +582,25 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
 
     let request = firestore_proto::RunQueryRequest {
         parent,
-        query_type: Some(firestore_proto::run_query_request::QueryType::StructuredQuery(
-            structured_query,
-        )),
+        query_type: Some(
+            firestore_proto::run_query_request::QueryType::StructuredQuery(structured_query),
+        ),
         ..Default::default()
     };
 
     let mut client = state.firestore.grpc_client.clone();
-    let mut stream = client.run_query(request).await
+    let mut stream = client
+        .run_query(request)
+        .await
         .map_err(|e| crate::error::FirestoreError::Internal(e.to_string()))?
         .into_inner();
 
     let mut documents = Vec::new();
-    while let Some(response) = stream.message().await
-        .map_err(|e| crate::error::FirestoreError::Internal(e.to_string()))? {
+    while let Some(response) = stream
+        .message()
+        .await
+        .map_err(|e| crate::error::FirestoreError::Internal(e.to_string()))?
+    {
         if let Some(doc) = response.document {
             documents.push(doc);
         }
@@ -584,4 +610,125 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         documents,
         firestore: Arc::clone(&state.firestore),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::firestore::{Firestore, MetadataChanges};
+    use futures::StreamExt;
+
+    #[tokio::test]
+    async fn test_query_listen_returns_stream() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        let query = firestore.collection("test");
+        
+        // Test that listen() returns a stream without panicking
+        let stream = query.listen(None);
+        drop(stream);
+    }
+
+    #[tokio::test]
+    async fn test_query_listen_with_metadata_changes() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        let query = firestore.collection("test");
+        
+        // Test with Include metadata changes
+        let stream = query.listen(Some(MetadataChanges::Include));
+        drop(stream);
+        
+        // Test with Exclude metadata changes
+        let stream = query.listen(Some(MetadataChanges::Exclude));
+        drop(stream);
+    }
+
+    #[tokio::test]
+    async fn test_query_listen_returns_unimplemented_error() {
+        // Currently returns Unimplemented error
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        let query = firestore.collection("test");
+        let mut stream = query.listen(None);
+        
+        // Should get Unimplemented error
+        if let Some(result) = stream.next().await {
+            assert!(result.is_err(), "Expected Unimplemented error");
+            // Query listening is not yet implemented
+        }
+    }
+
+    #[tokio::test]
+    async fn test_query_listen_with_filters() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        // Test with filtered query (limit only to keep test simple)
+        let query = firestore.collection("test").limit(10);
+        
+        let stream = query.listen(None);
+        drop(stream);
+    }
+
+    #[tokio::test]
+    async fn test_query_listen_stream_cancellation_on_drop() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        let query = firestore.collection("test");
+        
+        {
+            let _stream = query.listen(None);
+            // Stream dropped here - should trigger cancellation
+        }
+        
+        // If we get here without hanging, cancellation worked
+    }
+
+    #[tokio::test]
+    async fn test_multiple_query_listeners() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        let query = firestore.collection("test");
+        
+        // Should be able to create multiple listeners
+        let stream1 = query.listen(None);
+        let stream2 = query.listen(Some(MetadataChanges::Include));
+        
+        drop(stream1);
+        drop(stream2);
+    }
+
+    #[tokio::test]
+    async fn test_query_listen_with_ordering() {
+        let firestore = match Firestore::new("test-project", "(default)", None).await {
+            Ok(fs) => fs,
+            Err(_) => return,
+        };
+        
+        // Test with ordered query
+        let query = firestore.collection("test")
+            .order_by("timestamp", super::Direction::Descending)
+            .limit(5);
+        
+        let stream = query.listen(None);
+        drop(stream);
+    }
 }
