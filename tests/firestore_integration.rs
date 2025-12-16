@@ -520,3 +520,511 @@ async fn test_snapshot_listener() {
     
     println!("✅ Snapshot listener works! Received {} updates", collected.len());
 }
+
+/// Test: Get non-existent document returns NotFound
+#[tokio::test]
+async fn test_get_nonexistent_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("nonexistent");
+    
+    let doc_ref = firestore.document(&doc_path);
+    let result = doc_ref.get().await;
+    
+    // Should either return error or snapshot with exists() == false
+    match result {
+        Err(e) => {
+            println!("✅ Non-existent document returns error: {}", e);
+        }
+        Ok(snapshot) => {
+            assert!(!snapshot.exists(), "Non-existent document should not exist");
+            println!("✅ Non-existent document returns empty snapshot");
+        }
+    }
+}
+
+/// Test: Update non-existent document should fail
+#[tokio::test]
+async fn test_update_nonexistent_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("update_nonexistent");
+    
+    let doc_ref = firestore.document(&doc_path);
+    let update_data = create_map(vec![
+        ("field", ValueType::StringValue("value".to_string())),
+    ]);
+    
+    let result = doc_ref.update(update_data).await;
+    
+    // Update should fail if document doesn't exist
+    assert!(result.is_err(), "Update should fail for non-existent document");
+    
+    println!("✅ Update non-existent document fails as expected");
+}
+
+/// Test: Delete non-existent document should succeed (idempotent)
+#[tokio::test]
+async fn test_delete_nonexistent_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("delete_nonexistent");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Delete should succeed even if document doesn't exist (idempotent)
+    doc_ref.delete().await
+        .expect("Delete should be idempotent");
+    
+    println!("✅ Delete non-existent document is idempotent");
+}
+
+/// Test: Document with single field (Firestore requires at least one field)
+#[tokio::test]
+async fn test_minimal_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("minimal");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Firestore requires at least one field, so use a minimal document
+    let minimal_data = create_map(vec![
+        ("exists", ValueType::BooleanValue(true)),
+    ]);
+    
+    doc_ref.set(minimal_data).await
+        .expect("Failed to set minimal document");
+    
+    let snapshot = doc_ref.get().await
+        .expect("Failed to get document");
+    
+    assert!(snapshot.exists());
+    assert!(snapshot.data.is_some());
+    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 1);
+    
+    let exists_field = snapshot.get("exists").expect("exists field missing");
+    assert!(matches!(exists_field.value_type, Some(ValueType::BooleanValue(true))));
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Minimal document works!");
+}
+
+/// Test: Document with various data types
+#[tokio::test]
+async fn test_multiple_data_types() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("data_types");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Create document with various field types
+    let data = create_map(vec![
+        ("string", ValueType::StringValue("hello".to_string())),
+        ("integer", ValueType::IntegerValue(42)),
+        ("double", ValueType::DoubleValue(3.14)),
+        ("boolean", ValueType::BooleanValue(true)),
+        ("null", ValueType::NullValue(0)),
+    ]);
+    
+    doc_ref.set(data).await
+        .expect("Failed to set document with multiple types");
+    
+    let snapshot = doc_ref.get().await
+        .expect("Failed to get document");
+    
+    assert!(snapshot.exists());
+    
+    // Verify each type
+    let string_val = snapshot.get("string").expect("string missing");
+    assert!(matches!(string_val.value_type, Some(ValueType::StringValue(_))));
+    
+    let int_val = snapshot.get("integer").expect("integer missing");
+    assert!(matches!(int_val.value_type, Some(ValueType::IntegerValue(_))));
+    
+    let double_val = snapshot.get("double").expect("double missing");
+    assert!(matches!(double_val.value_type, Some(ValueType::DoubleValue(_))));
+    
+    let bool_val = snapshot.get("boolean").expect("boolean missing");
+    assert!(matches!(bool_val.value_type, Some(ValueType::BooleanValue(_))));
+    
+    let null_val = snapshot.get("null").expect("null missing");
+    assert!(matches!(null_val.value_type, Some(ValueType::NullValue(_))));
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Multiple data types work!");
+}
+
+/// Test: Large document with many fields
+#[tokio::test]
+async fn test_large_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("large");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Create document with 50 fields
+    let mut fields = Vec::new();
+    for i in 0..50 {
+        fields.push((
+            format!("field_{}", i).leak() as &str,
+            ValueType::IntegerValue(i),
+        ));
+    }
+    
+    let data = create_map(fields);
+    doc_ref.set(data).await
+        .expect("Failed to set large document");
+    
+    let snapshot = doc_ref.get().await
+        .expect("Failed to get large document");
+    
+    assert!(snapshot.exists());
+    assert_eq!(snapshot.data.as_ref().unwrap().fields.len(), 50);
+    
+    // Verify a few fields
+    let field_0 = snapshot.get("field_0").expect("field_0 missing");
+    assert!(matches!(field_0.value_type, Some(ValueType::IntegerValue(0))));
+    
+    let field_49 = snapshot.get("field_49").expect("field_49 missing");
+    assert!(matches!(field_49.value_type, Some(ValueType::IntegerValue(49))));
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Large document (50 fields) works!");
+}
+
+/// Test: Overwrite document with set()
+#[tokio::test]
+async fn test_overwrite_document() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("overwrite");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Create initial document
+    let initial = create_map(vec![
+        ("field1", ValueType::StringValue("value1".to_string())),
+        ("field2", ValueType::IntegerValue(100)),
+    ]);
+    doc_ref.set(initial).await.expect("Failed to set initial");
+    
+    // Overwrite with completely new data (set replaces entire document)
+    let new_data = create_map(vec![
+        ("field3", ValueType::BooleanValue(true)),
+    ]);
+    doc_ref.set(new_data).await.expect("Failed to overwrite");
+    
+    let snapshot = doc_ref.get().await.expect("Failed to get");
+    
+    // Old fields should be gone
+    assert!(snapshot.get("field1").is_none());
+    assert!(snapshot.get("field2").is_none());
+    
+    // New field should exist
+    assert!(snapshot.get("field3").is_some());
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Document overwrite works!");
+}
+
+/// Test: Batch with mixed operations
+#[tokio::test]
+async fn test_batch_mixed_operations() {
+    let firestore = get_firestore().await;
+    let collection = format!("integration_tests_batch_mixed_{}", rand::random::<u32>());
+    
+    // Create one document first
+    let doc1_path = format!("{}/doc1", collection);
+    let doc1 = firestore.document(&doc1_path);
+    doc1.set(create_map(vec![
+        ("value", ValueType::IntegerValue(1)),
+    ])).await.expect("Failed to create doc1");
+    
+    // Create batch with mixed operations
+    let mut batch = firestore.batch();
+    
+    // Set doc2 (create new)
+    batch.set(
+        format!("{}/doc2", collection),
+        create_map(vec![("value", ValueType::IntegerValue(2))]),
+    );
+    
+    // Update doc1 (modify existing)
+    batch.update(
+        doc1_path.clone(),
+        create_map(vec![("value", ValueType::IntegerValue(10))]),
+    );
+    
+    // Set doc3 (create new)
+    batch.set(
+        format!("{}/doc3", collection),
+        create_map(vec![("value", ValueType::IntegerValue(3))]),
+    );
+    
+    // Delete doc2 (delete what we just created in this batch)
+    batch.delete(format!("{}/doc2", collection));
+    
+    // Commit batch
+    batch.commit().await.expect("Failed to commit mixed batch");
+    
+    // Verify results
+    let doc1_snapshot = doc1.get().await.expect("Failed to get doc1");
+    let value1 = doc1_snapshot.get("value").unwrap();
+    assert!(matches!(value1.value_type, Some(ValueType::IntegerValue(10))));
+    
+    let doc2 = firestore.document(&format!("{}/doc2", collection));
+    let doc2_result = doc2.get().await;
+    assert!(doc2_result.is_err() || !doc2_result.unwrap().exists());
+    
+    let doc3 = firestore.document(&format!("{}/doc3", collection));
+    let doc3_snapshot = doc3.get().await.expect("Failed to get doc3");
+    assert!(doc3_snapshot.exists());
+    
+    // Clean up
+    doc1.delete().await.ok();
+    doc3.delete().await.ok();
+    
+    println!("✅ Batch with mixed operations works!");
+}
+
+/// Test: Empty batch should fail with InvalidArgument
+#[tokio::test]
+async fn test_empty_batch() {
+    let firestore = get_firestore().await;
+    
+    let batch = firestore.batch();
+    
+    // Firestore rejects empty batches
+    let result = batch.commit().await;
+    assert!(result.is_err(), "Empty batch should fail");
+    
+    match result {
+        Err(e) => {
+            let err_str = format!("{:?}", e);
+            assert!(err_str.contains("InvalidArgument") || err_str.contains("empty"), 
+                "Error should mention empty batch: {}", err_str);
+            println!("✅ Empty batch fails as expected: {}", e);
+        }
+        Ok(_) => panic!("Empty batch should not succeed"),
+    }
+}
+
+/// Test: Collection path parsing and validation
+#[tokio::test]
+async fn test_collection_paths() {
+    let firestore = get_firestore().await;
+    
+    // Simple collection
+    let col1 = firestore.collection("users");
+    let doc1 = col1.document("alice");
+    assert_eq!(doc1.path, "users/alice");
+    assert_eq!(doc1.id(), "alice");
+    
+    // Nested collection (subcollection) - use full path
+    let post = firestore.document("users/bob/posts/post1");
+    assert_eq!(post.path, "users/bob/posts/post1");
+    assert_eq!(post.id(), "post1");
+    assert_eq!(post.parent_path(), Some("users/bob/posts"));
+    
+    println!("✅ Collection path parsing works!");
+}
+
+/// Test: Document ID extraction
+#[tokio::test]
+async fn test_document_id_extraction() {
+    let firestore = get_firestore().await;
+    
+    let doc1 = firestore.document("users/alice");
+    assert_eq!(doc1.id(), "alice");
+    
+    let doc2 = firestore.document("projects/proj1/tasks/task2");
+    assert_eq!(doc2.id(), "task2");
+    
+    let doc3 = firestore.document("single");
+    assert_eq!(doc3.id(), "single");
+    
+    println!("✅ Document ID extraction works!");
+}
+
+/// Test: Special characters in document IDs
+#[tokio::test]
+async fn test_special_characters_in_paths() {
+    let firestore = get_firestore().await;
+    
+    // Test with underscores, hyphens, periods
+    let doc_id = "test_doc-123.v2";
+    let doc_path = format!("integration_tests/{}", doc_id);
+    let doc_ref = firestore.document(&doc_path);
+    
+    let data = create_map(vec![
+        ("test", ValueType::BooleanValue(true)),
+    ]);
+    
+    doc_ref.set(data).await
+        .expect("Failed to set document with special chars");
+    
+    let snapshot = doc_ref.get().await
+        .expect("Failed to get document with special chars");
+    
+    assert!(snapshot.exists());
+    assert_eq!(snapshot.id(), doc_id);
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Special characters in paths work!");
+}
+
+/// Test: Listener receives delete events
+#[tokio::test]
+async fn test_listener_delete_event() {
+    dotenvy::dotenv().ok();
+    
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("listener_delete");
+    
+    // Get credentials for listener
+    let project_id = env::var("FIREBASE_PROJECT_ID").expect("FIREBASE_PROJECT_ID required");
+    let database_id = env::var("FIREBASE_DATABASE_ID").unwrap_or_else(|_| "default".to_string());
+    let api_key = env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY required");
+    let email = env::var("TEST_USER_EMAIL").expect("TEST_USER_EMAIL required");
+    let password = env::var("TEST_USER_PASSWORD").expect("TEST_USER_PASSWORD required");
+    
+    let app = App::create(AppOptions {
+        api_key,
+        project_id: project_id.clone(),
+        app_name: None,
+    }).await.expect("Failed to create App");
+    
+    let auth = Auth::get_auth(&app).await.expect("Failed to get Auth");
+    auth.sign_in_with_email_and_password(&email, &password).await
+        .expect("Failed to sign in");
+    
+    let user = auth.current_user().await.expect("No user");
+    let auth_token = user.get_id_token(false).await.expect("Failed to get token");
+    
+    // Create initial document
+    let doc_ref = firestore.document(&doc_path);
+    doc_ref.set(create_map(vec![
+        ("status", ValueType::StringValue("active".to_string())),
+    ])).await.expect("Failed to create");
+    
+    // Start listener
+    let mut stream = listen_document(
+        &firestore,
+        auth_token,
+        project_id,
+        database_id,
+        doc_path.clone(),
+        ListenerOptions::default(),
+    ).await.expect("Failed to start listener");
+    
+    let received_delete = Arc::new(Mutex::new(false));
+    let delete_flag = received_delete.clone();
+    
+    let stream_task = tokio::spawn(async move {
+        while let Some(result) = stream.next().await {
+            if let Ok(snapshot) = result {
+                if !snapshot.exists() {
+                    *delete_flag.lock().unwrap() = true;
+                    println!("📡 Listener received delete event");
+                    break;
+                }
+            }
+        }
+    });
+    
+    // Wait for initial snapshot
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    
+    // Delete the document
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    // Wait for delete event
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    
+    stream_task.abort();
+    
+    let got_delete = *received_delete.lock().unwrap();
+    assert!(got_delete, "Listener should receive delete event");
+    
+    println!("✅ Listener delete event works!");
+}
+
+/// Test: Concurrent writes to same document
+#[tokio::test]
+async fn test_concurrent_writes() {
+    let firestore = get_firestore().await;
+    let doc_path = test_doc_path("concurrent");
+    
+    let doc_ref = firestore.document(&doc_path);
+    
+    // Create initial document
+    doc_ref.set(create_map(vec![
+        ("counter", ValueType::IntegerValue(0)),
+    ])).await.expect("Failed to create");
+    
+    // Spawn multiple concurrent updates
+    let mut handles = vec![];
+    for i in 1..=5 {
+        let doc_ref_clone = doc_ref.clone();
+        let handle = tokio::spawn(async move {
+            let data = create_map(vec![
+                ("counter", ValueType::IntegerValue(i)),
+                ("writer", ValueType::IntegerValue(i)),
+            ]);
+            doc_ref_clone.set(data).await
+        });
+        handles.push(handle);
+    }
+    
+    // Wait for all writes to complete
+    for handle in handles {
+        handle.await.expect("Task panicked").expect("Write failed");
+    }
+    
+    // Read final state (one of the writes should have won)
+    let snapshot = doc_ref.get().await.expect("Failed to get");
+    assert!(snapshot.exists());
+    
+    let counter = snapshot.get("counter").expect("counter missing");
+    assert!(matches!(counter.value_type, Some(ValueType::IntegerValue(_))));
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Concurrent writes complete (last write wins)!");
+}
+
+/// Test: Very long document path
+#[tokio::test]
+async fn test_deep_nested_path() {
+    let firestore = get_firestore().await;
+    
+    // Create a very deep path (10 levels)
+    let path = format!(
+        "integration_tests/l1_{}/level2/l2_{}/level3/l3_{}/level4/l4_{}/level5/l5_{}",
+        rand::random::<u32>(),
+        rand::random::<u32>(),
+        rand::random::<u32>(),
+        rand::random::<u32>(),
+        rand::random::<u32>()
+    );
+    
+    let doc_ref = firestore.document(&path);
+    doc_ref.set(create_map(vec![
+        ("depth", ValueType::IntegerValue(5)),
+    ])).await.expect("Failed to set deep document");
+    
+    let snapshot = doc_ref.get().await.expect("Failed to get deep document");
+    assert!(snapshot.exists());
+    
+    // Clean up
+    doc_ref.delete().await.expect("Failed to delete");
+    
+    println!("✅ Deep nested paths work!");
+}
