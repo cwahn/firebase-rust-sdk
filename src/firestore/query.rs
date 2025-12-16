@@ -405,30 +405,66 @@ pub trait Query: Clone + Sized {
         &self,
         metadata_changes: Option<super::MetadataChanges>,
     ) -> super::QuerySnapshotStream {
+        use futures::stream::StreamExt;
         use tokio::sync::{mpsc, oneshot};
 
         let (tx, rx) = mpsc::unbounded_channel();
-        let (cancel_tx, cancel_rx) = oneshot::channel();
+        let (cancel_tx, mut cancel_rx) = oneshot::channel();
 
         // Clone necessary data for the async task
-        let _state = self.query_state().clone();
-        let _include_metadata =
-            metadata_changes.unwrap_or_default() == super::MetadataChanges::Include;
+        let state = self.query_state().clone();
+        let firestore = crate::firestore::Firestore {
+            inner: state.firestore.clone(),
+        };
+        let options = super::listener::ListenerOptions {
+            include_metadata_changes: metadata_changes.unwrap_or_default()
+                == super::MetadataChanges::Include,
+        };
 
         // Spawn background task to handle the listener
         tokio::spawn(async move {
-            // TODO: Implement listen_query in listener.rs
-            // Query listening requires:
-            // 1. Convert QueryState to gRPC StructuredQuery
-            // 2. Create Target with query instead of documents
-            // 3. Track document changes (additions, modifications, removals)
-            // 4. Build QuerySnapshot from accumulated results
-            //
-            // For now, send an error explaining this is not yet implemented
-            let _ = tx.send(Err(crate::error::FirestoreError::Unimplemented.into()));
+            // Get authentication token if available
+            let auth_token = state.firestore.id_token.clone().unwrap_or_default();
 
-            // Wait for cancellation
-            let _ = cancel_rx.await;
+            let project_id = state.firestore.project_id.clone();
+            let database_id = state.firestore.database_id.clone();
+
+            // Start the query listener
+            let listener_result = super::listener::listen_query(
+                &firestore,
+                auth_token,
+                project_id,
+                database_id,
+                state,
+                options,
+            )
+            .await;
+
+            match listener_result {
+                Err(e) => {
+                    let _ = tx.send(Err(e));
+                    return;
+                }
+                Ok(mut stream) => {
+                    // Forward stream events until cancellation
+                    loop {
+                        tokio::select! {
+                            snapshot_result = stream.next() => {
+                                let Some(result) = snapshot_result else {
+                                    break; // Stream ended
+                                };
+                                if tx.send(result).is_err() {
+                                    break; // Receiver dropped
+                                }
+                            }
+                            _ = &mut cancel_rx => {
+                                break; // Cancelled
+                            }
+                        }
+                    }
+                }
+            }
+
         });
 
         super::QuerySnapshotStream::new(rx, cancel_tx)

@@ -358,6 +358,337 @@ fn process_listen_response(
     }
 }
 
+/// Stream of query snapshots from Firestore listener
+pub type QuerySnapshotStream = Pin<Box<dyn Stream<Item = Result<crate::firestore::QuerySnapshot, FirebaseError>> + Send>>;
+
+/// Creates a real-time listener stream for a Firestore query using gRPC streaming
+///
+/// Similar to listen_document but tracks all documents matching the query.
+/// Accumulates changes and builds QuerySnapshot with document change tracking.
+///
+/// # Arguments
+/// * `firestore` - Firestore instance
+/// * `auth_token` - Bearer token for authentication
+/// * `project_id` - Firebase project ID
+/// * `database_id` - Firestore database ID
+/// * `query_state` - Query filters, orders, limits
+/// * `options` - Listener configuration options
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn listen_query(
+    firestore: &Firestore,
+    auth_token: String,
+    project_id: String,
+    database_id: String,
+    query_state: crate::firestore::query::QueryState,
+    options: ListenerOptions,
+) -> Result<QuerySnapshotStream, FirebaseError> {
+    use crate::firestore::QuerySnapshot;
+    use std::collections::HashMap;
+    
+    let firestore_inner = Arc::clone(&firestore.inner);
+    let channel = create_authenticated_channel(&auth_token).await?;
+
+    let auth_token_clone = auth_token.clone();
+    let project_id_clone = project_id.clone();
+    let database_id_clone = database_id.clone();
+    let mut client = FirestoreClient::with_interceptor(channel, move |mut req: Request<()>| {
+        let token = format!("Bearer {}", auth_token_clone);
+        let Ok(val) = token.parse() else {
+            return Err(tonic::Status::unauthenticated("Invalid token"));
+        };
+        req.metadata_mut().insert("authorization", val);
+
+        let resource_prefix = format!(
+            "projects/{}/databases/{}",
+            project_id_clone, database_id_clone
+        );
+        let Ok(val) = resource_prefix.parse() else {
+            return Err(tonic::Status::invalid_argument("Invalid resource prefix"));
+        };
+        req.metadata_mut().insert("x-goog-request-params", val);
+
+        Ok(req)
+    });
+
+    let database = format!("projects/{}/databases/{}", project_id, database_id);
+    let parent = format!("{}/documents", database);
+
+    // Convert QueryState to gRPC StructuredQuery
+    let structured_query = query_state_to_structured_query(&query_state);
+
+    // Create query target
+    let target = Target {
+        target_id: 1,
+        once: false,
+        expected_count: None,
+        target_type: Some(firestore_proto::target::TargetType::Query(
+            firestore_proto::target::QueryTarget {
+                parent,
+                query_type: Some(firestore_proto::target::query_target::QueryType::StructuredQuery(
+                    structured_query,
+                )),
+            },
+        )),
+        resume_type: None,
+    };
+
+    let request = ListenRequest {
+        database: database.clone(),
+        labels: HashMap::new(),
+        target_change: Some(firestore_proto::listen_request::TargetChange::AddTarget(target)),
+    };
+
+    let (request_sender, request_receiver) = mpsc::channel(10);
+    if let Err(e) = request_sender.send(request).await {
+        return Err(FirebaseError::internal(format!(
+            "Failed to send listen request: {}",
+            e
+        )));
+    }
+
+    let response = client.listen(ReceiverStream::new(request_receiver)).await;
+    let response_stream = match response {
+        Err(e) => {
+            return Err(FirebaseError::internal(format!(
+                "Failed to start listener: {}",
+                e
+            )))
+        }
+        Ok(stream) => stream.into_inner(),
+    };
+
+    let (snapshot_tx, snapshot_rx) = mpsc::channel::<Result<QuerySnapshot, FirebaseError>>(100);
+
+    tokio::spawn(async move {
+        let mut stream = response_stream;
+        let _request_sender = request_sender;
+        
+        // Accumulate documents
+        let mut documents: HashMap<String, proto::google::firestore::v1::Document> = HashMap::new();
+        let mut is_initial_snapshot = true;
+
+        loop {
+            let message = stream.next().await;
+
+            let Some(msg) = message else {
+                break;
+            };
+
+            match msg {
+                Err(e) => {
+                    let _ = snapshot_tx.send(Err(FirebaseError::internal(format!("Stream error: {}", e)))).await;
+                    break;
+                }
+                Ok(response) => {
+                    let should_emit = process_query_listen_response(
+                        response,
+                        &options,
+                        &mut documents,
+                        &mut is_initial_snapshot,
+                    );
+
+                    if should_emit {
+                        // Build QuerySnapshot from current documents
+                        let snapshot = QuerySnapshot {
+                            documents: documents.values().cloned().collect(),
+                            firestore: Arc::clone(&firestore_inner),
+                        };
+
+                        if snapshot_tx.send(Ok(snapshot)).await.is_err() {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    Ok(Box::pin(ReceiverStream::new(snapshot_rx)))
+}
+
+/// Convert QueryState to gRPC StructuredQuery
+fn query_state_to_structured_query(
+    state: &crate::firestore::query::QueryState,
+) -> firestore_proto::StructuredQuery {
+    use proto::google::firestore::v1 as firestore_proto;
+
+    // Extract collection_id from collection_path
+    // collection_path format: "projects/{project_id}/databases/{database_id}/documents/{collection}/{docId}..."
+    let collection_id = state
+        .collection_path
+        .split('/')
+        .last()
+        .unwrap_or("documents")
+        .to_string();
+
+    let mut query = firestore_proto::StructuredQuery {
+        select: None, // Return all fields
+        from: vec![firestore_proto::structured_query::CollectionSelector {
+            collection_id,
+            all_descendants: false,
+        }],
+        r#where: None,
+        order_by: Vec::new(),
+        start_at: None,
+        end_at: None,
+        offset: 0,
+        limit: None,
+        find_nearest: None,
+    };
+
+    // Add filters
+    if !state.filters.is_empty() {
+        if state.filters.len() == 1 {
+            let (field, op, value) = &state.filters[0];
+            query.r#where = Some(create_field_filter(field, op, value));
+        } else {
+            // Multiple filters wrapped in AND
+            let filters: Vec<_> = state
+                .filters
+                .iter()
+                .map(|(field, op, value)| create_field_filter(field, op, value))
+                .collect();
+
+            query.r#where = Some(firestore_proto::structured_query::Filter {
+                filter_type: Some(
+                    firestore_proto::structured_query::filter::FilterType::CompositeFilter(
+                        firestore_proto::structured_query::CompositeFilter {
+                            op: firestore_proto::structured_query::composite_filter::Operator::And
+                                as i32,
+                            filters,
+                        },
+                    ),
+                ),
+            });
+        }
+    }
+
+    // Add ordering
+    for (field, direction) in &state.orders {
+        query.order_by.push(firestore_proto::structured_query::Order {
+            field: Some(firestore_proto::structured_query::FieldReference {
+                field_path: field.clone(),
+            }),
+            direction: match direction {
+                crate::firestore::Direction::Ascending => {
+                    firestore_proto::structured_query::Direction::Ascending as i32
+                }
+                crate::firestore::Direction::Descending => {
+                    firestore_proto::structured_query::Direction::Descending as i32
+                }
+            },
+        });
+    }
+
+    // Add limit
+    if let Some(limit) = state.limit_value {
+        query.limit = Some(limit);
+    }
+
+    query
+}
+
+/// Create a field filter from query state format
+fn create_field_filter(
+    field: &str,
+    op: &crate::firestore::query::FilterOperator,
+    value: &proto::google::firestore::v1::Value,
+) -> proto::google::firestore::v1::structured_query::Filter {
+    use crate::firestore::query::FilterOperator;
+    use proto::google::firestore::v1 as firestore_proto;
+
+    let operator = match op {
+        FilterOperator::EqualTo => {
+            firestore_proto::structured_query::field_filter::Operator::Equal
+        }
+        FilterOperator::NotEqualTo => {
+            firestore_proto::structured_query::field_filter::Operator::NotEqual
+        }
+        FilterOperator::LessThan => {
+            firestore_proto::structured_query::field_filter::Operator::LessThan
+        }
+        FilterOperator::LessThanOrEqualTo => {
+            firestore_proto::structured_query::field_filter::Operator::LessThanOrEqual
+        }
+        FilterOperator::GreaterThan => {
+            firestore_proto::structured_query::field_filter::Operator::GreaterThan
+        }
+        FilterOperator::GreaterThanOrEqualTo => {
+            firestore_proto::structured_query::field_filter::Operator::GreaterThanOrEqual
+        }
+        FilterOperator::ArrayContains => {
+            firestore_proto::structured_query::field_filter::Operator::ArrayContains
+        }
+        FilterOperator::ArrayContainsAny => {
+            firestore_proto::structured_query::field_filter::Operator::ArrayContainsAny
+        }
+        FilterOperator::In => firestore_proto::structured_query::field_filter::Operator::In,
+        FilterOperator::NotIn => firestore_proto::structured_query::field_filter::Operator::NotIn,
+    };
+
+    firestore_proto::structured_query::Filter {
+        filter_type: Some(
+            firestore_proto::structured_query::filter::FilterType::FieldFilter(
+                firestore_proto::structured_query::FieldFilter {
+                    field: Some(firestore_proto::structured_query::FieldReference {
+                        field_path: field.to_string(),
+                    }),
+                    op: operator as i32,
+                    value: Some(value.clone()),
+                },
+            ),
+        ),
+    }
+}
+
+/// Process ListenResponse for query listening
+fn process_query_listen_response(
+    response: firestore_proto::ListenResponse,
+    _options: &ListenerOptions,
+    documents: &mut HashMap<String, proto::google::firestore::v1::Document>,
+    is_initial: &mut bool,
+) -> bool {
+    use ResponseType::*;
+
+    match response.response_type {
+        Some(DocumentChange(change)) => {
+            if let Some(doc) = change.document {
+                let doc_name = doc.name.clone();
+                documents.insert(doc_name, doc);
+            }
+            // After initial snapshot, emit on every document change
+            !*is_initial
+        }
+        Some(DocumentDelete(delete)) => {
+            documents.remove(&delete.document);
+            // After initial snapshot, emit on every document deletion
+            !*is_initial
+        }
+        Some(DocumentRemove(remove)) => {
+            documents.remove(&remove.document);
+            // After initial snapshot, emit on every document removal
+            !*is_initial
+        }
+        Some(TargetChange(change)) => {
+            // Check if this is CURRENT state (all initial data received)
+            if change.target_change_type == firestore_proto::target_change::TargetChangeType::Current as i32 {
+                if *is_initial {
+                    *is_initial = false;
+                    return true; // Emit initial snapshot
+                }
+            }
+            
+            // Check for errors
+            if let Some(cause) = change.cause {
+                eprintln!("Target change error: code={}, message={}", cause.code, cause.message);
+            }
+            false
+        }
+        Some(Filter(_)) => false,
+        None => false,
+    }
+}
+
 // WASM support will be added using tonic-web-wasm-client
 #[cfg(target_arch = "wasm32")]
 pub async fn listen_document(
@@ -368,7 +699,20 @@ pub async fn listen_document(
     _document_path: String,
     _options: ListenerOptions,
 ) -> Result<DocumentSnapshotStream, FirebaseError> {
-    // TODO: Implement using tonic-web-wasm-client
+    Err(FirebaseError::internal(
+        "WASM listener support not yet implemented",
+    ))
+}
+
+#[cfg(target_arch = "wasm32")]
+pub async fn listen_query(
+    _firestore: &Firestore,
+    _auth_token: String,
+    _project_id: String,
+    _database_id: String,
+    _query_state: crate::firestore::query::QueryState,
+    _options: ListenerOptions,
+) -> Result<QuerySnapshotStream, FirebaseError> {
     Err(FirebaseError::internal(
         "WASM listener support not yet implemented",
     ))
