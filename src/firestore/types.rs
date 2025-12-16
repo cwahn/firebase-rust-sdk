@@ -652,6 +652,14 @@ impl Default for SnapshotMetadata {
 ///
 /// # C++ Reference
 /// - `firebase-ios-sdk/Firestore/core/src/api/collection_reference.h:38`
+///
+/// # Architecture Note
+/// **TODO**: In the C++ SDK, `CollectionReference` inherits from `Query`. The Rust SDK
+/// currently uses `CollectionReference` for both collection references and queries, lacking
+/// a separate `Query` type. This should be refactored to match the C++ architecture:
+/// - Introduce `struct Query` as the base query type
+/// - Make `CollectionReference` contain or convert to `Query`
+/// - Update `Firestore::collection_group()` to return `Query` instead of `CollectionReference`
 #[derive(Clone)]
 pub struct CollectionReference {
     /// Collection path (e.g., "users")

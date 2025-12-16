@@ -180,10 +180,17 @@ impl Firestore {
     ///
     /// # Returns
     /// A CollectionReference configured to query across all collections with the given ID.
-    /// The returned reference has `all_descendants` flag set to query subcollections.
     ///
     /// # C++ Reference
     /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore.h:268` - CollectionGroup()
+    ///   Returns `Query` in C++ SDK
+    ///
+    /// # Architecture Note
+    /// **TODO**: The C++ SDK returns `Query` type, not `CollectionReference`. The Rust SDK
+    /// currently lacks a separate `Query` type - `CollectionReference` is being used for
+    /// both collections and queries. This should be refactored to introduce a proper `Query`
+    /// struct that `CollectionReference` can convert to/from, matching the C++ architecture
+    /// where `CollectionReference` inherits from `Query`.
     ///
     /// # Example
     /// ```no_run
