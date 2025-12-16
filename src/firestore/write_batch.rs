@@ -54,8 +54,24 @@ impl WriteBatch {
         }
     }
 
-    /// Set document data
-    pub fn set(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
+    /// Set document data (overwrites existing document)
+    ///
+    /// # C++ Reference
+    /// - `write_batch.h:117` - Set() method
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let firestore = Firestore::new("project-id", "default", None).await?;
+    /// let batch = firestore.batch()
+    ///     .set("cities/LA", Default::default())
+    ///     .commit()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn set(mut self, path: impl Into<String>, data: MapValue) -> Self {
         self.operations.push(WriteOperation::Set {
             path: path.into(),
             data,
@@ -63,8 +79,24 @@ impl WriteBatch {
         self
     }
 
-    /// Update document fields
-    pub fn update(&mut self, path: impl Into<String>, data: MapValue) -> &mut Self {
+    /// Update document fields (document must exist)
+    ///
+    /// # C++ Reference
+    /// - `write_batch.h:131` - Update() method
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let firestore = Firestore::new("project-id", "default", None).await?;
+    /// let batch = firestore.batch()
+    ///     .update("cities/LA", Default::default())
+    ///     .commit()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn update(mut self, path: impl Into<String>, data: MapValue) -> Self {
         self.operations.push(WriteOperation::Update {
             path: path.into(),
             data,
@@ -73,7 +105,23 @@ impl WriteBatch {
     }
 
     /// Delete document
-    pub fn delete(&mut self, path: impl Into<String>) -> &mut Self {
+    ///
+    /// # C++ Reference
+    /// - `write_batch.h:151` - Delete() method
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let firestore = Firestore::new("project-id", "default", None).await?;
+    /// let batch = firestore.batch()
+    ///     .delete("cities/LA")
+    ///     .commit()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn delete(mut self, path: impl Into<String>) -> Self {
         self.operations
             .push(WriteOperation::Delete { path: path.into() });
         self
@@ -183,3 +231,54 @@ impl WriteBatch {
         self.operations.len()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_write_batch_operations() {
+        // Test WriteBatch without needing FirestoreInner
+        // Just verify the WriteOperation enum works correctly
+        let data = MapValue {
+            fields: HashMap::new(),
+        };
+        
+        let set_op = WriteOperation::Set {
+            path: "cities/LA".to_string(),
+            data: data.clone(),
+        };
+        
+        match set_op {
+            WriteOperation::Set { ref path, .. } => {
+                assert_eq!(path, "cities/LA");
+            }
+            _ => panic!("Expected Set operation"),
+        }
+        
+        let update_op = WriteOperation::Update {
+            path: "cities/SF".to_string(),
+            data: data.clone(),
+        };
+        
+        match update_op {
+            WriteOperation::Update { ref path, .. } => {
+                assert_eq!(path, "cities/SF");
+            }
+            _ => panic!("Expected Update operation"),
+        }
+        
+        let delete_op = WriteOperation::Delete {
+            path: "cities/NYC".to_string(),
+        };
+        
+        match delete_op {
+            WriteOperation::Delete { ref path } => {
+                assert_eq!(path, "cities/NYC");
+            }
+            _ => panic!("Expected Delete operation"),
+        }
+    }
+}
+

@@ -163,9 +163,25 @@ impl Firestore {
     /// Create a new write batch
     ///
     /// # C++ Reference
+    /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore.h:233` - batch()
     /// - `firebase-ios-sdk/Firestore/core/src/api/firestore.cc:96` - GetBatch()
-    pub fn batch(&self) -> crate::firestore::types::WriteBatch {
-        crate::firestore::types::WriteBatch::new(Arc::clone(&self.inner))
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("project-id", "default", None).await?;
+    /// 
+    /// firestore.batch()
+    ///     .set("cities/LA", Default::default())
+    ///     .set("cities/SF", Default::default())
+    ///     .commit()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn batch(&self) -> crate::firestore::write_batch::WriteBatch {
+        crate::firestore::write_batch::WriteBatch::new(Arc::clone(&self.inner))
     }
 
     /// Create a collection group query
