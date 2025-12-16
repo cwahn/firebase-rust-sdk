@@ -145,19 +145,33 @@ pub trait Query {
 - ✅ MetadataChanges enum
 - ✅ listen() method signatures on DocumentReference and Query
 - ✅ Channel-based streaming pattern with Drop cleanup
-- ⚙️ Placeholder implementations (need gRPC integration)
-- ❌ gRPC Listen streaming (pending)
-- ❌ ListenRequest/ListenResponse handling (pending)
-- ❌ DocumentChange tracking (pending)
+- ✅ DocumentReference::listen() integrated with gRPC bidirectional streaming
+- ✅ Automatic forwarding from gRPC stream to Rust async stream
+- ✅ Cancellation signal handling on stream drop
+- ⚙️ Query::listen() returns Unimplemented error (requires query target support)
+- ❌ listen_query function in listener.rs (pending)
+- ❌ DocumentChange tracking for query listeners (pending)
+
+**Implementation Details:**
+- `DocumentReference::listen()` spawns async task that:
+  1. Calls `listener::listen_document()` with auth token and metadata options
+  2. Forwards gRPC `ListenResponse` events to `mpsc::UnboundedSender`
+  3. Monitors `oneshot::Receiver` for cancellation signal
+  4. Exits gracefully on stream drop or error
+- Zero-copy forwarding: events passed directly from gRPC stream to channel
+- RAII cleanup: Drop automatically sends cancellation, no manual cleanup needed
 
 **Remaining Work:**
-1. Integrate listen() methods with existing listener.rs gRPC infrastructure
-2. Convert between gRPC bidirectional stream and Rust async streams
-3. Handle ListenRequest/ListenResponse proto conversion
-4. Implement DocumentChange tracking for query listeners
-5. Integration tests with real Firebase
+1. Implement `listen_query` in listener.rs for Query listening
+   - Convert `QueryState` to gRPC `StructuredQuery`
+   - Create `Target` with query instead of documents
+   - Track document changes (additions, modifications, removals)
+   - Build `QuerySnapshot` from accumulated results
+2. Add DocumentChange tracking
+3. Unit tests for listen() behavior
+4. Integration tests with real Firebase
 
-**Complexity:** High (8-10 hours total) - ~3 hours done, 5-7 hours remaining for gRPC integration
+**Complexity:** High (8-10 hours total) - ~4-5 hours done, 3-5 hours remaining for query listening
 
 ---
 
