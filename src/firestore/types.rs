@@ -650,10 +650,12 @@ impl WriteBatch {
 /// # Example
 /// ```no_run
 /// # use firebase_rust_sdk::firestore::Firestore;
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-/// let firestore = Firestore::new("my-project", "my-key", "(default)").await?;
+/// # use serde_json::json;
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let firestore = Firestore::get_firestore("my-project").await?;
 ///
-/// firestore.run_transaction(|txn| async move {
+/// firestore.run_transaction(|mut txn| async move {
 ///     // All reads must happen first
 ///     let doc = txn.get("users/alice").await?;
 ///     let count = doc.get("count").and_then(|v| v.as_i64()).unwrap_or(0);

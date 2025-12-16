@@ -314,18 +314,131 @@ impl User {
 
     /// Reload user data from server
     ///
+    /// Refreshes the user's profile data from the server. This updates the user's
+    /// display name, email, photo URL, and email verification status.
+    ///
     /// # C++ Reference
     /// - `auth/src/include/firebase/auth/user.h:547`
+    /// - `auth/src/desktop/rpcs/get_account_info_request.cc:28`
+    /// - `auth/src/desktop/user_desktop.cc:797` - GetAccountInfo endpoint
     pub async fn reload(&mut self) -> Result<(), AuthError> {
-        todo!("Implement user reload via REST API")
+        // Error-first: validate ID token
+        let Some(ref id_token) = self.id_token else {
+            return Err(AuthError::NoSignedInUser);
+        };
+
+        // Error-first: validate API key
+        let Some(ref api_key) = self.api_key else {
+            return Err(AuthError::InvalidApiKey);
+        };
+
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
+            api_key
+        );
+
+        let body = serde_json::json!({
+            "idToken": id_token
+        });
+
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| AuthError::NetworkRequestFailed(e.to_string()))?;
+
+        // Error-first: handle HTTP errors
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await
+                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("RELOAD_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+
+        // Parse successful response and update user data
+        let response_data: serde_json::Value = response.json().await
+            .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse response: {}", e)))?;
+
+        // Error-first: validate response structure
+        let Some(users) = response_data["users"].as_array() else {
+            return Err(AuthError::NetworkRequestFailed("Invalid response structure".to_string()));
+        };
+
+        let Some(user_data) = users.first() else {
+            return Err(AuthError::UserNotFound);
+        };
+
+        // Update user fields from server response
+        if let Some(display_name) = user_data["displayName"].as_str() {
+            self.display_name = Some(display_name.to_string());
+        }
+        if let Some(photo_url) = user_data["photoUrl"].as_str() {
+            self.photo_url = Some(photo_url.to_string());
+        }
+        if let Some(email) = user_data["email"].as_str() {
+            self.email = Some(email.to_string());
+        }
+        if let Some(email_verified) = user_data["emailVerified"].as_bool() {
+            self.email_verified = email_verified;
+        }
+
+        Ok(())
     }
 
     /// Send email verification
     ///
+    /// Sends a verification email to the user's email address. The email contains
+    /// a link that the user can click to verify their email address.
+    ///
     /// # C++ Reference
     /// - `auth/src/include/firebase/auth/user.h:582`
+    /// - `auth/src/desktop/rpcs/get_oob_confirmation_code_request.cc:37` - CreateSendEmailVerificationRequest
+    /// - `auth/src/desktop/user_desktop.cc:728` - SendEmailVerification endpoint
     pub async fn send_email_verification(&self) -> Result<(), AuthError> {
-        todo!("Implement email verification via REST API")
+        // Error-first: validate ID token
+        let Some(ref id_token) = self.id_token else {
+            return Err(AuthError::NoSignedInUser);
+        };
+
+        // Error-first: validate API key
+        let Some(ref api_key) = self.api_key else {
+            return Err(AuthError::InvalidApiKey);
+        };
+
+        let url = format!(
+            "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={}",
+            api_key
+        );
+
+        let body = serde_json::json!({
+            "requestType": "VERIFY_EMAIL",
+            "idToken": id_token
+        });
+
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&url)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| AuthError::NetworkRequestFailed(e.to_string()))?;
+
+        // Error-first: handle HTTP errors
+        if !response.status().is_success() {
+            let error_body: serde_json::Value = response.json().await
+                .map_err(|e| AuthError::NetworkRequestFailed(format!("Failed to parse error: {}", e)))?;
+            let error_message = error_body["error"]["message"]
+                .as_str()
+                .unwrap_or("SEND_EMAIL_VERIFICATION_FAILED");
+            return Err(AuthError::from_error_code(error_message));
+        }
+
+        // Email verification sent successfully
+        Ok(())
     }
 
     /// Update email address
@@ -823,5 +936,59 @@ mod tests {
         assert!(profile.photo_url.is_some());
         assert_eq!(profile.display_name.as_deref(), Some("Alice Smith"));
         assert_eq!(profile.photo_url.as_deref(), Some("https://example.com/photo.jpg"));
+    }
+
+    #[tokio::test]
+    async fn test_reload_requires_id_token() {
+        let mut user = User {
+            uid: "test123".to_string(),
+            email: Some("test@example.com".to_string()),
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: false,
+            metadata: UserMetadata {
+                creation_timestamp: 1234567890,
+                last_sign_in_timestamp: 1234567890,
+            },
+            provider_data: vec![],
+            id_token: None, // No ID token
+            refresh_token: None,
+            token_expiration: None,
+            api_key: Some("test-api-key".to_string()),
+        };
+
+        // Test that reload fails without ID token (error-first)
+        let result = user.reload().await;
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::NoSignedInUser));
+    }
+
+    #[tokio::test]
+    async fn test_send_email_verification_requires_id_token() {
+        let user = User {
+            uid: "test123".to_string(),
+            email: Some("test@example.com".to_string()),
+            display_name: None,
+            photo_url: None,
+            phone_number: None,
+            email_verified: false,
+            is_anonymous: false,
+            metadata: UserMetadata {
+                creation_timestamp: 1234567890,
+                last_sign_in_timestamp: 1234567890,
+            },
+            provider_data: vec![],
+            id_token: None, // No ID token
+            refresh_token: None,
+            token_expiration: None,
+            api_key: Some("test-api-key".to_string()),
+        };
+
+        // Test that send_email_verification fails without ID token (error-first)
+        let result = user.send_email_verification().await;
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), AuthError::NoSignedInUser));
     }
 }

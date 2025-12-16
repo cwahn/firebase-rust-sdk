@@ -4,12 +4,13 @@
 //!
 //! # Example (Email/Password Auth)
 //! ```no_run
-//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! use firebase_rust_sdk::Auth;
 //!
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let auth = Auth::get_auth("YOUR_API_KEY").await?;
-//! let user = auth.sign_in_with_email_and_password("user@example.com", "password").await?;
-//! println!("Signed in: {}", user.uid);
+//! let result = auth.sign_in_with_email_and_password("user@example.com", "password").await?;
+//! println!("Signed in: {}", result.user.uid);
 //! # Ok(())
 //! # }
 //! ```

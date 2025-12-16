@@ -839,11 +839,12 @@ impl Firestore {
     /// ```no_run
     /// # use firebase_rust_sdk::firestore::Firestore;
     /// # use serde_json::json;
-    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-    /// let firestore = Firestore::new("my-project", "my-key", "(default)").await?;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::get_firestore("my-project").await?;
     /// 
     /// // Atomic counter increment
-    /// firestore.run_transaction(|txn| async move {
+    /// firestore.run_transaction(|mut txn| async move {
     ///     let doc = txn.get("counters/visits").await?;
     ///     let count = doc.get("value").and_then(|v| v.as_i64()).unwrap_or(0);
     ///     txn.set("counters/visits", json!({"value": count + 1}));
@@ -1670,15 +1671,16 @@ impl CollectionReference {
     ///
     /// # Example
     /// ```no_run
-    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// use firebase_rust_sdk::firestore::Firestore;
     /// use serde_json::json;
     ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let firestore = Firestore::get_firestore("my-project").await?;
     /// let doc_ref = firestore.collection("users")
     ///     .add(json!({"name": "Alice", "age": 30}))
     ///     .await?;
-    /// println!("Created document: {}", doc_ref.path());
+    /// println!("Created document: {}", doc_ref.path);
     /// # Ok(())
     /// # }
     /// ```
