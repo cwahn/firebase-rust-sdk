@@ -1,409 +1,142 @@
 # Firebase Rust SDK
 
-Port of Firebase C++ SDK (Auth + Firestore modules) to idiomatic Rust.
+[![Crates.io](https://img.shields.io/crates/v/firebase-rust-sdk.svg)](https://crates.io/crates/firebase-rust-sdk)
+[![Documentation](https://docs.rs/firebase-rust-sdk/badge.svg)](https://docs.rs/firebase-rust-sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Idiomatic Rust SDK for Firebase Authentication and Cloud Firestore with full async/await support and gRPC transport.
+
+> **⚠️ Unofficial Port**: This is an unofficial community port of the Firebase C++ SDK. It is not affiliated with, endorsed by, or supported by Google or Firebase.
+>
+> **⚠️ Alpha Release**: This is version 0.1.0-alpha.1. APIs may change before 1.0.0. Use at your own risk in production.
+
+## Features
+
+### Firebase Authentication
+- ✅ Email/password authentication
+- ✅ Anonymous authentication  
+- ✅ OAuth providers (Google, Facebook, GitHub, generic OAuth)
+- ✅ Custom token authentication
+- ✅ Password reset
+- ✅ Automatic token refresh
+- ✅ User management (profile, password, email updates)
+- ✅ Auth state change listeners (Rust Streams)
+
+### Cloud Firestore
+- ✅ Document CRUD operations via gRPC
+- ✅ Queries with filters, ordering, pagination
+- ✅ WriteBatch for atomic operations
+- ✅ Transactions with automatic retry
+- ✅ Real-time listeners using gRPC streaming
+- ✅ Nested collections
+- ✅ Compound filters (And/Or)
+- ✅ GeoPoint, Timestamp support
+- ⚠️ Offline persistence API (structure ready, implementation pending)
+
+## Installation
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+firebase-rust-sdk = "0.1.0-alpha.1"
+tokio = { version = "1", features = ["full"] }
+```
 
 ## Quick Start
 
-1. **Read the manual:** [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) - Complete implementation guide
-2. **Review analysis:** [QUICK_SUMMARY.md](QUICK_SUMMARY.md) - One-page overview
-3. **Check details:** [RUST_PORTING_ANALYSIS.md](RUST_PORTING_ANALYSIS.md) - Detailed porting strategy
+See the [documentation](https://docs.rs/firebase-rust-sdk) for detailed API reference.
 
-## Implementation Status
+### Setup
 
-✅ **Phase 3 Complete** - Advanced features implemented
+1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable Authentication and Firestore in your project
+3. Get your API key and project ID from project settings
 
-### Coverage Summary
-- **Auth Module:** 10/10 core features (100%)
-- **Firestore Module:** 13/13 features (100% - API complete, persistence impl pending)
-- **Overall:** 100% API coverage, ~95% implementation complete
-- **Tests:** 101 tests passing (11 new persistence API tests)
-
-### Auth Features (10/10) ✅
-- ✅ Email/password authentication (sign in, create user)
-- ✅ Anonymous authentication
-- ✅ OAuth providers (Google, Facebook, GitHub, generic OAuth)
-- ✅ Custom token authentication (server-side JWT)
-- ✅ Password reset email
-- ✅ Automatic token refresh with expiration tracking
-- ✅ User management (update_password, update_email, delete, update_profile)
-- ✅ Auth state change listeners (async streams)
-- ✅ Sign out
-- ✅ Current user tracking
-
-### Firestore Features (13/13) ✅
-- ✅ Document CRUD operations (Get, Set, Update, Delete)
-- ✅ Query operations (filters, ordering, limits)
-- ✅ Query pagination (start_at, start_after, end_at, end_before)
-- ✅ CollectionReference::add() with auto-generated IDs
-- ✅ WriteBatch for atomic multi-document operations
-- ✅ Transactions with automatic retry logic
-- ✅ Real-time snapshot listeners (documents and queries)
-- ✅ DocumentReference, DocumentSnapshot, QuerySnapshot types
-- ✅ GeoPoint, Timestamp field types
-- ✅ Nested collections
-- ✅ Path-based document access
-- ✅ Compound filters (And/Or with nesting)
-- ✅ Offline persistence API (Settings, Source, network control) - **Implementation pending (todo!())**
-
-See [IMPLEMENTATION_MANUAL.md](IMPLEMENTATION_MANUAL.md) for detailed roadmap.
-
-## Examples
-
-### Authentication
+### Basic Usage
 
 ```rust
-use firebase_rust_sdk::Auth;
+use firebase_rust_sdk::{App, AppOptions, Auth, firestore::Firestore};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let auth = Auth::get_auth("YOUR_API_KEY").await?;
-    
-    // Sign in with email/password
-    let user = auth.sign_in_with_email_and_password("user@example.com", "password").await?;
-    println!("Signed in: {}", user.uid);
-    
-    // Or sign in anonymously
-    let anon_user = auth.sign_in_anonymously().await?;
-    println!("Anonymous user: {}", anon_user.user.uid);
-    
-    // OAuth sign-in with Google
-    use firebase_rust_sdk::auth::Credential;
-    let google_credential = Credential::Google {
-        id_token: Some("google_id_token".to_string()),
-        access_token: Some("google_access_token".to_string()),
-    };
-    let oauth_result = auth.sign_in_with_credential(google_credential).await?;
-    println!("OAuth user: {}", oauth_result.user.uid);
-    println!("Provider: {}", oauth_result.additional_user_info.provider_id);
-    
-    // OAuth sign-in with Facebook
-    let facebook_credential = Credential::Facebook {
-        access_token: "facebook_access_token".to_string(),
-    };
-    let fb_result = auth.sign_in_with_credential(facebook_credential).await?;
-    
-    // OAuth sign-in with GitHub
-    let github_credential = Credential::GitHub {
-        token: "github_token".to_string(),
-    };
-    let gh_result = auth.sign_in_with_credential(github_credential).await?;
-    
-    // Generic OAuth provider (e.g., Apple)
-    let oauth_credential = Credential::OAuth {
-        provider_id: "apple.com".to_string(),
-        id_token: Some("apple_id_token".to_string()),
-        access_token: None,
-        raw_nonce: Some("nonce".to_string()),
-    };
-    let result = auth.sign_in_with_credential(oauth_credential).await?;
-    
-    // Custom token (server-generated JWT)
-    let custom_result = auth.sign_in_with_custom_token("your_server_jwt_token").await?;
-    println!("Custom token user: {}", custom_result.user.uid);
-    
-    // Send password reset email
-    auth.send_password_reset_email("user@example.com").await?;
-    println!("Password reset email sent");
-    
-    // Update user profile
-    let profile = UserProfile {
-        display_name: Some("Alice Smith".to_string()),
-        photo_url: Some("https://example.com/photo.jpg".to_string()),
-    };
-    user.update_profile(profile).await?;
-    
-    // Listen to auth state changes
-    let mut stream = auth.auth_state_changes().await;
-    while let Some(user_opt) = stream.next().await {
-        match user_opt {
-            Some(user) => println!("User signed in: {}", user.uid),
-            None => println!("User signed out"),
-        }
-    }
-    
-    Ok(())
-}
-```
-
-### Firestore Queries & Batch Operations
-
-```rust
-use firebase_rust_sdk::firestore::{Firestore, types::WriteBatch, FilterCondition, OrderDirection};
-use serde_json::json;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let firestore = Firestore::get_firestore("my-project").await?;
-    
-    // Add document with auto-generated ID
-    let doc_ref = firestore.collection("users")
-        .add(json!({
-            "name": "Alice",
-            "age": 30,
-            "email": "alice@example.com"
-        }))
-        .await?;
-    println!("Created document: {}", doc_ref.path);
-    
-    // Batch write operations (atomic)
-    let mut batch = WriteBatch::new();
-    batch.set("users/bob", json!({"name": "Bob", "age": 25}))
-         .update("users/alice", json!({"age": 31}))
-         .delete("users/charlie");
-    firestore.commit_batch(batch).await?;
-    println!("Batch committed successfully");
-    
-    // Query with pagination
-    let docs = firestore.collection("users")
-        .query()
-        .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
-        .where_filter(FilterCondition::Equal("active".to_string(), json!(true)))
-        .order_by("age", OrderDirection::Ascending)
-        .start_after(vec![json!(25)])  // Start after age 25 (exclusive)
-        .limit(10)
-        .get()
-        .await?;
-    
-    for doc in docs {
-        println!("Document: {} (age: {})", doc.reference.id(), doc.data.as_ref().unwrap()["age"]);
-    }
-    
-    // Compound filters - complex queries
-    // Query: (age > 18 AND age < 65) OR status = "vip"
-    let compound_filter = FilterCondition::Or(vec![
-        FilterCondition::And(vec![
-            FilterCondition::GreaterThan("age".to_string(), json!(18)),
-            FilterCondition::LessThan("age".to_string(), json!(65)),
-        ]),
-        FilterCondition::Equal("status".to_string(), json!("vip")),
-    ]);
-    
-    let filtered_users = firestore.collection("users")
-        .query()
-        .where_filter(compound_filter)
-        .get()
-        .await?;
-    
-    println!("Found {} users matching compound filter", filtered_users.len());
-    
-    // Next page using end value from previous results
-    let last_age = docs.last().and_then(|d| d.data.as_ref()?.get("age"));
-    if let Some(age) = last_age {
-        let next_page = firestore.collection("users")
-            .query()
-            .order_by("age", OrderDirection::Ascending)
-            .start_after(vec![age.clone()])
-            .limit(10)
-            .get()
-            .await?;
-        println!("Next page: {} documents", next_page.len());
-    }
-    
-    Ok(())
-}
-```
-
-### Transactions
-
-```rust
-use firebase_rust_sdk::firestore::Firestore;
-use serde_json::json;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let firestore = Firestore::get_firestore_with_database_and_key(
-        "my-project",
-        "(default)",
-        "YOUR_API_KEY"
-    ).await?;
-    
-    // Atomic counter increment with retry
-    firestore.run_transaction(|mut txn| async move {
-        // All reads must happen first
-        let doc = txn.get("counters/visits").await?;
-        let count = doc.get("count").and_then(|v| v.as_i64()).unwrap_or(0);
-        
-        // Then perform writes
-        txn.set("counters/visits", json!({"count": count + 1}));
-        Ok(())
+    // Initialize Firebase App
+    let app = App::create(AppOptions {
+        api_key: "YOUR_API_KEY".to_string(),
+        project_id: "your-project-id".to_string(),
+        app_name: None,
     }).await?;
     
-    // Custom retry attempts
-    firestore.run_transaction_with_options(|mut txn| async move {
-        let balance_doc = txn.get("accounts/alice").await?;
-        let balance = balance_doc.get("balance").and_then(|v| v.as_f64()).unwrap_or(0.0);
-        
-        if balance < 100.0 {
-            return Err(FirebaseError::Firestore(
-                FirestoreError::InvalidArgument("Insufficient funds".to_string())
-            ));
-        }
-        
-        txn.update("accounts/alice", json!({"balance": balance - 100.0}))
-           .update("accounts/bob", json!({"balance": balance_doc.get("balance").unwrap_or(&json!(0.0)).as_f64().unwrap_or(0.0) + 100.0}));
-        
-        Ok(())
-    }, 10).await?; // Retry up to 10 times
+    // Get Auth instance
+    let auth = Auth::get_auth(&app).await?;
     
-    Ok(())
-}
-```
-
-### Offline Persistence & Caching
-
-```rust
-use firebase_rust_sdk::firestore::{Firestore, types::{Settings, Source}};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let firestore = Firestore::get_firestore("my-project").await?;
+    // Sign in
+    auth.sign_in_with_email_and_password("user@example.com", "password").await?;
+    let user = auth.current_user().await?;
+    println!("Signed in as: {}", user.uid);
     
-    // Configure persistence settings
-    let mut settings = Settings::new();
-    settings.persistence_enabled = true;
-    settings.cache_size_bytes = Settings::CACHE_SIZE_UNLIMITED; // Unlimited cache
+    // Get Firestore instance with ID token
+    let id_token = user.get_id_token(false).await?;
+    let firestore = Firestore::new(
+        app.options.project_id.clone(),
+        "default".to_string(),
+        Some(id_token)
+    ).await?;
     
-    // TODO: This will panic with todo!() until persistence backend is implemented
-    // Future implementation will use REDB for native, IndexedDB for WASM
-    // firestore.set_settings(settings).await?;
+    // Write document
+    let doc_ref = firestore.document("users/alice");
+    doc_ref.set(/* your data */).await?;
     
-    // Network control (API defined, implementation pending)
-    // firestore.disable_network().await?;  // All reads from cache, writes queued
-    // firestore.enable_network().await?;   // Resume network, sync pending writes
-    
-    // Source-based reads (API defined)
-    // let cached_doc = firestore.get_document_with_source("users/alice", Source::Cache).await?;
-    // let server_doc = firestore.get_document_with_source("users/alice", Source::Server).await?;
-    
-    // Wait for pending writes to sync
-    // firestore.wait_for_pending_writes().await?;
-    
-    // Clear all cached data
-    // firestore.clear_persistence().await?;
-    
-    println!("Persistence API is designed and tested");
-    println!("Implementation uses todo!() - see PERSISTENCE_DESIGN.md");
-    
-    Ok(())
-}
-```
-
-**Note:** Persistence API is fully designed with 11 tests, but implementation is marked with `todo!()`. 
-See [PERSISTENCE_DESIGN.md](PERSISTENCE_DESIGN.md) for architecture details and implementation plan using REDB.
-
-### Real-time Snapshot Listeners
-
-```rust
-use firebase_rust_sdk::firestore::Firestore;
-use futures::StreamExt;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let firestore = Firestore::get_firestore("my-project").await?;
-    
-    // Listen to a single document
-    let (registration, mut stream) = firestore
-        .add_document_snapshot_listener("users/alice")
-        .await?;
-    
-    tokio::spawn(async move {
-        while let Some(result) = stream.next().await {
-            match result {
-                Ok(snapshot) => {
-                    if snapshot.exists() {
-                        println!("Document updated: {:?}", snapshot.data);
-                    } else {
-                        println!("Document deleted");
-                    }
-                }
-                Err(e) => eprintln!("Listener error: {}", e),
-            }
-        }
-    });
-    
-    // Listen to a query
-    let query = firestore.collection("users")
-        .query()
-        .where_filter(FilterCondition::Equal("active".to_string(), json!(true)))
-        .order_by("name", OrderDirection::Ascending);
-    
-    let (query_registration, mut query_stream) = firestore
-        .add_query_snapshot_listener(query)
-        .await?;
-    
-    while let Some(result) = query_stream.next().await {
-        match result {
-            Ok(snapshot) => {
-                println!("Query updated: {} documents", snapshot.len());
-                for doc in snapshot.documents {
-                    println!("  - {}: {:?}", doc.reference.id(), doc.data);
-                }
-            }
-            Err(e) => eprintln!("Query listener error: {}", e),
-        }
+    // Read document
+    let snapshot = doc_ref.get().await?;
+    if snapshot.exists() {
+        println!("Data: {:?}", snapshot.data);
     }
     
-    // Remove listener explicitly (or drop registration to auto-remove)
-    registration.remove();
-    
     Ok(())
 }
 ```
 
-## Project Structure
+## Requirements
 
-```
-src/
-├── lib.rs              # Public API
-├── error.rs            # Error types
-├── auth/               # Authentication module
-│   ├── types.rs
-│   ├── auth.rs
-│   └── providers/
-└── firestore/          # Firestore module
-    ├── types.rs
-    ├── document.rs
-    └── query.rs
+- Rust 1.75 or later
+- Tokio runtime
+- Firebase project with Authentication and Firestore enabled
 
-analysis_output/        # Dependency analysis data
-├── implementation_plan.json
-└── api_reports/        # 399 per-API reports with C++ locations
-```
+## Architecture
 
-## Analysis Data
+- **Auth**: REST API for authentication operations
+- **Firestore**: gRPC with TLS for all database operations
+- **Async**: Full async/await with Tokio
+- **Streaming**: Real-time listeners use Rust Stream trait
+- **Type-safe**: Strong typing for all Firebase types
 
-All dependency analysis complete:
-- 3,393 components analyzed
-- 7,731 dependencies mapped
-- 399 public APIs cataloged with file locations
-- 32 implementation layers identified
+## Development Status
 
-Use `analysis_output/api_reports/*.json` to find C++ implementations.
+This SDK is in active development. Core functionality is complete, but some features are pending:
 
-## Development
+- ✅ All Auth features implemented and tested
+- ✅ All Firestore CRUD operations working
+- ✅ Real-time listeners with gRPC streaming
+- ✅ Transactions and batched writes
+- ⚠️ Offline persistence (API ready, implementation pending)
 
-```bash
-# Build
-cargo build
+## Testing
 
-# Test
-cargo test
+The SDK includes 24 comprehensive integration tests. To run them:
 
-# Format
-cargo fmt
+1. Copy `.env.example` to `.env`
+2. Fill in your Firebase credentials
+3. Run: `cargo test --test firestore_integration -- --test-threads=1`
 
-# Lint
-cargo clippy
-```
+## Contributing
 
-## Timeline
-
-**Total:** 12-16 weeks (3-4 months)
-- Foundation: 2-3 weeks
-- Auth Module: 3-4 weeks  
-- Firestore Module: 4-6 weeks
-- Testing & Polish: 2-3 weeks
+Contributions welcome! This project follows the design patterns from the Firebase C++ SDK while using idiomatic Rust patterns.
 
 ## License
 
-Apache 2.0
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Credits
+
+Based on the Firebase C++ SDK architecture. This is an independent implementation and is not officially supported by Google or Firebase.

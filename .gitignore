@@ -1,7 +1,7 @@
 # Rust build artifacts
 /target
 
-# Large external dependencies
+# Large external dependencies (keep locally, not in repository)
 /firebase-cpp-sdk/
 /codeql-repo/
 
@@ -13,7 +13,18 @@ codeql_results/*.bqrs
 
 # Build logs
 codeql_create.log
+analysis.log
+query_run.log
 
 # Environment variables (contains sensitive Firebase credentials)
 .env
 /.temp/
+
+# Development/analysis artifacts (keep locally)
+/analysis_output/
+/codeql_queries/
+/codeql_results/
+*.sh
+*.py
+REFACTORING_PLAN.md
+/docs/

@@ -1,13 +1,26 @@
 [package]
 name = "firebase-rust-sdk"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2021"
 authors = ["Firebase Rust Contributors"]
-description = "Idiomatic Rust port of Firebase C++ SDK (Auth + Firestore)"
-license = "Apache-2.0"
-repository = "https://github.com/cwahn/firebase-rust-sdk.git"
-keywords = ["firebase", "auth", "firestore", "async"]
-categories = ["authentication", "database", "api-bindings"]
+description = "Unofficial Rust port of Firebase C++ SDK"
+license = "MIT"
+repository = "https://github.com/cwahn/firebase-rust-sdk"
+homepage = "https://github.com/cwahn/firebase-rust-sdk"
+documentation = "https://docs.rs/firebase-rust-sdk"
+readme = "README.md"
+keywords = ["firebase", "auth", "firestore", "grpc", "async"]
+categories = ["authentication", "database", "api-bindings", "asynchronous"]
+exclude = [
+    "firebase-cpp-sdk/",
+    "codeql-*",
+    "analysis*",
+    "*.sh",
+    "*.py",
+    "*.log",
+    "docs/",
+    "REFACTORING_PLAN.md",
+]
 
 [features]
 default = []
@@ -21,7 +34,7 @@ async-stream = "0.3"
 # reqwest only for Auth REST API (Firestore uses gRPC)
 reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"  # Only for Auth REST API
+serde_json = "1.0"                                  # Only for Auth REST API
 serde_bytes = "0.11"
 thiserror = "2.0"
 chrono = { version = "0.4", features = ["serde"] }
@@ -31,7 +44,13 @@ uuid = { version = "1.11", features = ["v4"] }
 base64 = "0.22"
 
 # gRPC for Firestore (cross-platform)
-tonic = { version = "0.12", default-features = false, features = ["transport", "codegen", "prost", "tls", "tls-webpki-roots"] }
+tonic = { version = "0.12", default-features = false, features = [
+    "transport",
+    "codegen",
+    "prost",
+    "tls",
+    "tls-webpki-roots",
+] }
 prost = "0.13"
 prost-types = "0.13"
 tokio-stream = "0.1"
