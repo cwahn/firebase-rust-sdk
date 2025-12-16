@@ -17,12 +17,19 @@ mod proto {
 }
 
 // Convenient alias for firestore types
+use firestore_proto::firestore_client::FirestoreClient;
+use firestore_proto::listen_response::ResponseType;
+use firestore_proto::value::ValueType;
+use firestore_proto::{ListenRequest, Target};
 use proto::google::firestore::v1 as firestore_proto;
 
 use crate::error::FirebaseError;
-use crate::firestore::types::DocumentSnapshot;
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata};
 use futures::stream::StreamExt;
+use serde_json::json;
+use std::collections::HashMap;
 use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::transport::Channel;
 use tonic::Request;
 
@@ -49,27 +56,39 @@ pub struct ListenerOptions {
 
 /// Internal function to create gRPC channel with authentication
 #[cfg(not(target_arch = "wasm32"))]
-async fn create_authenticated_channel(
-    _auth_token: &str,
-) -> Result<Channel, FirebaseError> {
+async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, FirebaseError> {
     // Configure TLS with webpki root certificates (similar to C++ SDK's LoadGrpcRootCertificate)
     let tls_config = tonic::transport::ClientTlsConfig::new()
         .with_webpki_roots()
         .domain_name("firestore.googleapis.com");
-    
+
     // Connect to Firestore gRPC endpoint with TLS
-    let channel = Channel::from_static("https://firestore.googleapis.com")
-        .tls_config(tls_config)
-        .map_err(|e| FirebaseError::internal(format!("Failed to configure TLS: {}", e)))?
+    let channel_builder = Channel::from_static("https://firestore.googleapis.com");
+    let channel_builder = match channel_builder.tls_config(tls_config) {
+        Err(e) => {
+            return Err(FirebaseError::internal(format!(
+                "Failed to configure TLS: {}",
+                e
+            )))
+        }
+        Ok(builder) => builder,
+    };
+
+    let channel_builder = channel_builder
         .timeout(std::time::Duration::from_secs(30))
-        .connect_timeout(std::time::Duration::from_secs(10))
-        .connect()
-        .await
-        .map_err(|e| {
+        .connect_timeout(std::time::Duration::from_secs(10));
+
+    let channel = match channel_builder.connect().await {
+        Err(e) => {
             eprintln!("gRPC connection error details: {:?}", e);
-            FirebaseError::internal(format!("Failed to connect to Firestore gRPC: {}", e))
-        })?;
-    
+            return Err(FirebaseError::internal(format!(
+                "Failed to connect to Firestore gRPC: {}",
+                e
+            )));
+        }
+        Ok(ch) => ch,
+    };
+
     Ok(channel)
 }
 
@@ -104,49 +123,46 @@ pub async fn add_document_listener<F>(
 where
     F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
 {
-    use firestore_proto::firestore_client::FirestoreClient;
-    use firestore_proto::{ListenRequest, Target};
-    
     // Create gRPC channel
     let channel = create_authenticated_channel(&auth_token).await?;
-    
+
     // Create client with authentication interceptor
     // Mirrors C++ GrpcConnection::CreateContext which adds authorization and x-goog-request-params
     let auth_token_clone = auth_token.clone();
     let project_id_clone = project_id.clone();
     let database_id_clone = database_id.clone();
-    let mut client = FirestoreClient::with_interceptor(
-        channel,
-        move |mut req: Request<()>| {
-            // Add Bearer token for authentication
-            let token = format!("Bearer {}", auth_token_clone);
-            match token.parse() {
-                Ok(val) => {
-                    req.metadata_mut().insert("authorization", val);
-                }
-                Err(_) => return Err(tonic::Status::unauthenticated("Invalid token")),
+    let mut client = FirestoreClient::with_interceptor(channel, move |mut req: Request<()>| {
+        // Add Bearer token for authentication
+        let token = format!("Bearer {}", auth_token_clone);
+        match token.parse() {
+            Ok(val) => {
+                req.metadata_mut().insert("authorization", val);
             }
-            
-            // Add required routing header (mirrors C++ kXGoogRequestParams)
-            // Format: "projects/{project_id}/databases/{database_id}"
-            let resource_prefix = format!("projects/{}/databases/{}", project_id_clone, database_id_clone);
-            match resource_prefix.parse() {
-                Ok(val) => {
-                    req.metadata_mut().insert("x-goog-request-params", val);
-                }
-                Err(_) => return Err(tonic::Status::invalid_argument("Invalid resource prefix")),
+            Err(_) => return Err(tonic::Status::unauthenticated("Invalid token")),
+        }
+
+        // Add required routing header (mirrors C++ kXGoogRequestParams)
+        // Format: "projects/{project_id}/databases/{database_id}"
+        let resource_prefix = format!(
+            "projects/{}/databases/{}",
+            project_id_clone, database_id_clone
+        );
+        match resource_prefix.parse() {
+            Ok(val) => {
+                req.metadata_mut().insert("x-goog-request-params", val);
             }
-            
-            Ok(req)
-        },
-    );
-    
+            Err(_) => return Err(tonic::Status::invalid_argument("Invalid resource prefix")),
+        }
+
+        Ok(req)
+    });
+
     // Build database path
     let database = format!("projects/{}/databases/{}", project_id, database_id);
-    
+
     // Build document target
     let documents = vec![format!("{}/documents/{}", database, document_path)];
-    
+
     // Create target for watching this document
     // Mirrors C++ WatchStream::WatchQuery implementation
     let target = Target {
@@ -158,41 +174,50 @@ where
         )),
         resume_type: None,
     };
-    
+
     // Create listen request
     // Mirrors C++ WatchStreamSerializer::EncodeWatchRequest
     let request = ListenRequest {
         database: database.clone(),
-        labels: std::collections::HashMap::new(),
-        target_change: Some(firestore_proto::listen_request::TargetChange::AddTarget(target)),
+        labels: HashMap::new(),
+        target_change: Some(firestore_proto::listen_request::TargetChange::AddTarget(
+            target,
+        )),
     };
-    
+
     // Start bidirectional streaming
     // Mirrors C++ GrpcConnection::CreateStream + Stream::Start
     // Note: We use a channel to send requests and keep the stream open
     let (mut request_sender, request_receiver) = mpsc::channel(10);
-    
+
     // Send the initial listen request
-    request_sender
-        .send(request)
-        .await
-        .map_err(|e| FirebaseError::internal(format!("Failed to send listen request: {}", e)))?;
-    
-    let response_stream = client
-        .listen(tokio_stream::wrappers::ReceiverStream::new(request_receiver))
-        .await
-        .map_err(|e| FirebaseError::internal(format!("Failed to start listener: {}", e)))?
-        .into_inner();
-    
+    if let Err(e) = request_sender.send(request).await {
+        return Err(FirebaseError::internal(format!(
+            "Failed to send listen request: {}",
+            e
+        )));
+    }
+
+    let response = client.listen(ReceiverStream::new(request_receiver)).await;
+    let response_stream = match response {
+        Ok(stream) => stream.into_inner(),
+        Err(e) => {
+            return Err(FirebaseError::internal(format!(
+                "Failed to start listener: {}",
+                e
+            )))
+        }
+    };
+
     // Create cancellation channel
     let (cancel_tx, mut cancel_rx) = mpsc::channel::<()>(1);
-    
+
     // Spawn task to process stream
     // Mirrors C++ Stream::OnStreamRead processing
     tokio::spawn(async move {
         let mut stream = response_stream;
         let _request_sender = request_sender; // Keep sender alive to maintain bidirectional stream
-        
+
         loop {
             tokio::select! {
                 _ = cancel_rx.recv() => {
@@ -232,7 +257,7 @@ where
             }
         }
     });
-    
+
     Ok(ListenerRegistration { cancel_tx })
 }
 
@@ -245,8 +270,6 @@ fn process_listen_response(
     _project_id: &str,
     _database_id: &str,
 ) -> Result<Option<DocumentSnapshot>, FirebaseError> {
-    use firestore_proto::listen_response::ResponseType;
-    
     match response.response_type {
         Some(ResponseType::DocumentChange(change)) => {
             // Document was added or modified
@@ -256,7 +279,7 @@ fn process_listen_response(
                     // Mirrors C++ conversion in document_reference_main.cc
                     let path = doc.name.clone();
                     let data = convert_proto_fields_to_json(&doc.fields)?;
-                    
+
                     // Extract just the document path (remove the database prefix)
                     // Path format: "projects/{project}/databases/{database}/documents/{doc_path}"
                     let doc_path = path
@@ -264,13 +287,13 @@ fn process_listen_response(
                         .nth(1)
                         .unwrap_or(&path)
                         .to_string();
-                    
+
                     // Create DocumentSnapshot with simplified DocumentReference
                     // The DocumentReference only needs the path
                     Ok(Some(DocumentSnapshot {
-                        reference: crate::firestore::types::DocumentReference::new(doc_path),
+                        reference: DocumentReference::new(doc_path),
                         data: Some(data),
-                        metadata: crate::firestore::types::SnapshotMetadata {
+                        metadata: SnapshotMetadata {
                             has_pending_writes: false,
                             is_from_cache: false,
                         },
@@ -312,15 +335,15 @@ fn process_listen_response(
 ///
 /// Mirrors C++ Serializer field conversion
 fn convert_proto_fields_to_json(
-    fields: &std::collections::HashMap<String, firestore_proto::Value>,
+    fields: &HashMap<String, firestore_proto::Value>,
 ) -> Result<serde_json::Value, FirebaseError> {
     let mut map = serde_json::Map::new();
-    
+
     for (key, value) in fields {
         let json_value = convert_proto_value_to_json(value)?;
         map.insert(key.clone(), json_value);
     }
-    
+
     Ok(serde_json::Value::Object(map))
 }
 
@@ -330,13 +353,11 @@ fn convert_proto_fields_to_json(
 fn convert_proto_value_to_json(
     value: &firestore_proto::Value,
 ) -> Result<serde_json::Value, FirebaseError> {
-    use firestore_proto::value::ValueType;
-    
     match &value.value_type {
         Some(ValueType::NullValue(_)) => Ok(serde_json::Value::Null),
         Some(ValueType::BooleanValue(b)) => Ok(serde_json::Value::Bool(*b)),
-        Some(ValueType::IntegerValue(i)) => Ok(serde_json::json!(i)),
-        Some(ValueType::DoubleValue(d)) => Ok(serde_json::json!(d)),
+        Some(ValueType::IntegerValue(i)) => Ok(json!(i)),
+        Some(ValueType::DoubleValue(d)) => Ok(json!(d)),
         Some(ValueType::StringValue(s)) => Ok(serde_json::Value::String(s.clone())),
         Some(ValueType::ArrayValue(arr)) => {
             let mut json_arr = Vec::new();
@@ -352,12 +373,10 @@ fn convert_proto_value_to_json(
                 None => Err(FirebaseError::internal("Invalid timestamp")),
             }
         }
-        Some(ValueType::GeoPointValue(geo)) => {
-            Ok(serde_json::json!({
-                "latitude": geo.latitude,
-                "longitude": geo.longitude,
-            }))
-        }
+        Some(ValueType::GeoPointValue(geo)) => Ok(serde_json::json!({
+            "latitude": geo.latitude,
+            "longitude": geo.longitude,
+        })),
         Some(ValueType::ReferenceValue(r)) => Ok(serde_json::Value::String(r.clone())),
         Some(ValueType::BytesValue(b)) => {
             // Encode as hex string

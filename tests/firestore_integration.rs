@@ -10,8 +10,11 @@
 #![cfg(feature = "integration-tests")]
 
 use firebase_rust_sdk::{App, AppOptions, Auth, firestore::Firestore};
+use firebase_rust_sdk::firestore::{FilterCondition, OrderDirection};
+use firebase_rust_sdk::firestore::types::WriteBatch;
 use serde_json::json;
 use std::env;
+use std::sync::{Arc, Mutex};
 
 /// Load environment variables from .env file
 fn load_env() {
@@ -180,7 +183,6 @@ async fn test_query_filters() {
     }
     
     // Query: age > 22
-    use firebase_rust_sdk::firestore::FilterCondition;
     let results = firestore.collection(&collection)
         .query()
         .where_filter(FilterCondition::GreaterThan("age".into(), json!(22)))
@@ -213,7 +215,6 @@ async fn test_query_pagination() {
     }
     
     // Get first 3 documents
-    use firebase_rust_sdk::firestore::OrderDirection;
     let page1 = firestore.collection(&collection)
         .query()
         .order_by("index", OrderDirection::Ascending)
@@ -253,7 +254,6 @@ async fn test_batch_writes() {
     let collection = test_collection("batch");
     
     // Create batch
-    use firebase_rust_sdk::firestore::types::WriteBatch;
     let mut batch = WriteBatch::new();
     
     // Add multiple writes
@@ -397,7 +397,6 @@ async fn test_snapshot_listener() {
         .expect("Failed to create document");
     
     // Set up listener with callback to collect updates
-    use std::sync::{Arc, Mutex};
     let updates = Arc::new(Mutex::new(Vec::new()));
     let updates_clone = updates.clone();
     
@@ -463,7 +462,6 @@ async fn test_compound_filters() {
     // Query: 20 < age < 40 (two inequality filters on same field)
     // This creates a composite filter: age > 20 AND age < 40
     // Firestore allows multiple inequality filters on the same field without requiring an index
-    use firebase_rust_sdk::firestore::FilterCondition;
     let results = firestore.collection(&collection)
         .query()
         .where_filter(FilterCondition::GreaterThan("age".into(), json!(20)))
