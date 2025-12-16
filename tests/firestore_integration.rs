@@ -202,7 +202,7 @@ async fn test_write_batch() {
             ("index", ValueType::IntegerValue(i)),
             ("batch_test", ValueType::BooleanValue(true)),
         ]);
-        batch.set(doc_path, data);
+        batch = batch.set(doc_path, data);
     }
     
     // Commit batch (atomic - all succeed or all fail)
@@ -745,28 +745,28 @@ async fn test_batch_mixed_operations() {
     ])).await.expect("Failed to create doc1");
     
     // Create batch with mixed operations
-    let mut batch = firestore.batch();
+    let batch = firestore.batch();
     
     // Set doc2 (create new)
-    batch.set(
+    let batch = batch.set(
         format!("{}/doc2", collection),
         create_map(vec![("value", ValueType::IntegerValue(2))]),
     );
     
     // Update doc1 (modify existing)
-    batch.update(
+    let batch = batch.update(
         doc1_path.clone(),
         create_map(vec![("value", ValueType::IntegerValue(10))]),
     );
     
     // Set doc3 (create new)
-    batch.set(
+    let batch = batch.set(
         format!("{}/doc3", collection),
         create_map(vec![("value", ValueType::IntegerValue(3))]),
     );
     
     // Delete doc2 (delete what we just created in this batch)
-    batch.delete(format!("{}/doc2", collection));
+    let batch = batch.delete(format!("{}/doc2", collection));
     
     // Commit batch
     batch.commit().await.expect("Failed to commit mixed batch");
