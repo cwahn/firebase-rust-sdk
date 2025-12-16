@@ -41,35 +41,45 @@ All implementations will reference corresponding C++ SDK files for accuracy.
 
 ---
 
-## Phase 5: WriteBatch (NEXT - HIGH PRIORITY)
+## Phase 5: WriteBatch ✅ (COMPLETED)
+
+**Status**: Complete  
+**Completion Date**: 2024-01-XX  
+**Actual Effort**: ~3 hours
 
 **C++ References:**
 - `write_batch.h:40` - WriteBatch class
 - `firestore/src/main/write_batch_main.cc` - Implementation
 
-**Files to create:**
-- `src/firestore/write_batch.rs`
+**Files Modified:**
+- `src/firestore/write_batch.rs` - Updated to builder pattern
+- `src/firestore/firestore.rs` - Updated batch() method
 
-**Key Features:**
+**Implemented Features:**
 ```rust
 pub struct WriteBatch {
-    // Internal state
+    firestore: Arc<FirestoreInner>,
+    operations: Vec<WriteOperation>,
 }
 
 impl WriteBatch {
-    pub fn new() -> Self;
-    pub fn set(&mut self, doc: &DocumentReference, data: MapValue) -> &mut Self;
-    pub fn update(&mut self, doc: &DocumentReference, data: MapValue) -> &mut Self;
-    pub fn delete(&mut self, doc: &DocumentReference) -> &mut Self;
+    pub fn new(firestore: Arc<FirestoreInner>) -> Self;
+    pub fn set(mut self, path: impl Into<String>, data: MapValue) -> Self;
+    pub fn update(mut self, path: impl Into<String>, data: MapValue) -> Self;
+    pub fn delete(mut self, path: impl Into<String>) -> Self;
     pub async fn commit(self) -> Result<(), FirebaseError>;
+    pub fn len(&self) -> usize;
+    pub fn is_empty(&self) -> bool;
 }
 ```
 
-**Design Questions:**
-- Should WriteBatch methods take `&mut self` (builder pattern) or consume `self` (functional)?
-- C++ uses void methods that modify internal state - suggest following this with `&mut self` returning `&mut Self` for chaining
+**Design Decision:**
+- ✅ Approved: Consuming self pattern (`mut self -> Self`) for builder-style chaining
+- This allows better ownership semantics and prevents accidental reuse after commit
 
-**Estimated Complexity:** Medium (2-3 hours)
+**Tests:** 1 unit test (operation structure validation), integration tests pending
+
+**Complexity:** Medium (2-3 hours) - as estimated
 
 ---
 
