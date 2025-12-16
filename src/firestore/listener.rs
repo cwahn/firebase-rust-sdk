@@ -134,12 +134,10 @@ where
     let mut client = FirestoreClient::with_interceptor(channel, move |mut req: Request<()>| {
         // Add Bearer token for authentication
         let token = format!("Bearer {}", auth_token_clone);
-        match token.parse() {
-            Ok(val) => {
-                req.metadata_mut().insert("authorization", val);
-            }
-            Err(_) => return Err(tonic::Status::unauthenticated("Invalid token")),
-        }
+        let Ok(val) = token.parse() else {
+            return Err(tonic::Status::unauthenticated("Invalid token"));
+        };
+        req.metadata_mut().insert("authorization", val);
 
         // Add required routing header (mirrors C++ kXGoogRequestParams)
         // Format: "projects/{project_id}/databases/{database_id}"
@@ -147,12 +145,10 @@ where
             "projects/{}/databases/{}",
             project_id_clone, database_id_clone
         );
-        match resource_prefix.parse() {
-            Ok(val) => {
-                req.metadata_mut().insert("x-goog-request-params", val);
-            }
-            Err(_) => return Err(tonic::Status::invalid_argument("Invalid resource prefix")),
-        }
+        let Ok(val) = resource_prefix.parse() else {
+            return Err(tonic::Status::invalid_argument("Invalid resource prefix"));
+        };
+        req.metadata_mut().insert("x-goog-request-params", val);
 
         Ok(req)
     });
@@ -188,7 +184,7 @@ where
     // Start bidirectional streaming
     // Mirrors C++ GrpcConnection::CreateStream + Stream::Start
     // Note: We use a channel to send requests and keep the stream open
-    let (mut request_sender, request_receiver) = mpsc::channel(10);
+    let (request_sender, request_receiver) = mpsc::channel(10);
 
     // Send the initial listen request
     if let Err(e) = request_sender.send(request).await {
@@ -200,13 +196,13 @@ where
 
     let response = client.listen(ReceiverStream::new(request_receiver)).await;
     let response_stream = match response {
-        Ok(stream) => stream.into_inner(),
         Err(e) => {
             return Err(FirebaseError::internal(format!(
                 "Failed to start listener: {}",
                 e
             )))
         }
+        Ok(stream) => stream.into_inner(),
     };
 
     // Create cancellation channel
@@ -225,32 +221,37 @@ where
                     break;
                 }
                 message = stream.next() => {
-                    match message {
-                        Some(Ok(response)) => {
-                            // Process the listen response
-                            // Mirrors C++ WatchStream::NotifyStreamResponse
-                            match process_listen_response(response, &options, &project_id, &database_id) {
-                                Ok(Some(snapshot)) => {
-                                    callback(Ok(snapshot));
-                                }
-                                Ok(None) => {
-                                    // Metadata-only change or filtered out
-                                    continue;
-                                }
-                                Err(e) => {
-                                    callback(Err(e));
-                                    break;
-                                }
-                            }
-                        }
-                        Some(Err(e)) => {
+
+
+                    let Some(msg) = message else {
+                        // Stream ended normally
+                        break;
+                    };
+
+                    match msg {
+                        Err(e) => {
                             // Stream error - mirrors C++ Stream::OnStreamFinish
                             callback(Err(FirebaseError::internal(format!("Stream error: {}", e))));
                             break;
                         }
-                        None => {
-                            // Stream ended normally
-                            break;
+                        Ok(response) => {
+                            // Process the listen response
+                            // Mirrors C++ WatchStream::NotifyStreamResponse
+                            let snapshot = match process_listen_response(response, &options, &project_id, &database_id) {
+                                Err(e) => {
+                                    callback(Err(e));
+                                    break;
+                                }
+                                Ok(result) => result,
+                            };
+
+                            let Some(snapshot) = snapshot else {
+                                // Metadata-only change or filtered out
+                                continue;
+                            };
+
+                            callback(Ok(snapshot));
+                            // Continue listening for more updates
                         }
                     }
                 }
@@ -266,66 +267,107 @@ where
 /// Mirrors C++ WatchStream::NotifyStreamResponse and WatchStreamSerializer::DecodeWatchChange
 fn process_listen_response(
     response: firestore_proto::ListenResponse,
-    options: &ListenerOptions,
+    _options: &ListenerOptions,
     _project_id: &str,
     _database_id: &str,
 ) -> Result<Option<DocumentSnapshot>, FirebaseError> {
     match response.response_type {
         Some(ResponseType::DocumentChange(change)) => {
             // Document was added or modified
-            match change.document {
-                Some(doc) => {
-                    // Convert protobuf document to DocumentSnapshot
-                    // Mirrors C++ conversion in document_reference_main.cc
-                    let path = doc.name.clone();
-                    let data = convert_proto_fields_to_json(&doc.fields)?;
+            let Some(doc) = change.document else {
+                return Ok(None);
+            };
 
-                    // Extract just the document path (remove the database prefix)
-                    // Path format: "projects/{project}/databases/{database}/documents/{doc_path}"
-                    let doc_path = path
-                        .split("/documents/")
-                        .nth(1)
-                        .unwrap_or(&path)
-                        .to_string();
+            // Convert protobuf document to DocumentSnapshot
+            // Mirrors C++ conversion in document_reference_main.cc
+            let path = doc.name.clone();
+            let data = convert_proto_fields_to_json(&doc.fields)?;
 
-                    // Create DocumentSnapshot with simplified DocumentReference
-                    // The DocumentReference only needs the path
-                    Ok(Some(DocumentSnapshot {
-                        reference: DocumentReference::new(doc_path),
-                        data: Some(data),
-                        metadata: SnapshotMetadata {
-                            has_pending_writes: false,
-                            is_from_cache: false,
-                        },
-                    }))
-                }
-                None => Ok(None),
-            }
+            // Extract just the document path (remove the database prefix)
+            // Path format: "projects/{project}/databases/{database}/documents/{doc_path}"
+            let doc_path = path
+                .split("/documents/")
+                .nth(1)
+                .map(|p| p.to_string())
+                .unwrap_or(path);
+
+            // Create DocumentSnapshot with simplified DocumentReference
+            // The DocumentReference only needs the path
+            Ok(Some(DocumentSnapshot {
+                reference: DocumentReference::new(doc_path),
+                data: Some(data),
+                // TODO: Compute actual metadata from ListenResponse
+                // has_pending_writes: should check if document has local uncommitted writes
+                // is_from_cache: should be true if this is initial data from cache, false for server updates
+                // See C++ WatchStream::OnDocumentChange and DocumentSnapshot::FromDocument
+                metadata: SnapshotMetadata {
+                    has_pending_writes: false, // PLACEHOLDER: should check pending writes
+                    is_from_cache: false,      // PLACEHOLDER: should check if from cache or server
+                },
+            }))
         }
-        Some(ResponseType::DocumentDelete(_delete)) => {
-            // Document was deleted
-            // For now, return None to indicate deletion
-            Ok(None)
+        Some(ResponseType::DocumentDelete(delete)) => {
+            // Document was deleted - return snapshot with no data
+            // Extract document path from the delete event
+            let doc_path = delete.document
+                .split("/documents/")
+                .nth(1)
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| delete.document.clone());
+            
+            Ok(Some(DocumentSnapshot {
+                reference: DocumentReference::new(doc_path),
+                data: None, // None indicates document was deleted
+                // TODO: Compute actual metadata - has_pending_writes should check local write cache
+                // is_from_cache should be true if this is initial data from cache, false for server updates
+                // See C++ WatchStream::OnDocumentChange and DocumentSnapshot::FromDocument
+                metadata: SnapshotMetadata {
+                    has_pending_writes: false, // PLACEHOLDER: should check pending writes
+                    is_from_cache: false,      // PLACEHOLDER: should check if from cache or server
+                },
+            }))
         }
         Some(ResponseType::DocumentRemove(_remove)) => {
-            // Document removed from query (not applicable for single document)
+            // Document removed from query result set (different from deletion)
+            // This happens when a document no longer matches query filters
+            // For single document listeners, we filter this out
+            // For query listeners, this would update the result set
+            Ok(None) // Filter out - not relevant for single document listener
+        }
+        Some(ResponseType::Filter(filter)) => {
+            // Existence filter validates the number of documents in the watch stream
+            // If count doesn't match, it indicates the client's view is inconsistent
+            // and the watch stream should be reset
+            // For now, we log and continue - a full implementation would reset the stream
+            if filter.count == 0 {
+                // No documents match - this is informational
+                // Could return metadata-only snapshot if include_metadata_changes
+            }
+            // Filter events don't produce snapshots, they're for stream validation
             Ok(None)
         }
-        Some(ResponseType::Filter(_filter)) => {
-            // Existence filter - metadata only
-            if options.include_metadata_changes {
-                Ok(None) // Could return metadata-only snapshot
-            } else {
-                Ok(None)
+        Some(ResponseType::TargetChange(change)) => {
+            // Target state changes indicate the watch stream state:
+            // - NO_CHANGE (0): No change, initial state
+            // - ADD (1): Target was added
+            // - REMOVE (2): Target was removed
+            // - CURRENT (3): All initial data has been sent
+            // - RESET (4): Target was reset (need to refetch)
+            
+            // Check for errors in the target change
+            if let Some(cause) = change.cause {
+                let error_msg = format!(
+                    "Target change error: code={}, message={}",
+                    cause.code,
+                    cause.message
+                );
+                return Err(FirebaseError::internal(error_msg));
             }
-        }
-        Some(ResponseType::TargetChange(_change)) => {
-            // Target state changed - metadata only
-            if options.include_metadata_changes {
-                Ok(None) // Could return metadata-only snapshot
-            } else {
-                Ok(None)
-            }
+            
+            // For document listeners, these are informational
+            // The actual data comes through DocumentChange events
+            // If include_metadata_changes is true, could return metadata-only snapshot
+            Ok(None)
         }
         None => Ok(None),
     }
@@ -368,10 +410,10 @@ fn convert_proto_value_to_json(
         }
         Some(ValueType::MapValue(map)) => convert_proto_fields_to_json(&map.fields),
         Some(ValueType::TimestampValue(ts)) => {
-            match chrono::DateTime::from_timestamp(ts.seconds, ts.nanos as u32) {
-                Some(dt) => Ok(serde_json::Value::String(dt.to_rfc3339())),
-                None => Err(FirebaseError::internal("Invalid timestamp")),
-            }
+            let Some(dt) = chrono::DateTime::from_timestamp(ts.seconds, ts.nanos as u32) else {
+                return Err(FirebaseError::internal("Invalid timestamp"));
+            };
+            Ok(serde_json::Value::String(dt.to_rfc3339()))
         }
         Some(ValueType::GeoPointValue(geo)) => Ok(serde_json::json!({
             "latitude": geo.latitude,
@@ -390,11 +432,13 @@ fn convert_proto_value_to_json(
         }
         Some(ValueType::FunctionValue(_func)) => {
             // Function values are not directly serializable
-            Ok(serde_json::Value::Null)
+            // TODO: Decide if we should error or return a special marker
+            todo!("Implement function value serialization or return error")
         }
         Some(ValueType::PipelineValue(_pipeline)) => {
             // Pipeline values are not directly serializable
-            Ok(serde_json::Value::Null)
+            // TODO: Decide if we should error or return a special marker
+            todo!("Implement pipeline value serialization or return error")
         }
         None => Ok(serde_json::Value::Null),
     }

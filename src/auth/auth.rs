@@ -139,6 +139,7 @@ impl Auth {
     }
 
     /// Internal: Get HTTP client
+    #[allow(dead_code)]
     pub(crate) fn http_client(&self) -> &reqwest::Client {
         &self.inner.http_client
     }
@@ -818,6 +819,7 @@ struct SignInResponse {
     id_token: String,
     refresh_token: String,
     expires_in: Option<String>,
+    #[allow(dead_code)]
     registered: Option<bool>,
 }
 

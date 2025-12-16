@@ -4,8 +4,8 @@
 //! - `app/src/app.cc` - App implementation
 //! - `app/src/include/firebase/app.h` - App class
 
-use crate::error::FirebaseError;
 use crate::auth::AuthInner;
+use crate::error::FirebaseError;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
@@ -80,18 +80,23 @@ impl App {
             return Err(FirebaseError::ApiKeyNotConfigured);
         }
         if options.project_id.is_empty() {
-            return Err(FirebaseError::Internal("Project ID cannot be empty".to_string()));
+            return Err(FirebaseError::Internal(
+                "Project ID cannot be empty".to_string(),
+            ));
         }
 
-        let name = options.app_name.clone().unwrap_or_else(|| "[DEFAULT]".to_string());
-        
+        let name = match options.app_name.clone() {
+            None => "[DEFAULT]".to_string(),
+            Some(n) => n,
+        };
+
         let mut instances = APP_INSTANCES.write().await;
-        
+
         // Check if instance already exists
         if let Some(app) = instances.get(&name) {
             return Ok(app.clone());
         }
-        
+
         // Create new App instance
         let app = App {
             inner: Arc::new(AppInner {
@@ -100,9 +105,9 @@ impl App {
                 auth_ref: RwLock::new(None),
             }),
         };
-        
+
         instances.insert(name, app.clone());
-        
+
         Ok(app)
     }
 
@@ -114,12 +119,11 @@ impl App {
     /// Returns the app with name "[DEFAULT]" if it exists.
     pub async fn get_instance() -> Result<Self, FirebaseError> {
         let instances = APP_INSTANCES.read().await;
-        instances
-            .get("[DEFAULT]")
-            .cloned()
-            .ok_or_else(|| FirebaseError::Internal(
-                "Default Firebase App not initialized. Call App::create() first.".to_string()
-            ))
+        instances.get("[DEFAULT]").cloned().ok_or_else(|| {
+            FirebaseError::Internal(
+                "Default Firebase App not initialized. Call App::create() first.".to_string(),
+            )
+        })
     }
 
     /// Get a named Firebase App instance
@@ -128,12 +132,12 @@ impl App {
     /// - `app/src/app.cc` - App::GetInstance(name)
     pub async fn get_instance_with_name(name: &str) -> Result<Self, FirebaseError> {
         let instances = APP_INSTANCES.read().await;
-        instances
-            .get(name)
-            .cloned()
-            .ok_or_else(|| FirebaseError::Internal(
-                format!("Firebase App '{}' not found. Call App::create() first.", name)
+        instances.get(name).cloned().ok_or_else(|| {
+            FirebaseError::Internal(format!(
+                "Firebase App '{}' not found. Call App::create() first.",
+                name
             ))
+        })
     }
 
     /// Get the app name
@@ -153,21 +157,26 @@ impl App {
     /// to avoid circular dependencies.
     pub(crate) async fn get_auth_token(&self, force_refresh: bool) -> Option<String> {
         let auth_ref = self.inner.auth_ref.read().await;
-        
-        if let Some(weak_auth) = auth_ref.as_ref() {
-            if let Some(auth_inner) = weak_auth.upgrade() {
-                // Get current user's token
-                let user = auth_inner.current_user.read().await;
-                if let Some(user) = user.as_ref() {
-                    // Try to get token (ignore errors for simplicity)
-                    if let Ok(token) = user.get_id_token(force_refresh).await {
-                        return Some(token);
-                    }
-                }
-            }
-        }
-        
-        None
+
+        let Some(weak_auth) = auth_ref.as_ref() else {
+            return None;
+        };
+
+        let Some(auth_inner) = weak_auth.upgrade() else {
+            return None;
+        };
+
+        let user = auth_inner.current_user.read().await;
+
+        let Some(user) = user.as_ref() else {
+            return None;
+        };
+
+        let Ok(token) = user.get_id_token(force_refresh).await else {
+            return None;
+        };
+
+        Some(token)
     }
 
     /// Internal: Register Auth instance with this App
@@ -176,6 +185,7 @@ impl App {
     }
 
     /// Internal: Unregister Auth instance from this App
+    #[allow(dead_code)]
     pub(crate) async fn unregister_auth(&self) {
         *self.inner.auth_ref.write().await = None;
     }
@@ -192,7 +202,7 @@ mod tests {
             project_id: "test-project".to_string(),
             app_name: Some("test-app".to_string()),
         };
-        
+
         let app = App::create(options).await.expect("Failed to create app");
         assert_eq!(app.name(), "test-app");
     }
@@ -204,10 +214,12 @@ mod tests {
             project_id: "test-project-2".to_string(),
             app_name: Some("test-app-2".to_string()),
         };
-        
-        let app1 = App::create(options.clone()).await.expect("Failed to create app");
+
+        let app1 = App::create(options.clone())
+            .await
+            .expect("Failed to create app");
         let app2 = App::create(options).await.expect("Failed to create app");
-        
+
         assert_eq!(app1.name(), app2.name());
     }
 
@@ -218,7 +230,7 @@ mod tests {
             project_id: "test-project".to_string(),
             app_name: None,
         };
-        
+
         let result = App::create(options).await;
         assert!(result.is_err());
     }
@@ -230,7 +242,7 @@ mod tests {
             project_id: "test-project-3".to_string(),
             app_name: None,
         };
-        
+
         let app = App::create(options).await.expect("Failed to create app");
         assert_eq!(app.name(), "[DEFAULT]");
     }

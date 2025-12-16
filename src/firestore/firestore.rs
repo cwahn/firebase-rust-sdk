@@ -3,14 +3,14 @@
 //! # C++ Reference
 //! - `firestore/src/include/firebase/firestore.h:91` - Firestore class
 
-use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, Settings};
 use crate::app::App;
+use crate::error::FirebaseError;
+use crate::firestore::types::{DocumentReference, DocumentSnapshot, Settings, SnapshotMetadata};
 use once_cell::sync::Lazy;
+use rand::Rng;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use rand::Rng;
 
 /// Global map of (App name, database ID) to Firestore instances
 ///
@@ -95,7 +95,12 @@ impl Firestore {
             .timeout(std::time::Duration::from_secs(30))
             .build()
         {
-            Err(e) => return Err(FirebaseError::Internal(format!("Failed to create HTTP client: {}", e))),
+            Err(e) => {
+                return Err(FirebaseError::Internal(format!(
+                    "Failed to create HTTP client: {}",
+                    e
+                )))
+            }
             Ok(client) => client,
         };
 
@@ -189,12 +194,12 @@ impl Firestore {
     /// Internal: Build an authenticated request
     async fn build_request(&self, method: reqwest::Method, url: &str) -> reqwest::RequestBuilder {
         let mut builder = self.http_client().request(method, url);
-        
+
         // Add Authorization header if auth token is set
         if let Some(token) = self.get_auth_token().await {
             builder = builder.header("Authorization", format!("Bearer {}", token));
         }
-        
+
         builder
     }
 
@@ -237,11 +242,11 @@ impl Firestore {
     /// use firebase_rust_sdk::firestore::{Firestore, types::Settings};
     ///
     /// let firestore = Firestore::get_instance(&app).await?;
-    /// 
+    ///
     /// let mut settings = Settings::new();
     /// settings.persistence_enabled = true;
     /// settings.cache_size_bytes = Settings::CACHE_SIZE_UNLIMITED;
-    /// 
+    ///
     /// firestore.set_settings(settings).await?;
     /// # Ok(())
     /// # }
@@ -252,7 +257,7 @@ impl Firestore {
         // - For WASM: Initialize IndexedDB connection
         // - Create cache tables/collections if needed
         // - Set up TTL/eviction policies based on cache_size_bytes
-        
+
         *self.inner.settings.write().await = settings;
         todo!("Persistence backend initialization not yet implemented. See PERSISTENCE_DESIGN.md for architecture.")
     }
@@ -352,11 +357,11 @@ impl Firestore {
     /// use serde_json::json;
     ///
     /// let firestore = Firestore::get_instance(&app).await?;
-    /// 
+    ///
     /// // Queue some writes
     /// firestore.set_document("users/alice", json!({"name": "Alice"})).await?;
     /// firestore.set_document("users/bob", json!({"name": "Bob"})).await?;
-    /// 
+    ///
     /// // Wait for all writes to complete
     /// firestore.wait_for_pending_writes().await?;
     /// println!("All writes completed");
@@ -370,23 +375,28 @@ impl Firestore {
         // - Return when queue is empty or after timeout
         todo!("Wait for pending writes not yet implemented")
     }
-    
+
     /// Get document data
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/document_reference.h:193` - Get()
-    pub async fn get_document(&self, path: impl AsRef<str>) -> Result<DocumentSnapshot, FirebaseError> {
+    pub async fn get_document(
+        &self,
+        path: impl AsRef<str>,
+    ) -> Result<DocumentSnapshot, FirebaseError> {
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
             self.project_id(),
             self.database_id(),
             path.as_ref()
         );
-        
-        let response = self.build_request(reqwest::Method::GET, &url).await
+
+        let response = self
+            .build_request(reqwest::Method::GET, &url)
+            .await
             .send()
             .await?;
-        
+
         // Handle 404 (document not found)
         if response.status() == 404 {
             return Ok(DocumentSnapshot {
@@ -395,64 +405,83 @@ impl Firestore {
                 metadata: SnapshotMetadata::default(),
             });
         }
-        
+
         // Handle other errors
         if !response.status().is_success() {
-            return Err(FirebaseError::Internal(format!("Get failed: {}", response.status())));
+            return Err(FirebaseError::Internal(format!(
+                "Get failed: {}",
+                response.status()
+            )));
         }
-        
+
         let doc_data: serde_json::Value = response.json().await?;
         let fields = doc_data.get("fields").cloned();
-        
+
         // Convert Firestore fields format back to plain JSON
         let data = fields.map(|f| convert_firestore_fields_to_value(&f));
-        
+
         Ok(DocumentSnapshot {
             reference: DocumentReference::new(path.as_ref()),
             data,
+            // TODO: Compute actual metadata - has_pending_writes should check local write cache
+            // is_from_cache should be true if served from persistence layer
+            // See C++ DocumentSnapshot::FromDocument
             metadata: SnapshotMetadata {
-                has_pending_writes: false,
-                is_from_cache: false,
+                has_pending_writes: false, // PLACEHOLDER: should check pending writes
+                is_from_cache: false,      // PLACEHOLDER: always false for REST API calls
             },
         })
     }
-    
+
     /// Set (write/overwrite) document data
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/document_reference.h:206` - Set()
-    pub async fn set_document(&self, path: impl AsRef<str>, data: serde_json::Value) -> Result<(), FirebaseError> {
+    pub async fn set_document(
+        &self,
+        path: impl AsRef<str>,
+        data: serde_json::Value,
+    ) -> Result<(), FirebaseError> {
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
             self.project_id(),
             self.database_id(),
             path.as_ref()
         );
-        
+
         let doc = serde_json::json!({ "fields": convert_value_to_firestore_fields(&data) });
-        
-        let response = self.build_request(reqwest::Method::PATCH, &url).await
+
+        let response = self
+            .build_request(reqwest::Method::PATCH, &url)
+            .await
             .json(&doc)
             .send()
             .await?;
-        
+
         if !response.status().is_success() {
-            return Err(FirebaseError::Internal(format!("Set failed: {}", response.status())));
+            return Err(FirebaseError::Internal(format!(
+                "Set failed: {}",
+                response.status()
+            )));
         }
-        
+
         Ok(())
     }
-    
+
     /// Update specific fields in document
     ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/document_reference.h:219` - Update()
-    pub async fn update_document(&self, path: impl AsRef<str>, data: serde_json::Value) -> Result<(), FirebaseError> {
+    pub async fn update_document(
+        &self,
+        path: impl AsRef<str>,
+        data: serde_json::Value,
+    ) -> Result<(), FirebaseError> {
         let mut update_mask = Vec::new();
         if let Some(obj) = data.as_object() {
             update_mask.extend(obj.keys().map(|k| k.as_str()));
         }
-        
+
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}?updateMask.fieldPaths={}",
             self.project_id(),
@@ -460,21 +489,26 @@ impl Firestore {
             path.as_ref(),
             update_mask.join("&updateMask.fieldPaths=")
         );
-        
+
         let doc = serde_json::json!({ "fields": convert_value_to_firestore_fields(&data) });
-        
-        let response = self.build_request(reqwest::Method::PATCH, &url).await
+
+        let response = self
+            .build_request(reqwest::Method::PATCH, &url)
+            .await
             .json(&doc)
             .send()
             .await?;
-        
+
         if !response.status().is_success() {
-            return Err(FirebaseError::Internal(format!("Update failed: {}", response.status())));
+            return Err(FirebaseError::Internal(format!(
+                "Update failed: {}",
+                response.status()
+            )));
         }
-        
+
         Ok(())
     }
-    
+
     /// Delete document
     ///
     /// # C++ Reference
@@ -486,16 +520,21 @@ impl Firestore {
             self.database_id(),
             path.as_ref()
         );
-        
-        let response = self.build_request(reqwest::Method::DELETE, &url).await
+
+        let response = self
+            .build_request(reqwest::Method::DELETE, &url)
+            .await
             .send()
             .await?;
-        
+
         // 404 is acceptable for delete
         if !response.status().is_success() && response.status() != 404 {
-            return Err(FirebaseError::Internal(format!("Delete failed: {}", response.status())));
+            return Err(FirebaseError::Internal(format!(
+                "Delete failed: {}",
+                response.status()
+            )));
         }
-        
+
         Ok(())
     }
 
@@ -521,9 +560,9 @@ impl Firestore {
     /// # use futures::StreamExt;
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let firestore = Firestore::get_instance(&app).await?;
-    /// 
+    ///
     /// let (registration, mut stream) = firestore.add_document_snapshot_listener("users/alice").await?;
-    /// 
+    ///
     /// while let Some(result) = stream.next().await {
     ///     match result {
     ///         Ok(snapshot) => {
@@ -549,19 +588,29 @@ impl Firestore {
         F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
     {
         use crate::auth::Auth;
-        
+
         let path = path.into();
-        
+
         // Get the current user's ID token for authentication
-        let auth = Auth::get_auth(&self.inner.app).await
-            .map_err(|e| FirebaseError::internal(format!("Failed to get Auth: {}", e)))?;
-        
-        let user = auth.current_user().await
-            .ok_or_else(|| FirebaseError::Auth(crate::error::AuthError::UserNotFound))?;
-        
-        let auth_token = user.get_id_token(false).await
+        let auth = match Auth::get_auth(&self.inner.app).await {
+            Err(e) => {
+                return Err(FirebaseError::internal(format!(
+                    "Failed to get Auth: {}",
+                    e
+                )))
+            }
+            Ok(auth) => auth,
+        };
+
+        let Some(user) = auth.current_user().await else {
+            return Err(FirebaseError::Auth(crate::error::AuthError::UserNotFound));
+        };
+
+        let auth_token = user
+            .get_id_token(false)
+            .await
             .map_err(|e| FirebaseError::internal(format!("Failed to get ID token: {}", e)))?;
-        
+
         // Call the gRPC listener implementation
         crate::firestore::listener::add_document_listener(
             auth_token,
@@ -570,42 +619,52 @@ impl Firestore {
             path,
             crate::firestore::listener::ListenerOptions::default(),
             callback,
-        ).await
+        )
+        .await
     }
-    
+
     /// Add document snapshot listener (legacy polling implementation)
-    /// 
+    ///
     /// **Note:** This uses REST API polling. For production use, prefer `listen_to_document()`
     /// which uses gRPC bidirectional streaming for real-time updates.
     pub async fn add_document_snapshot_listener(
         &self,
         path: impl Into<String>,
-    ) -> Result<(
-        crate::firestore::types::ListenerRegistration,
-        std::pin::Pin<Box<dyn futures::Stream<Item = Result<crate::firestore::types::DocumentSnapshot, FirebaseError>> + Send>>,
-    ), FirebaseError> {
+    ) -> Result<
+        (
+            crate::firestore::types::ListenerRegistration,
+            std::pin::Pin<
+                Box<
+                    dyn futures::Stream<
+                            Item = Result<crate::firestore::types::DocumentSnapshot, FirebaseError>,
+                        > + Send,
+                >,
+            >,
+        ),
+        FirebaseError,
+    > {
         use crate::firestore::types::{DocumentSnapshot, ListenerRegistration};
-        
+
         let path = path.into();
         let listener_id = format!("doc_listener_{}", uuid::Uuid::new_v4());
         let registration = ListenerRegistration::new(listener_id.clone());
         let cancelled = registration.cancelled.clone();
-        
+
         let project_id = self.project_id().to_string();
         let database_id = self.database_id().to_string();
         let client = self.http_client().clone();
-        
+
         // Create a stream that polls the document periodically
         let stream = async_stream::stream! {
             let mut last_update_time = None;
-            
+
             while !cancelled.load(std::sync::atomic::Ordering::SeqCst) {
                 // Poll the document
                 let url = format!(
                     "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}",
                     project_id, database_id, path
                 );
-                
+
                 let response = match client.get(&url).send().await {
                     Err(e) => {
                         yield Err(FirebaseError::Internal(format!("Listener request failed: {}", e)));
@@ -614,7 +673,7 @@ impl Firestore {
                     }
                     Ok(r) => r,
                 };
-                
+
                 if response.status() == 404 {
                     // Document doesn't exist
                     yield Ok(DocumentSnapshot {
@@ -625,13 +684,13 @@ impl Firestore {
                     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                     continue;
                 }
-                
+
                 if !response.status().is_success() {
                     yield Err(FirebaseError::Internal(format!("Listener request failed: {}", response.status())));
                     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                     continue;
                 }
-                
+
                 let doc: serde_json::Value = match response.json().await {
                     Err(e) => {
                         yield Err(FirebaseError::Internal(format!("Failed to parse document: {}", e)));
@@ -640,30 +699,30 @@ impl Firestore {
                     }
                     Ok(d) => d,
                 };
-                
+
                 // Check if document changed
                 let update_time = doc.get("updateTime").and_then(|v| v.as_str()).map(|s| s.to_string());
                 if last_update_time.as_ref() != update_time.as_ref() {
                     last_update_time = update_time;
-                    
+
                     let data = if let Some(fields) = doc.get("fields") {
                         Some(convert_firestore_fields_to_value(fields))
                     } else {
                         None
                     };
-                    
+
                     yield Ok(DocumentSnapshot {
                         reference: crate::firestore::types::DocumentReference::new(path.clone()),
                         data,
                         metadata: crate::firestore::types::SnapshotMetadata::default(),
                     });
                 }
-                
+
                 // Poll every second
                 tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
             }
         };
-        
+
         Ok((registration, Box::pin(stream)))
     }
 
@@ -682,24 +741,33 @@ impl Firestore {
     pub async fn add_query_snapshot_listener(
         &self,
         query: Query,
-    ) -> Result<(
-        crate::firestore::types::ListenerRegistration,
-        std::pin::Pin<Box<dyn futures::Stream<Item = Result<crate::firestore::types::QuerySnapshot, FirebaseError>> + Send>>,
-    ), FirebaseError> {
+    ) -> Result<
+        (
+            crate::firestore::types::ListenerRegistration,
+            std::pin::Pin<
+                Box<
+                    dyn futures::Stream<
+                            Item = Result<crate::firestore::types::QuerySnapshot, FirebaseError>,
+                        > + Send,
+                >,
+            >,
+        ),
+        FirebaseError,
+    > {
         use crate::firestore::types::{ListenerRegistration, QuerySnapshot};
-        
+
         let listener_id = format!("query_listener_{}", uuid::Uuid::new_v4());
         let registration = ListenerRegistration::new(listener_id.clone());
         let cancelled = registration.cancelled.clone();
-        
+
         let firestore = self.clone();
         let query_clone = query.clone();
-        
+
         // Create a stream that polls the query periodically
         let stream = async_stream::stream! {
             let mut last_doc_count = 0;
             let _last_update_times: Vec<Option<String>> = Vec::new();
-            
+
             while !cancelled.load(std::sync::atomic::Ordering::SeqCst) {
                 // Execute the query
                 let docs = match firestore.execute_query(query_clone.clone()).await {
@@ -710,25 +778,25 @@ impl Firestore {
                     }
                     Ok(d) => d,
                 };
-                
+
                 // Check if results changed (simple comparison)
                 let current_count = docs.len();
                 let has_changed = current_count != last_doc_count;
-                
+
                 if has_changed {
                     last_doc_count = current_count;
-                    
+
                     yield Ok(QuerySnapshot::new(
                         query_clone.collection_path.clone(),
                         docs,
                     ));
                 }
-                
+
                 // Poll every second
                 tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
             }
         };
-        
+
         Ok((registration, Box::pin(stream)))
     }
 
@@ -767,15 +835,18 @@ impl Firestore {
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn commit_batch(&self, batch: crate::firestore::types::WriteBatch) -> Result<(), FirebaseError> {
+    pub async fn commit_batch(
+        &self,
+        batch: crate::firestore::types::WriteBatch,
+    ) -> Result<(), FirebaseError> {
         use crate::error::FirestoreError;
         use crate::firestore::types::WriteOperation;
 
         // Error-first: check if batch is empty
         if batch.is_empty() {
-            return Err(FirebaseError::Firestore(
-                FirestoreError::InvalidArgument("Batch is empty, nothing to commit".to_string()),
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::InvalidArgument(
+                "Batch is empty, nothing to commit".to_string(),
+            )));
         }
 
         let url = format!(
@@ -785,8 +856,10 @@ impl Firestore {
         );
 
         // Build writes array for the batch commit request
-        let writes: Vec<serde_json::Value> = batch.operations().iter().map(|op| {
-            match op {
+        let writes: Vec<serde_json::Value> = batch
+            .operations()
+            .iter()
+            .map(|op| match op {
                 WriteOperation::Set { path, data } => {
                     let full_path = format!(
                         "projects/{}/databases/{}/documents/{}",
@@ -834,22 +907,26 @@ impl Firestore {
                         "delete": full_path
                     })
                 }
-            }
-        }).collect();
+            })
+            .collect();
 
         let request_body = serde_json::json!({
             "writes": writes
         });
 
-        let response = match self.http_client()
+        let response = match self
+            .http_client()
             .post(&url)
             .json(&request_body)
             .send()
             .await
         {
-            Err(e) => return Err(FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Batch commit failed: {}", e))
-            )),
+            Err(e) => {
+                return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                    "Batch commit failed: {}",
+                    e
+                ))))
+            }
             Ok(resp) => resp,
         };
 
@@ -857,9 +934,10 @@ impl Firestore {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Batch commit failed: {} - {}", status, error_text))
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                "Batch commit failed: {} - {}",
+                status, error_text
+            ))));
         }
 
         Ok(())
@@ -886,7 +964,7 @@ impl Firestore {
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let firestore = Firestore::get_instance(&app).await?;
-    /// 
+    ///
     /// // Atomic counter increment
     /// firestore.run_transaction(|mut txn| async move {
     ///     let doc = txn.get("counters/visits").await?;
@@ -900,7 +978,9 @@ impl Firestore {
     pub async fn run_transaction<F, Fut>(&self, callback: F) -> Result<(), FirebaseError>
     where
         F: Fn(crate::firestore::types::Transaction) -> Fut,
-        Fut: std::future::Future<Output = Result<crate::firestore::types::Transaction, FirebaseError>>,
+        Fut: std::future::Future<
+            Output = Result<crate::firestore::types::Transaction, FirebaseError>,
+        >,
     {
         self.run_transaction_with_options(callback, 5).await
     }
@@ -920,16 +1000,18 @@ impl Firestore {
     ) -> Result<(), FirebaseError>
     where
         F: Fn(crate::firestore::types::Transaction) -> Fut,
-        Fut: std::future::Future<Output = Result<crate::firestore::types::Transaction, FirebaseError>>,
+        Fut: std::future::Future<
+            Output = Result<crate::firestore::types::Transaction, FirebaseError>,
+        >,
     {
         use crate::error::FirestoreError;
         use crate::firestore::types::Transaction;
 
         // Error-first: validate max_attempts
         if max_attempts == 0 {
-            return Err(FirebaseError::Firestore(
-                FirestoreError::InvalidArgument("max_attempts must be at least 1".to_string()),
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::InvalidArgument(
+                "max_attempts must be at least 1".to_string(),
+            )));
         }
 
         let mut last_error = None;
@@ -953,16 +1035,15 @@ impl Firestore {
 
             // Try to commit the transaction
             match self.commit_transaction(&txn).await {
-                Ok(()) => return Ok(()),
                 Err(e) => {
                     // Check if it's a conflict error that should be retried
                     if attempt + 1 < max_attempts {
                         last_error = Some(e);
                         continue;
-                    } else {
-                        return Err(e);
                     }
+                    return Err(e);
                 }
+                Ok(()) => return Ok(()),
             }
         }
 
@@ -975,7 +1056,10 @@ impl Firestore {
     }
 
     /// Commit a transaction (internal method)
-    async fn commit_transaction(&self, txn: &crate::firestore::types::Transaction) -> Result<(), FirebaseError> {
+    async fn commit_transaction(
+        &self,
+        txn: &crate::firestore::types::Transaction,
+    ) -> Result<(), FirebaseError> {
         use crate::error::FirestoreError;
         use crate::firestore::types::WriteOperation;
 
@@ -986,8 +1070,10 @@ impl Firestore {
         );
 
         // Build writes array
-        let writes: Vec<serde_json::Value> = txn.operations().iter().map(|op| {
-            match op {
+        let writes: Vec<serde_json::Value> = txn
+            .operations()
+            .iter()
+            .map(|op| match op {
                 WriteOperation::Set { path, data } => {
                     let full_path = format!(
                         "projects/{}/databases/{}/documents/{}",
@@ -1035,8 +1121,8 @@ impl Firestore {
                         "delete": full_path
                     })
                 }
-            }
-        }).collect();
+            })
+            .collect();
 
         let mut request_body = serde_json::json!({
             "writes": writes
@@ -1047,15 +1133,19 @@ impl Firestore {
             request_body["transaction"] = serde_json::json!(txn_id);
         }
 
-        let response = match self.http_client()
+        let response = match self
+            .http_client()
             .post(&url)
             .json(&request_body)
             .send()
             .await
         {
-            Err(e) => return Err(FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Transaction commit failed: {}", e))
-            )),
+            Err(e) => {
+                return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                    "Transaction commit failed: {}",
+                    e
+                ))))
+            }
             Ok(resp) => resp,
         };
 
@@ -1063,9 +1153,10 @@ impl Firestore {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(FirebaseError::Firestore(
-                FirestoreError::Internal(format!("Transaction commit failed: {} - {}", status, error_text))
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::Internal(format!(
+                "Transaction commit failed: {} - {}",
+                status, error_text
+            ))));
         }
 
         Ok(())
@@ -1076,7 +1167,9 @@ impl Firestore {
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/filter.h:268` - And(filters)
     /// - `firestore/src/include/firebase/firestore/filter.h:308` - Or(filters)
-    fn convert_filter_to_json(filter: &crate::firestore::types::FilterCondition) -> serde_json::Value {
+    fn convert_filter_to_json(
+        filter: &crate::firestore::types::FilterCondition,
+    ) -> serde_json::Value {
         use crate::firestore::types::FilterCondition;
 
         match filter {
@@ -1241,7 +1334,9 @@ impl Firestore {
 
         // Add filters using convert_filter_to_json helper
         if !query.filters.is_empty() {
-            let filters: Vec<serde_json::Value> = query.filters.iter()
+            let filters: Vec<serde_json::Value> = query
+                .filters
+                .iter()
                 .map(|filter| Self::convert_filter_to_json(filter))
                 .collect();
 
@@ -1262,8 +1357,10 @@ impl Firestore {
 
         // Add order by
         if !query.order_by.is_empty() {
-            structured_query["orderBy"] = serde_json::json!(
-                query.order_by.iter().map(|(field, direction)| {
+            structured_query["orderBy"] = serde_json::json!(query
+                .order_by
+                .iter()
+                .map(|(field, direction)| {
                     serde_json::json!({
                         "field": {"fieldPath": field},
                         "direction": match direction {
@@ -1271,8 +1368,8 @@ impl Firestore {
                             OrderDirection::Descending => "DESCENDING",
                         }
                     })
-                }).collect::<Vec<_>>()
-            );
+                })
+                .collect::<Vec<_>>());
         }
 
         // Add limit
@@ -1316,7 +1413,8 @@ impl Firestore {
             "structuredQuery": structured_query
         });
 
-        let response = self.http_client()
+        let response = self
+            .http_client()
             .post(&url)
             .json(&request_body)
             .send()
@@ -1324,12 +1422,18 @@ impl Firestore {
 
         if !response.status().is_success() {
             let status = response.status();
-            let error_body = response.text().await.unwrap_or_else(|_| "Unable to read response body".to_string());
-            return Err(FirebaseError::Internal(format!("Query failed: {} - {}", status, error_body)));
+            let error_body = match response.text().await {
+                Err(err) => format!("Unable to read response body: {err}",),
+                Ok(text) => text,
+            };
+            return Err(FirebaseError::Internal(format!(
+                "Query failed: {} - {}",
+                status, error_body
+            )));
         }
 
         let results: Vec<serde_json::Value> = response.json().await?;
-        
+
         let documents: Vec<DocumentSnapshot> = results
             .into_iter()
             .filter_map(|result| {
@@ -1337,16 +1441,19 @@ impl Firestore {
                     let name = doc.get("name")?.as_str()?;
                     let path = name.split("/documents/").nth(1)?;
                     let fields = doc.get("fields").cloned();
-                    
+
                     // Convert Firestore fields format back to plain JSON
                     let data = fields.map(|f| convert_firestore_fields_to_value(&f));
-                    
+
                     Some(DocumentSnapshot {
                         reference: DocumentReference::new(path),
                         data,
+                        // TODO: Compute actual metadata - has_pending_writes should check local write cache
+                        // is_from_cache should be true if served from persistence layer
+                        // See C++ DocumentSnapshot::FromDocument
                         metadata: SnapshotMetadata {
-                            has_pending_writes: false,
-                            is_from_cache: false,
+                            has_pending_writes: false, // PLACEHOLDER: should check pending writes
+                            is_from_cache: false, // PLACEHOLDER: always false for REST API calls
                         },
                     })
                 })
@@ -1411,7 +1518,7 @@ fn convert_value_to_firestore_fields(value: &serde_json::Value) -> serde_json::V
 /// Convert Firestore fields format to plain JSON (inverse of convert_value_to_firestore_fields)
 fn convert_firestore_fields_to_value(fields: &serde_json::Value) -> serde_json::Value {
     use serde_json::{json, Map, Value as JsonValue};
-    
+
     if let Some(obj) = fields.as_object() {
         let mut result = Map::new();
         for (key, value) in obj {
@@ -1446,7 +1553,10 @@ fn convert_firestore_value_to_json(value: &serde_json::Value) -> serde_json::Val
             return json!(null);
         } else if let Some(array_val) = obj.get("arrayValue") {
             if let Some(values) = array_val.get("values").and_then(|v| v.as_array()) {
-                return json!(values.iter().map(|v| convert_firestore_value_to_json(v)).collect::<Vec<_>>());
+                return json!(values
+                    .iter()
+                    .map(|v| convert_firestore_value_to_json(v))
+                    .collect::<Vec<_>>());
             }
         } else if let Some(map_val) = obj.get("mapValue") {
             if let Some(fields) = map_val.get("fields") {
@@ -1454,7 +1564,7 @@ fn convert_firestore_value_to_json(value: &serde_json::Value) -> serde_json::Val
             }
         }
     }
-    
+
     value.clone()
 }
 
@@ -1551,7 +1661,7 @@ impl Query {
     /// ```
     pub fn start_at(mut self, values: Vec<serde_json::Value>) -> Self {
         self.start_at = Some(values);
-        self.start_after = None;  // Clear conflicting cursor
+        self.start_after = None; // Clear conflicting cursor
         self
     }
 
@@ -1584,7 +1694,7 @@ impl Query {
     /// ```
     pub fn start_after(mut self, values: Vec<serde_json::Value>) -> Self {
         self.start_after = Some(values);
-        self.start_at = None;  // Clear conflicting cursor
+        self.start_at = None; // Clear conflicting cursor
         self
     }
 
@@ -1617,7 +1727,7 @@ impl Query {
     /// ```
     pub fn end_at(mut self, values: Vec<serde_json::Value>) -> Self {
         self.end_at = Some(values);
-        self.end_before = None;  // Clear conflicting cursor
+        self.end_before = None; // Clear conflicting cursor
         self
     }
 
@@ -1650,7 +1760,7 @@ impl Query {
     /// ```
     pub fn end_before(mut self, values: Vec<serde_json::Value>) -> Self {
         self.end_before = Some(values);
-        self.end_at = None;  // Clear conflicting cursor
+        self.end_at = None; // Clear conflicting cursor
         self
     }
 
@@ -1743,12 +1853,12 @@ impl CollectionReference {
     /// ```
     pub async fn add(&self, data: serde_json::Value) -> Result<DocumentReference, FirebaseError> {
         use crate::error::FirestoreError;
-        
+
         // Error-first: validate data is an object
         if !data.is_object() {
-            return Err(FirebaseError::Firestore(
-                FirestoreError::InvalidData("Data must be a JSON object".to_string()),
-            ));
+            return Err(FirebaseError::Firestore(FirestoreError::InvalidData(
+                "Data must be a JSON object".to_string(),
+            )));
         }
 
         // Generate auto-ID: 20 alphanumeric characters
@@ -1799,7 +1909,7 @@ impl CollectionReference {
 fn generate_auto_id() -> String {
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const ID_LENGTH: usize = 20;
-    
+
     let mut rng = rand::thread_rng();
     (0..ID_LENGTH)
         .map(|_| {
@@ -1837,7 +1947,9 @@ mod tests {
             api_key: "test-api-key".to_string(),
             project_id: project_id.to_string(),
             app_name: Some(format!("test-{}-{}", project_id, rand::random::<u32>())),
-        }).await.unwrap()
+        })
+        .await
+        .unwrap()
     }
 
     #[tokio::test]
@@ -1865,14 +1977,19 @@ mod tests {
             api_key: "test-api-key".to_string(),
             project_id: "".to_string(),
             app_name: None,
-        }).await;
+        })
+        .await;
         assert!(result.is_err());
     }
 
     #[tokio::test]
     async fn test_different_projects_different_instances() {
-        let fs1 = Firestore::get_instance(&test_app("project-a").await).await.unwrap();
-        let fs2 = Firestore::get_instance(&test_app("project-b").await).await.unwrap();
+        let fs1 = Firestore::get_instance(&test_app("project-a").await)
+            .await
+            .unwrap();
+        let fs2 = Firestore::get_instance(&test_app("project-b").await)
+            .await
+            .unwrap();
 
         // Should be different instances
         assert!(!Arc::ptr_eq(&fs1.inner, &fs2.inner));
@@ -1898,7 +2015,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_collection_reference() {
-        let fs = Firestore::get_instance(&test_app("test-project-3").await).await.unwrap();
+        let fs = Firestore::get_instance(&test_app("test-project-3").await)
+            .await
+            .unwrap();
         let users = fs.collection("users");
 
         assert_eq!(users.path(), "users");
@@ -1907,7 +2026,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_collection_document() {
-        let fs = Firestore::get_instance(&test_app("test-project-4").await).await.unwrap();
+        let fs = Firestore::get_instance(&test_app("test-project-4").await)
+            .await
+            .unwrap();
         let users = fs.collection("users");
         let alice = users.document("alice");
 
@@ -1917,7 +2038,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_document_reference() {
-        let fs = Firestore::get_instance(&test_app("test-project-5").await).await.unwrap();
+        let fs = Firestore::get_instance(&test_app("test-project-5").await)
+            .await
+            .unwrap();
         let doc = fs.document("users/bob");
 
         assert_eq!(doc.path, "users/bob");
@@ -1926,7 +2049,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_nested_collection_reference() {
-        let fs = Firestore::get_instance(&test_app("test-project-6").await).await.unwrap();
+        let fs = Firestore::get_instance(&test_app("test-project-6").await)
+            .await
+            .unwrap();
         let posts = fs.collection("users/alice/posts");
 
         assert_eq!(posts.path(), "users/alice/posts");
@@ -1938,8 +2063,11 @@ mod tests {
         use crate::firestore::types::{FilterCondition, OrderDirection};
         use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-7").await).await.unwrap();
-        let query = fs.collection("users")
+        let fs = Firestore::get_instance(&test_app("test-project-7").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("users")
             .query()
             .where_filter(FilterCondition::Equal("name".to_string(), json!("Alice")))
             .order_by("age", OrderDirection::Ascending)
@@ -1957,8 +2085,11 @@ mod tests {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-8").await).await.unwrap();
-        let query = fs.collection("users")
+        let fs = Firestore::get_instance(&test_app("test-project-8").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("users")
             .query()
             .where_filter(FilterCondition::GreaterThan("age".to_string(), json!(18)))
             .where_filter(FilterCondition::LessThan("age".to_string(), json!(65)))
@@ -1971,8 +2102,11 @@ mod tests {
     async fn test_query_with_cursors() {
         use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-9").await).await.unwrap();
-        let query = fs.collection("posts")
+        let fs = Firestore::get_instance(&test_app("test-project-9").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("posts")
             .query()
             .start_at(vec![json!("2024-01-01")])
             .end_at(vec![json!("2024-12-31")]);
@@ -1985,43 +2119,52 @@ mod tests {
 
     #[tokio::test]
     async fn test_query_with_start_after() {
-        use serde_json::json;
         use crate::firestore::types::OrderDirection;
+        use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-pagination-1").await).await.unwrap();
-        let query = fs.collection("users")
+        let fs = Firestore::get_instance(&test_app("test-project-pagination-1").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("users")
             .query()
             .order_by("age", OrderDirection::Ascending)
             .start_after(vec![json!(25)]);
 
         assert!(query.start_after.is_some());
-        assert!(query.start_at.is_none());  // start_after should clear start_at
+        assert!(query.start_at.is_none()); // start_after should clear start_at
         assert_eq!(query.start_after.as_ref().unwrap().len(), 1);
     }
 
     #[tokio::test]
     async fn test_query_with_end_before() {
-        use serde_json::json;
         use crate::firestore::types::OrderDirection;
+        use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-pagination-2").await).await.unwrap();
-        let query = fs.collection("users")
+        let fs = Firestore::get_instance(&test_app("test-project-pagination-2").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("users")
             .query()
             .order_by("age", OrderDirection::Ascending)
             .end_before(vec![json!(65)]);
 
         assert!(query.end_before.is_some());
-        assert!(query.end_at.is_none());  // end_before should clear end_at
+        assert!(query.end_at.is_none()); // end_before should clear end_at
         assert_eq!(query.end_before.as_ref().unwrap().len(), 1);
     }
 
     #[tokio::test]
     async fn test_query_pagination_range() {
-        use serde_json::json;
         use crate::firestore::types::OrderDirection;
+        use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-pagination-3").await).await.unwrap();
-        let query = fs.collection("products")
+        let fs = Firestore::get_instance(&test_app("test-project-pagination-3").await)
+            .await
+            .unwrap();
+        let query = fs
+            .collection("products")
             .query()
             .order_by("price", OrderDirection::Ascending)
             .start_after(vec![json!(10.00)])
@@ -2040,23 +2183,27 @@ mod tests {
     async fn test_query_cursor_conflicts() {
         use serde_json::json;
 
-        let fs = Firestore::get_instance(&test_app("test-project-pagination-4").await).await.unwrap();
-        
+        let fs = Firestore::get_instance(&test_app("test-project-pagination-4").await)
+            .await
+            .unwrap();
+
         // start_after should clear start_at
-        let query = fs.collection("data")
+        let query = fs
+            .collection("data")
             .query()
             .start_at(vec![json!(1)])
             .start_after(vec![json!(2)]);
-        
+
         assert!(query.start_after.is_some());
         assert!(query.start_at.is_none());
 
         // end_before should clear end_at
-        let query2 = fs.collection("data")
+        let query2 = fs
+            .collection("data")
             .query()
             .end_at(vec![json!(10)])
             .end_before(vec![json!(9)]);
-        
+
         assert!(query2.end_before.is_some());
         assert!(query2.end_at.is_none());
     }
@@ -2078,11 +2225,26 @@ mod tests {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
 
-        assert_eq!(FilterCondition::Equal("f".to_string(), json!(1)).operator(), "EQUAL");
-        assert_eq!(FilterCondition::LessThan("f".to_string(), json!(1)).operator(), "LESS_THAN");
-        assert_eq!(FilterCondition::GreaterThanOrEqual("f".to_string(), json!(1)).operator(), "GREATER_THAN_OR_EQUAL");
-        assert_eq!(FilterCondition::ArrayContains("f".to_string(), json!(1)).operator(), "ARRAY_CONTAINS");
-        assert_eq!(FilterCondition::In("f".to_string(), vec![json!(1)]).operator(), "IN");
+        assert_eq!(
+            FilterCondition::Equal("f".to_string(), json!(1)).operator(),
+            "EQUAL"
+        );
+        assert_eq!(
+            FilterCondition::LessThan("f".to_string(), json!(1)).operator(),
+            "LESS_THAN"
+        );
+        assert_eq!(
+            FilterCondition::GreaterThanOrEqual("f".to_string(), json!(1)).operator(),
+            "GREATER_THAN_OR_EQUAL"
+        );
+        assert_eq!(
+            FilterCondition::ArrayContains("f".to_string(), json!(1)).operator(),
+            "ARRAY_CONTAINS"
+        );
+        assert_eq!(
+            FilterCondition::In("f".to_string(), vec![json!(1)]).operator(),
+            "IN"
+        );
     }
 
     #[tokio::test]
@@ -2113,39 +2275,43 @@ mod tests {
     #[tokio::test]
     async fn test_collection_reference_add_generates_id() {
         use serde_json::json;
-        
-        let fs = Firestore::get_instance(&test_app("test-project-10").await).await.unwrap();
+
+        let fs = Firestore::get_instance(&test_app("test-project-10").await)
+            .await
+            .unwrap();
         let collection = fs.collection("users");
-        
+
         // Create document with auto-generated ID (would fail without real Firebase)
         // Test that the ID generation works
         let doc_id_1 = generate_auto_id();
         let doc_id_2 = generate_auto_id();
-        
+
         // IDs should be 20 characters
         assert_eq!(doc_id_1.len(), 20);
         assert_eq!(doc_id_2.len(), 20);
-        
+
         // IDs should be different (statistically)
         assert_ne!(doc_id_1, doc_id_2);
-        
+
         // IDs should only contain alphanumeric characters
         assert!(doc_id_1.chars().all(|c| c.is_ascii_alphanumeric()));
         assert!(doc_id_2.chars().all(|c| c.is_ascii_alphanumeric()));
     }
-    
+
     #[tokio::test]
     async fn test_collection_reference_add_validates_data() {
-        use serde_json::json;
         use crate::error::{FirebaseError, FirestoreError};
-        
-        let fs = Firestore::get_instance(&test_app("test-project-11").await).await.unwrap();
+        use serde_json::json;
+
+        let fs = Firestore::get_instance(&test_app("test-project-11").await)
+            .await
+            .unwrap();
         let collection = fs.collection("users");
-        
+
         // Test that non-object data is rejected
         let result = collection.add(json!("not an object")).await;
         assert!(result.is_err());
-        
+
         match result.unwrap_err() {
             FirebaseError::Firestore(FirestoreError::InvalidData(msg)) => {
                 assert!(msg.contains("JSON object"));
@@ -2156,17 +2322,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_write_batch_builder() {
-        use serde_json::json;
         use crate::firestore::types::WriteBatch;
-        
+        use serde_json::json;
+
         let mut batch = WriteBatch::new();
-        batch.set("users/alice", json!({"name": "Alice", "age": 30}))
-             .update("users/bob", json!({"age": 31}))
-             .delete("users/charlie");
-        
+        batch
+            .set("users/alice", json!({"name": "Alice", "age": 30}))
+            .update("users/bob", json!({"age": 31}))
+            .delete("users/charlie");
+
         assert_eq!(batch.len(), 3);
         assert!(!batch.is_empty());
-        
+
         // Verify operations are stored
         let ops = batch.operations();
         assert_eq!(ops.len(), 3);
@@ -2174,16 +2341,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_write_batch_empty() {
-        use crate::firestore::types::WriteBatch;
         use crate::error::{FirebaseError, FirestoreError};
-        
-        let fs = Firestore::get_instance(&test_app("test-project-12").await).await.unwrap();
+        use crate::firestore::types::WriteBatch;
+
+        let fs = Firestore::get_instance(&test_app("test-project-12").await)
+            .await
+            .unwrap();
         let batch = WriteBatch::new();
-        
+
         // Empty batch should be rejected
         let result = fs.commit_batch(batch).await;
         assert!(result.is_err());
-        
+
         match result.unwrap_err() {
             FirebaseError::Firestore(FirestoreError::InvalidArgument(msg)) => {
                 assert!(msg.contains("empty"));
@@ -2194,38 +2363,38 @@ mod tests {
 
     #[tokio::test]
     async fn test_write_batch_operations_chaining() {
-        use serde_json::json;
         use crate::firestore::types::{WriteBatch, WriteOperation};
-        
+        use serde_json::json;
+
         let mut batch = WriteBatch::new();
-        
+
         // Test method chaining
         batch
             .set("path1", json!({"field": "value1"}))
             .update("path2", json!({"field": "value2"}))
             .delete("path3")
             .set("path4", json!({"field": "value3"}));
-        
+
         assert_eq!(batch.len(), 4);
-        
+
         let ops = batch.operations();
-        
+
         // Verify order is preserved
         match &ops[0] {
             WriteOperation::Set { path, .. } => assert_eq!(path, "path1"),
             _ => panic!("Expected Set operation"),
         }
-        
+
         match &ops[1] {
             WriteOperation::Update { path, .. } => assert_eq!(path, "path2"),
             _ => panic!("Expected Update operation"),
         }
-        
+
         match &ops[2] {
             WriteOperation::Delete { path } => assert_eq!(path, "path3"),
             _ => panic!("Expected Delete operation"),
         }
-        
+
         match &ops[3] {
             WriteOperation::Set { path, .. } => assert_eq!(path, "path4"),
             _ => panic!("Expected Set operation"),
@@ -2236,7 +2405,7 @@ mod tests {
     async fn test_transaction_operations() {
         use crate::firestore::types::{Transaction, WriteOperation};
         use serde_json::json;
-        
+
         let mut txn = Transaction::new(
             "test-project".to_string(),
             "default".to_string(),
@@ -2245,15 +2414,15 @@ mod tests {
 
         // Test set operation
         txn.set("users/alice", json!({"name": "Alice", "age": 30}));
-        
+
         // Test update operation
         txn.update("users/bob", json!({"age": 31}));
-        
+
         // Test delete operation
         txn.delete("users/charlie");
 
         assert_eq!(txn.operations().len(), 3);
-        
+
         // Verify operations
         match &txn.operations()[0] {
             WriteOperation::Set { path, data } => {
@@ -2262,12 +2431,12 @@ mod tests {
             }
             _ => panic!("Expected Set operation"),
         }
-        
+
         match &txn.operations()[1] {
             WriteOperation::Update { path, .. } => assert_eq!(path, "users/bob"),
             _ => panic!("Expected Update operation"),
         }
-        
+
         match &txn.operations()[2] {
             WriteOperation::Delete { path } => assert_eq!(path, "users/charlie"),
             _ => panic!("Expected Delete operation"),
@@ -2278,7 +2447,7 @@ mod tests {
     async fn test_transaction_chaining() {
         use crate::firestore::types::Transaction;
         use serde_json::json;
-        
+
         let mut txn = Transaction::new(
             "test-project".to_string(),
             "default".to_string(),
@@ -2287,8 +2456,8 @@ mod tests {
 
         // Test chaining
         txn.set("doc1", json!({"a": 1}))
-           .update("doc2", json!({"b": 2}))
-           .delete("doc3");
+            .update("doc2", json!({"b": 2}))
+            .delete("doc3");
 
         assert_eq!(txn.operations().len(), 3);
     }
@@ -2296,14 +2465,16 @@ mod tests {
     #[tokio::test]
     async fn test_run_transaction_max_attempts_validation() {
         use crate::error::{FirebaseError, FirestoreError};
-        
+
         let app = test_app("test-transaction-validation").await;
         let firestore = Firestore::get_instance(&app).await.unwrap();
 
-        let result = firestore.run_transaction_with_options(
-            |txn| async move { Ok(txn) },
-            0 // invalid: must be at least 1
-        ).await;
+        let result = firestore
+            .run_transaction_with_options(
+                |txn| async move { Ok(txn) },
+                0, // invalid: must be at least 1
+            )
+            .await;
 
         assert!(result.is_err());
         match result {
@@ -2317,7 +2488,7 @@ mod tests {
     #[tokio::test]
     async fn test_listener_registration_creation() {
         use crate::firestore::types::ListenerRegistration;
-        
+
         let registration = ListenerRegistration::new("test_listener_123".to_string());
         assert_eq!(registration.id, "test_listener_123");
         assert!(!registration.is_cancelled());
@@ -2326,10 +2497,10 @@ mod tests {
     #[tokio::test]
     async fn test_listener_registration_remove() {
         use crate::firestore::types::ListenerRegistration;
-        
+
         let registration = ListenerRegistration::new("test_listener".to_string());
         assert!(!registration.is_cancelled());
-        
+
         registration.remove();
         assert!(registration.is_cancelled());
     }
@@ -2337,34 +2508,36 @@ mod tests {
     #[tokio::test]
     async fn test_listener_registration_drop() {
         use crate::firestore::types::ListenerRegistration;
-        
+
         let cancelled = {
             let registration = ListenerRegistration::new("test_listener".to_string());
             let cancelled = registration.cancelled.clone();
             assert!(!cancelled.load(std::sync::atomic::Ordering::SeqCst));
             cancelled
         }; // registration dropped here
-        
+
         // After drop, listener should be cancelled
         assert!(cancelled.load(std::sync::atomic::Ordering::SeqCst));
     }
 
     #[tokio::test]
     async fn test_query_snapshot_creation() {
-        use crate::firestore::types::{DocumentReference, DocumentSnapshot, QuerySnapshot, SnapshotMetadata};
-        
+        use crate::firestore::types::{
+            DocumentReference, DocumentSnapshot, QuerySnapshot, SnapshotMetadata,
+        };
+
         let doc1 = DocumentSnapshot {
             reference: DocumentReference::new("users/alice"),
             data: Some(serde_json::json!({"name": "Alice"})),
             metadata: SnapshotMetadata::default(),
         };
-        
+
         let doc2 = DocumentSnapshot {
             reference: DocumentReference::new("users/bob"),
             data: Some(serde_json::json!({"name": "Bob"})),
             metadata: SnapshotMetadata::default(),
         };
-        
+
         let snapshot = QuerySnapshot::new("users".to_string(), vec![doc1, doc2]);
         assert_eq!(snapshot.len(), 2);
         assert!(!snapshot.is_empty());
@@ -2374,20 +2547,20 @@ mod tests {
     #[tokio::test]
     async fn test_convert_firestore_fields_roundtrip() {
         use serde_json::json;
-        
+
         let original = json!({
             "name": "Alice",
             "age": 30,
             "active": true,
             "score": 95.5
         });
-        
+
         // Convert to Firestore format
         let firestore_fields = convert_value_to_firestore_fields(&original);
-        
+
         // Convert back to plain JSON
         let converted_back = convert_firestore_fields_to_value(&firestore_fields);
-        
+
         assert_eq!(converted_back["name"], "Alice");
         assert_eq!(converted_back["age"], 30);
         assert_eq!(converted_back["active"], true);
@@ -2398,22 +2571,25 @@ mod tests {
     async fn test_compound_filter_and() {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
-        
-        let firestore = Firestore::get_instance(&test_app("test-compound-and").await).await.unwrap();
-        
+
+        let firestore = Firestore::get_instance(&test_app("test-compound-and").await)
+            .await
+            .unwrap();
+
         // Create compound And filter
         let and_filter = FilterCondition::And(vec![
             FilterCondition::GreaterThan("age".to_string(), json!(18)),
             FilterCondition::LessThan("age".to_string(), json!(65)),
             FilterCondition::Equal("active".to_string(), json!(true)),
         ]);
-        
-        let query = firestore.collection("users")
+
+        let query = firestore
+            .collection("users")
             .query()
             .where_filter(and_filter);
-        
+
         assert_eq!(query.filters.len(), 1);
-        
+
         // Verify it's an And filter
         match &query.filters[0] {
             FilterCondition::And(filters) => {
@@ -2427,21 +2603,24 @@ mod tests {
     async fn test_compound_filter_or() {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
-        
-        let firestore = Firestore::get_instance(&test_app("test-compound-or").await).await.unwrap();
-        
+
+        let firestore = Firestore::get_instance(&test_app("test-compound-or").await)
+            .await
+            .unwrap();
+
         // Create compound Or filter
         let or_filter = FilterCondition::Or(vec![
             FilterCondition::Equal("status".to_string(), json!("active")),
             FilterCondition::Equal("status".to_string(), json!("pending")),
         ]);
-        
-        let query = firestore.collection("orders")
+
+        let query = firestore
+            .collection("orders")
             .query()
             .where_filter(or_filter);
-        
+
         assert_eq!(query.filters.len(), 1);
-        
+
         // Verify it's an Or filter
         match &query.filters[0] {
             FilterCondition::Or(filters) => {
@@ -2455,9 +2634,11 @@ mod tests {
     async fn test_compound_filter_nested() {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
-        
-        let firestore = Firestore::get_instance(&test_app("test-compound-nested").await).await.unwrap();
-        
+
+        let firestore = Firestore::get_instance(&test_app("test-compound-nested").await)
+            .await
+            .unwrap();
+
         // Create nested compound filter: (age > 18 AND age < 65) OR (status = "vip")
         let nested_filter = FilterCondition::Or(vec![
             FilterCondition::And(vec![
@@ -2466,13 +2647,14 @@ mod tests {
             ]),
             FilterCondition::Equal("status".to_string(), json!("vip")),
         ]);
-        
-        let query = firestore.collection("users")
+
+        let query = firestore
+            .collection("users")
             .query()
             .where_filter(nested_filter);
-        
+
         assert_eq!(query.filters.len(), 1);
-        
+
         // Verify nested structure
         match &query.filters[0] {
             FilterCondition::Or(or_filters) => {
@@ -2491,12 +2673,12 @@ mod tests {
     #[tokio::test]
     async fn test_compound_filter_empty_is_noop() {
         use crate::firestore::types::FilterCondition;
-        
+
         // Empty And filter
         let empty_and = FilterCondition::And(vec![]);
         let json = Firestore::convert_filter_to_json(&empty_and);
         assert!(json.is_null());
-        
+
         // Empty Or filter
         let empty_or = FilterCondition::Or(vec![]);
         let json = Firestore::convert_filter_to_json(&empty_or);
@@ -2507,19 +2689,21 @@ mod tests {
     async fn test_compound_filter_single_unwraps() {
         use crate::firestore::types::FilterCondition;
         use serde_json::json;
-        
+
         // Single filter in And should behave as that filter
-        let single_and = FilterCondition::And(vec![
-            FilterCondition::Equal("name".to_string(), json!("Alice")),
-        ]);
+        let single_and = FilterCondition::And(vec![FilterCondition::Equal(
+            "name".to_string(),
+            json!("Alice"),
+        )]);
         let json_and = Firestore::convert_filter_to_json(&single_and);
         assert!(json_and["fieldFilter"].is_object());
         assert!(!json_and["compositeFilter"].is_object());
-        
+
         // Single filter in Or should behave as that filter
-        let single_or = FilterCondition::Or(vec![
-            FilterCondition::Equal("name".to_string(), json!("Bob")),
-        ]);
+        let single_or = FilterCondition::Or(vec![FilterCondition::Equal(
+            "name".to_string(),
+            json!("Bob"),
+        )]);
         let json_or = Firestore::convert_filter_to_json(&single_or);
         assert!(json_or["fieldFilter"].is_object());
         assert!(!json_or["compositeFilter"].is_object());
@@ -2532,9 +2716,9 @@ mod tests {
     #[tokio::test]
     async fn test_settings_default() {
         use crate::firestore::types::Settings;
-        
+
         let settings = Settings::default();
-        
+
         assert_eq!(settings.host, "firestore.googleapis.com");
         assert!(settings.ssl_enabled);
         assert!(settings.persistence_enabled);
@@ -2545,17 +2729,19 @@ mod tests {
     #[tokio::test]
     async fn test_settings_unlimited_cache() {
         use crate::firestore::types::Settings;
-        
+
         let mut settings = Settings::new();
         settings.cache_size_bytes = Settings::CACHE_SIZE_UNLIMITED;
-        
+
         assert_eq!(settings.cache_size_bytes, -1);
     }
 
     #[tokio::test]
     async fn test_settings_get() {
-        let firestore = Firestore::get_instance(&test_app("test-settings-get").await).await.unwrap();
-        
+        let firestore = Firestore::get_instance(&test_app("test-settings-get").await)
+            .await
+            .unwrap();
+
         let settings = firestore.settings().await;
         assert!(settings.persistence_enabled);
         assert_eq!(settings.host, "firestore.googleapis.com");
@@ -2565,13 +2751,15 @@ mod tests {
     #[should_panic(expected = "not yet implemented")]
     async fn test_settings_set_persistence() {
         use crate::firestore::types::Settings;
-        
-        let firestore = Firestore::get_instance(&test_app("test-settings-set").await).await.unwrap();
-        
+
+        let firestore = Firestore::get_instance(&test_app("test-settings-set").await)
+            .await
+            .unwrap();
+
         let mut settings = Settings::new();
         settings.persistence_enabled = true;
         settings.cache_size_bytes = 50 * 1024 * 1024; // 50 MB
-        
+
         // TODO: This will panic with todo!() until persistence is implemented
         firestore.set_settings(settings).await.unwrap();
     }
@@ -2579,9 +2767,9 @@ mod tests {
     #[tokio::test]
     async fn test_source_enum() {
         use crate::firestore::types::Source;
-        
+
         assert_eq!(Source::default(), Source::Default);
-        
+
         let sources = vec![Source::Default, Source::Server, Source::Cache];
         assert_eq!(sources.len(), 3);
     }
@@ -2589,8 +2777,10 @@ mod tests {
     #[tokio::test]
     #[should_panic(expected = "not yet implemented")]
     async fn test_enable_network() {
-        let firestore = Firestore::get_instance(&test_app("test-enable-network").await).await.unwrap();
-        
+        let firestore = Firestore::get_instance(&test_app("test-enable-network").await)
+            .await
+            .unwrap();
+
         // TODO: This will panic with todo!() until network control is implemented
         firestore.enable_network().await.unwrap();
     }
@@ -2598,8 +2788,10 @@ mod tests {
     #[tokio::test]
     #[should_panic(expected = "not yet implemented")]
     async fn test_disable_network() {
-        let firestore = Firestore::get_instance(&test_app("test-disable-network").await).await.unwrap();
-        
+        let firestore = Firestore::get_instance(&test_app("test-disable-network").await)
+            .await
+            .unwrap();
+
         // TODO: This will panic with todo!() until network control is implemented
         firestore.disable_network().await.unwrap();
     }
@@ -2607,8 +2799,10 @@ mod tests {
     #[tokio::test]
     #[should_panic(expected = "not yet implemented")]
     async fn test_clear_persistence() {
-        let firestore = Firestore::get_instance(&test_app("test-clear-persistence").await).await.unwrap();
-        
+        let firestore = Firestore::get_instance(&test_app("test-clear-persistence").await)
+            .await
+            .unwrap();
+
         // TODO: This will panic with todo!() until persistence clearing is implemented
         firestore.clear_persistence().await.unwrap();
     }
@@ -2616,8 +2810,10 @@ mod tests {
     #[tokio::test]
     #[should_panic(expected = "not yet implemented")]
     async fn test_wait_for_pending_writes() {
-        let firestore = Firestore::get_instance(&test_app("test-pending-writes").await).await.unwrap();
-        
+        let firestore = Firestore::get_instance(&test_app("test-pending-writes").await)
+            .await
+            .unwrap();
+
         // TODO: This will panic with todo!() until pending writes queue is implemented
         firestore.wait_for_pending_writes().await.unwrap();
     }
@@ -2626,21 +2822,24 @@ mod tests {
     async fn test_settings_custom_cache_directory() {
         use crate::firestore::types::Settings;
         use std::path::PathBuf;
-        
+
         let mut settings = Settings::new();
         settings.cache_directory = Some(PathBuf::from("/tmp/firebase_cache"));
         settings.persistence_enabled = true;
-        
-        assert_eq!(settings.cache_directory, Some(PathBuf::from("/tmp/firebase_cache")));
+
+        assert_eq!(
+            settings.cache_directory,
+            Some(PathBuf::from("/tmp/firebase_cache"))
+        );
     }
 
     #[tokio::test]
     async fn test_settings_disable_persistence() {
         use crate::firestore::types::Settings;
-        
+
         let mut settings = Settings::new();
         settings.persistence_enabled = false;
-        
+
         assert!(!settings.persistence_enabled);
     }
 }

@@ -279,10 +279,10 @@ impl Timestamp {
 
     /// Convert to DateTime
     pub fn to_datetime(&self) -> DateTime<Utc> {
-        match DateTime::from_timestamp(self.seconds, self.nanoseconds as u32) {
-            None => Utc::now(),
-            Some(dt) => dt,
-        }
+        let Some(dt) = DateTime::from_timestamp(self.seconds, self.nanoseconds as u32) else {
+            return Utc::now();
+        };
+        dt
     }
 
     /// Convert to serde_json::Value for use in documents
@@ -512,6 +512,7 @@ pub struct DocumentChange {
 #[derive(Debug)]
 pub struct ListenerRegistration {
     /// Internal ID for the listener
+    #[allow(dead_code)]
     pub(crate) id: String,
     
     /// Cancellation flag
@@ -536,6 +537,7 @@ impl ListenerRegistration {
     }
     
     /// Check if the listener has been cancelled
+    #[allow(dead_code)]
     pub(crate) fn is_cancelled(&self) -> bool {
         self.cancelled.load(std::sync::atomic::Ordering::SeqCst)
     }
@@ -556,11 +558,30 @@ pub struct WriteBatch {
     operations: Vec<WriteOperation>,
 }
 
+/// Write operations for batch writes and transactions
+///
+/// Represents different types of Firestore write operations that can be performed.
 #[derive(Debug, Clone)]
 pub enum WriteOperation {
-    Set { path: String, data: Value },
-    Update { path: String, data: Value },
-    Delete { path: String },
+    /// Set (overwrite) a document
+    Set {
+        /// Document path
+        path: String,
+        /// Document data
+        data: Value,
+    },
+    /// Update specific fields in a document
+    Update {
+        /// Document path
+        path: String,
+        /// Fields to update
+        data: Value,
+    },
+    /// Delete a document
+    Delete {
+        /// Document path to delete
+        path: String,
+    },
 }
 
 impl WriteBatch {
@@ -679,6 +700,7 @@ pub struct Transaction {
     pub(crate) database_id: String,
 
     /// API key for authentication
+    #[allow(dead_code)]
     pub(crate) api_key: String,
 
     /// Write operations accumulated during transaction
@@ -702,6 +724,7 @@ impl Transaction {
     }
 
     /// Set transaction ID (received from Firestore on first read)
+    #[allow(dead_code)]
     pub(crate) fn set_id(&mut self, id: String) {
         self.id = Some(id);
     }
@@ -824,7 +847,12 @@ impl Transaction {
         // Store transaction ID from response if this is the first read
         if self.id.is_none() {
             // First read in transaction - Firestore returns a transaction ID
-            // For now we'll handle this in the commit phase
+            // The transaction ID should come from the response body's "transaction" field
+            // For REST API, this is typically returned on the first read operation
+            // We'll extract it if present in the response
+            // Note: For a complete implementation, we'd need to modify get() to return
+            // both the snapshot and the transaction ID from the response
+            // For now, we rely on the commit phase to use the transaction ID if needed
         }
 
         // Error-first: check for HTTP errors

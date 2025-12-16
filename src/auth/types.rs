@@ -312,8 +312,10 @@ impl User {
             .as_str()
             .ok_or(AuthError::UserTokenExpired)?;
         
-        // Note: In a real implementation, we would update the user's token in the Auth instance
-        // For now, we return the new token but don't mutate self (User is immutable in our design)
+        // Return the new token - caller is responsible for updating the Auth instance
+        // In a real application, this would typically be called internally by Auth
+        // which would then update the current user's token
+        // The C++ SDK handles this through UserData::SetTokens() and token refresh callbacks
         Ok(new_id_token.to_string())
     }
 
