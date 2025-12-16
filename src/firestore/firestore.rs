@@ -1323,7 +1323,9 @@ impl Firestore {
             .await?;
 
         if !response.status().is_success() {
-            return Err(FirebaseError::Internal(format!("Query failed: {}", response.status())));
+            let status = response.status();
+            let error_body = response.text().await.unwrap_or_else(|_| "Unable to read response body".to_string());
+            return Err(FirebaseError::Internal(format!("Query failed: {} - {}", status, error_body)));
         }
 
         let results: Vec<serde_json::Value> = response.json().await?;

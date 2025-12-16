@@ -436,39 +436,51 @@ async fn test_snapshot_listener() {
     println!("✅ Snapshot listener works! Received {} updates", collected_updates.len());
 }
 
-/// Test: Compound filters (And/Or)
+/// Test: Compound filters - multiple filters on the same field  
+/// This tests inequality range queries which don't require composite indexes
 #[tokio::test]
 async fn test_compound_filters() {
     let (_app, auth, firestore) = get_authenticated_firestore().await;
     let collection = test_collection("compound");
     
-    // Create test documents
+    // Create test documents with ages
     firestore.set_document(&format!("{}/doc1", collection), json!({
-        "age": 25,
-        "active": true
+        "age": 15
     })).await.expect("Failed to create doc1");
     
     firestore.set_document(&format!("{}/doc2", collection), json!({
-        "age": 30,
-        "active": false
+        "age": 25
     })).await.expect("Failed to create doc2");
     
     firestore.set_document(&format!("{}/doc3", collection), json!({
-        "age": 35,
-        "active": true
+        "age": 35
     })).await.expect("Failed to create doc3");
     
-    // Query: age > 20 AND active == true
+    firestore.set_document(&format!("{}/doc4", collection), json!({
+        "age": 45
+    })).await.expect("Failed to create doc4");
+    
+    // Query: 20 < age < 40 (two inequality filters on same field)
+    // This creates a composite filter: age > 20 AND age < 40
+    // Firestore allows multiple inequality filters on the same field without requiring an index
     use firebase_rust_sdk::firestore::FilterCondition;
     let results = firestore.collection(&collection)
         .query()
         .where_filter(FilterCondition::GreaterThan("age".into(), json!(20)))
-        .where_filter(FilterCondition::Equal("active".into(), json!(true)))
+        .where_filter(FilterCondition::LessThan("age".into(), json!(40)))
         .get()
         .await
         .expect("Failed to query");
     
-    assert_eq!(results.len(), 2); // doc1 and doc3
+    assert_eq!(results.len(), 2, "Should match doc2 (age=25) and doc3 (age=35)");
+    
+    // Verify the ages are in expected range
+    for doc in &results {
+        if let Some(data) = &doc.data {
+            let age = data.get("age").and_then(|v| v.as_i64()).expect("Age should exist");
+            assert!(age > 20 && age < 40, "Age {} should be between 20 and 40", age);
+        }
+    }
     
     // Clean up
     cleanup_collection(&firestore, &collection).await;
