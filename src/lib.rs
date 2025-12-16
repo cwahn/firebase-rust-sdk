@@ -55,7 +55,7 @@ pub mod firestore {
         DocumentReference, CollectionReference, DocumentSnapshot, 
         FilterCondition, OrderDirection, 
         GeoPoint, Timestamp, SnapshotMetadata, QuerySnapshot, DocumentChange, 
-        DocumentChangeType, Settings, Source, Value, MapValue
+        DocumentChangeType, Settings, Source, Value, MapValue, ValueType, WriteBatch
     };
     pub use listener::{ListenerRegistration, ListenerOptions, add_document_listener};
 }

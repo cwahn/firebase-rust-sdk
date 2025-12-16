@@ -10,6 +10,8 @@
 
 use std::sync::Arc;
 use tonic::transport::Channel;
+use tonic::service::Interceptor;
+use tonic::Request;
 use crate::error::FirebaseError;
 use crate::firestore::types::{DocumentReference, CollectionReference, proto};
 
@@ -22,13 +24,48 @@ use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClien
 /// - `firebase-ios-sdk/Firestore/core/src/api/firestore.h:51`
 #[derive(Clone)]
 pub struct Firestore {
-    inner: Arc<FirestoreInner>,
+    pub(crate) inner: Arc<FirestoreInner>,
 }
 
 pub struct FirestoreInner {
     pub(crate) project_id: String,
     pub(crate) database_id: String,
-    pub(crate) grpc_client: GrpcClient<Channel>,
+    pub(crate) id_token: Option<String>,
+    pub(crate) grpc_client: GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>>,
+}
+
+/// gRPC interceptor for adding authentication headers
+/// Mirrors C++ GrpcConnection::CreateContext
+#[derive(Clone)]
+pub struct FirestoreInterceptor {
+    id_token: Option<String>,
+    project_id: String,
+    database_id: String,
+}
+
+impl Interceptor for FirestoreInterceptor {
+    fn call(&mut self, mut request: Request<()>) -> Result<Request<()>, tonic::Status> {
+        // Add Bearer token for authentication if available
+        // C++ Reference: GrpcConnection adds authorization header
+        if let Some(ref token) = self.id_token {
+            let bearer = format!("Bearer {}", token);
+            let bearer_value = bearer.parse()
+                .map_err(|_| tonic::Status::unauthenticated("Invalid ID token"))?;
+            request.metadata_mut().insert("authorization", bearer_value);
+        }
+
+        // Add routing header for request routing
+        // Mirrors C++ kXGoogRequestParams header
+        let resource_prefix = format!(
+            "projects/{}/databases/{}",
+            self.project_id, self.database_id
+        );
+        let routing_value = resource_prefix.parse()
+            .map_err(|_| tonic::Status::invalid_argument("Invalid resource prefix"))?;
+        request.metadata_mut().insert("x-goog-request-params", routing_value);
+
+        Ok(request)
+    }
 }
 
 impl Firestore {
@@ -36,29 +73,56 @@ impl Firestore {
     ///
     /// # Arguments
     /// * `project_id` - Firebase project ID
-    /// * `database_id` - Database ID (default: "(default)")
+    /// * `database_id` - Database ID (default: "default")
+    /// * `id_token` - Optional Firebase ID token for authentication (from Auth.current_user().id_token)
     ///
     /// # C++ Reference
     /// - `firebase-ios-sdk/Firestore/core/src/api/firestore.cc:50` - GetInstance
-    pub async fn new(project_id: impl Into<String>, database_id: impl Into<String>) -> Result<Self, FirebaseError> {
+    /// - `firebase-ios-sdk/Firestore/core/src/remote/grpc_connection.cc` - CreateContext (adds auth headers)
+    ///
+    /// # Note
+    /// For authenticated access, you must provide an ID token obtained from Auth.
+    /// Unauthenticated access requires Firestore security rules to allow public read/write.
+    pub async fn new(
+        project_id: impl Into<String>, 
+        database_id: impl Into<String>,
+        id_token: Option<String>
+    ) -> Result<Self, FirebaseError> {
         let project_id = project_id.into();
         let database_id = database_id.into();
         
-        // Connect to Firestore gRPC endpoint
+        // Connect to Firestore gRPC endpoint with TLS
         // Format: https://firestore.googleapis.com
         let endpoint = "https://firestore.googleapis.com";
         
+        // Configure TLS (mirrors C++ LoadGrpcRootCertificate)
+        let tls_config = tonic::transport::ClientTlsConfig::new()
+            .with_webpki_roots()
+            .domain_name("firestore.googleapis.com");
+        
         let channel = Channel::from_static(endpoint)
+            .tls_config(tls_config)
+            .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to configure TLS: {}", e)))?
+            .timeout(std::time::Duration::from_secs(30))
+            .connect_timeout(std::time::Duration::from_secs(10))
             .connect()
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to connect to Firestore: {}", e)))?;
         
-        let grpc_client = GrpcClient::new(channel);
+        // Create interceptor for authentication
+        let interceptor = FirestoreInterceptor {
+            id_token: id_token.clone(),
+            project_id: project_id.clone(),
+            database_id: database_id.clone(),
+        };
+        
+        let grpc_client = GrpcClient::with_interceptor(channel, interceptor);
         
         Ok(Self {
             inner: Arc::new(FirestoreInner {
                 project_id,
                 database_id,
+                id_token,
                 grpc_client,
             }),
         })
@@ -111,7 +175,7 @@ impl Firestore {
     }
 
     /// Get a mutable reference to the gRPC client
-    pub(crate) fn grpc_client(&self) -> &GrpcClient<Channel> {
+    pub(crate) fn grpc_client(&self) -> &GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>> {
         &self.inner.grpc_client
     }
 }
@@ -123,7 +187,7 @@ mod tests {
     #[tokio::test]
     async fn test_firestore_creation() {
         // Note: This will fail without credentials, but tests the structure
-        let result = Firestore::new("test-project", "(default)").await;
+        let result = Firestore::new("test-project", "default", None).await;
         // We expect this to fail with connection error since we don't have auth
         assert!(result.is_err());
     }

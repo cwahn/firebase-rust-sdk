@@ -11,12 +11,14 @@
 
 use crate::error::FirebaseError;
 use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, proto};
+use crate::firestore::Firestore;
 use proto::google::firestore::v1 as firestore_proto;
 use firestore_proto::firestore_client::FirestoreClient;
 use firestore_proto::listen_response::ResponseType;
 use firestore_proto::{ListenRequest, Target};
 use futures::stream::StreamExt;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::transport::Channel;
@@ -91,6 +93,7 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 /// 5. Returns ListenerRegistration for cleanup
 ///
 /// # Arguments
+/// * `firestore` - Firestore instance for creating DocumentReferences
 /// * `auth_token` - Bearer token for authentication
 /// * `project_id` - Firebase project ID
 /// * `database_id` - Firestore database ID (usually "default")
@@ -102,6 +105,7 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 /// `ListenerRegistration` handle to remove the listener
 #[cfg(not(target_arch = "wasm32"))]
 pub async fn add_document_listener<F>(
+    firestore: &Firestore,
     auth_token: String,
     project_id: String,
     database_id: String,
@@ -112,6 +116,7 @@ pub async fn add_document_listener<F>(
 where
     F: FnMut(Result<DocumentSnapshot, FirebaseError>) + Send + 'static,
 {
+    let firestore_inner = Arc::clone(&firestore.inner);
     // Create gRPC channel
     let channel = create_authenticated_channel(&auth_token).await?;
 
@@ -226,7 +231,7 @@ where
                         Ok(response) => {
                             // Process the listen response
                             // Mirrors C++ WatchStream::NotifyStreamResponse
-                            let snapshot = match process_listen_response(response, &options, &project_id, &database_id) {
+                            let snapshot = match process_listen_response(response, &options, &firestore_inner, &document_path) {
                                 Err(e) => {
                                     callback(Err(e));
                                     break;
@@ -257,9 +262,11 @@ where
 fn process_listen_response(
     response: firestore_proto::ListenResponse,
     _options: &ListenerOptions,
-    _project_id: &str,
-    _database_id: &str,
+    firestore_inner: &Arc<crate::firestore::FirestoreInner>,
+    document_path: &str,
 ) -> Result<Option<DocumentSnapshot>, FirebaseError> {
+    use crate::firestore::types::MapValue;
+    
     match response.response_type {
         Some(ResponseType::DocumentChange(change)) => {
             // Document was added or modified
@@ -269,33 +276,44 @@ fn process_listen_response(
 
             // Convert protobuf document to DocumentSnapshot
             // Mirrors C++ conversion in document_reference_main.cc
-            let path = doc.name.clone();
-            let fields = doc.fields; // Use protobuf MapFieldValue directly
+            let fields = doc.fields; // HashMap<String, Value>
 
-            // Extract just the document path (remove the database prefix)
-            // Path format: "projects/{project}/databases/{database}/documents/{doc_path}"
-            let doc_path = path
-                .split("/documents/")
-                .nth(1)
-                .map(|p| p.to_string())
-                .unwrap_or(path);
+            // Create DocumentReference for this document
+            let doc_ref = DocumentReference::new(
+                document_path.to_string(),
+                Arc::clone(firestore_inner),
+            );
 
-            // TODO: Update listener to work with new Firestore architecture
-            // Need to pass Firestore instance to create DocumentReference properly
-            // For now, return error
-            Err(FirebaseError::Firestore(crate::error::FirestoreError::Unimplemented))
+            // Create DocumentSnapshot with MapValue containing the fields
+            let snapshot = DocumentSnapshot {
+                reference: doc_ref,
+                data: Some(MapValue { fields }),
+                metadata: SnapshotMetadata {
+                    has_pending_writes: false,
+                    is_from_cache: false,
+                },
+            };
+
+            Ok(Some(snapshot))
         }
-        Some(ResponseType::DocumentDelete(delete)) => {
+        Some(ResponseType::DocumentDelete(_delete)) => {
             // Document was deleted - return snapshot with no data
-            // Extract document path from the delete event
-            let doc_path = delete.document
-                .split("/documents/")
-                .nth(1)
-                .map(|p| p.to_string())
-                .unwrap_or_else(|| delete.document.clone());
+            let doc_ref = DocumentReference::new(
+                document_path.to_string(),
+                Arc::clone(firestore_inner),
+            );
             
-            // TODO: Update listener to work with new Firestore architecture
-            Err(FirebaseError::Firestore(crate::error::FirestoreError::Unimplemented))
+            // Return a snapshot indicating the document was deleted
+            let snapshot = DocumentSnapshot {
+                reference: doc_ref,
+                data: None,
+                metadata: SnapshotMetadata {
+                    has_pending_writes: false,
+                    is_from_cache: false,
+                },
+            };
+            
+            Ok(Some(snapshot))
         }
         Some(ResponseType::DocumentRemove(_remove)) => {
             // Document removed from query result set (different from deletion)
@@ -346,6 +364,7 @@ fn process_listen_response(
 // WASM support will be added using tonic-web-wasm-client
 #[cfg(target_arch = "wasm32")]
 pub async fn add_document_listener<F>(
+    _firestore: &Firestore,
     _auth_token: String,
     _project_id: String,
     _database_id: String,

@@ -32,6 +32,9 @@ pub use proto::google::firestore::v1::Value;
 /// - `firestore/src/include/firebase/firestore/map_field_value.h:30`
 pub use proto::google::firestore::v1::MapValue;
 
+/// ValueType enum for creating protobuf Value variants
+pub use proto::google::firestore::v1::value::ValueType;
+
 /// Filter operators for Firestore queries
 ///
 /// # C++ Reference
