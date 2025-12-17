@@ -11,7 +11,7 @@
 
 use crate::error::FirebaseError;
 use crate::firestore::firestore::FirestoreInner;
-use crate::firestore::types::{proto, DocumentReference, DocumentSnapshot, SnapshotMetadata};
+use crate::firestore::{proto, DocumentReference, DocumentSnapshot, SnapshotMetadata};
 use crate::firestore::Firestore;
 use firestore_proto::firestore_client::FirestoreClient;
 use firestore_proto::listen_response::ResponseType;
@@ -271,7 +271,7 @@ fn process_listen_response(
     firestore_inner: &Arc<FirestoreInner>,
     document_path: &str,
 ) -> Result<Option<DocumentSnapshot>, FirebaseError> {
-    use crate::firestore::types::MapValue;
+    use crate::firestore::MapValue;
 
     match response.response_type {
         Some(ResponseType::DocumentChange(change)) => {

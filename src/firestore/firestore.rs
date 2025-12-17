@@ -13,7 +13,7 @@ use tonic::transport::Channel;
 use tonic::service::Interceptor;
 use tonic::Request;
 use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, CollectionReference, proto};
+use crate::firestore::{DocumentReference, CollectionReference, proto};
 
 // Import generated gRPC client
 use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;

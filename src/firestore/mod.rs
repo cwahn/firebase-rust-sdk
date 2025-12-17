@@ -39,7 +39,7 @@ pub mod transaction;
 
 // Legacy types module for backwards compatibility
 // TODO: Remove this once all code is updated to use direct module imports
-pub mod types;
+// pub mod types;
 
 // Re-export main Firestore client
 pub use firestore::Firestore;
