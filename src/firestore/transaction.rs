@@ -3,15 +3,14 @@
 ///! # C++ References
 ///! - `firebase-cpp-sdk/firestore/src/include/firebase/firestore/transaction.h`
 ///! - `firebase-ios-sdk/Firestore/core/src/core/transaction.h`
-
 use crate::error::{FirebaseError, FirestoreError};
 use crate::firestore::document_reference::DocumentReference;
 use crate::firestore::document_snapshot::DocumentSnapshot;
-use crate::firestore::field_value::{MapValue, proto};
+use crate::firestore::field_value::{proto, MapValue};
 use crate::firestore::firestore::FirestoreInterceptor;
 use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 /// Transaction for atomic read-write operations
 ///
@@ -27,7 +26,7 @@ use std::collections::HashMap;
 /// # use firebase_rust_sdk::firestore::Firestore;
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let firestore = Firestore::new("project-id", "default", None).await?;
-/// 
+///
 /// // Run a transaction to increment a counter
 /// firestore.run_transaction(|txn| async move {
 ///     let doc_ref = firestore.document("counters/visits");
@@ -49,16 +48,16 @@ use std::collections::HashMap;
 pub struct Transaction {
     /// Transaction ID from BeginTransaction
     pub(crate) transaction_id: Vec<u8>,
-    
+
     /// Reference to Firestore client
     pub(crate) firestore: Arc<crate::firestore::firestore::FirestoreInner>,
-    
+
     /// Read documents (for tracking reads before writes)
     pub(crate) reads: HashMap<String, Option<DocumentSnapshot>>,
-    
+
     /// Pending write operations
     pub(crate) writes: Vec<TransactionWrite>,
-    
+
     /// Whether any writes have been performed (reads must come first)
     pub(crate) has_writes: bool,
 }
@@ -66,17 +65,9 @@ pub struct Transaction {
 /// Write operation in a transaction
 #[derive(Debug, Clone)]
 pub(crate) enum TransactionWrite {
-    Set {
-        path: String,
-        data: MapValue,
-    },
-    Update {
-        path: String,
-        data: MapValue,
-    },
-    Delete {
-        path: String,
-    },
+    Set { path: String, data: MapValue },
+    Update { path: String, data: MapValue },
+    Delete { path: String },
 }
 
 impl Transaction {
@@ -116,12 +107,14 @@ impl Transaction {
         // Error-first: Enforce read-before-write rule
         if self.has_writes {
             return Err(FirestoreError::InvalidArgument(
-                "Firestore transactions require all reads to be executed before all writes".to_string()
-            ).into());
+                "Firestore transactions require all reads to be executed before all writes"
+                    .to_string(),
+            )
+            .into());
         }
 
         let path = &document.path;
-        
+
         // Check if we've already read this document
         if let Some(cached) = self.reads.get(path) {
             return Ok(cached.clone());
@@ -129,27 +122,21 @@ impl Transaction {
 
         // Perform the read using gRPC BatchGetDocuments with transaction ID
         use crate::firestore::field_value::proto::google::firestore::v1::{
-            BatchGetDocumentsRequest,
-            batch_get_documents_request::ConsistencySelector,
+            batch_get_documents_request::ConsistencySelector, BatchGetDocumentsRequest,
         };
-        
+
         let database_path = format!(
             "projects/{}/databases/{}",
-            self.firestore.project_id,
-            self.firestore.database_id
+            self.firestore.project_id, self.firestore.database_id
         );
-        
-        let full_path = format!(
-            "{}/documents/{}",
-            database_path,
-            path
-        );
+
+        let full_path = format!("{}/documents/{}", database_path, path);
 
         let request = BatchGetDocumentsRequest {
             database: database_path.clone(),
             documents: vec![full_path],
             consistency_selector: Some(ConsistencySelector::Transaction(
-                self.transaction_id.clone()
+                self.transaction_id.clone(),
             )),
             ..Default::default()
         };
@@ -175,13 +162,11 @@ impl Transaction {
 
         // Parse response
         use crate::firestore::field_value::proto::google::firestore::v1::batch_get_documents_response::Result as BatchResult;
-        
+
         let snapshot = match response.result {
             Some(BatchResult::Found(doc)) => {
                 // Document exists - convert to DocumentSnapshot
-                let data = MapValue {
-                    fields: doc.fields,
-                };
+                let data = MapValue { fields: doc.fields };
                 Some(DocumentSnapshot {
                     reference: document.clone(),
                     data: Some(data),
@@ -214,7 +199,11 @@ impl Transaction {
     ///
     /// # C++ Reference
     /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore/transaction.h:77`
-    pub fn set(&mut self, document: &DocumentReference, data: MapValue) -> Result<(), FirebaseError> {
+    pub fn set(
+        &mut self,
+        document: &DocumentReference,
+        data: MapValue,
+    ) -> Result<(), FirebaseError> {
         self.has_writes = true;
         self.writes.push(TransactionWrite::Set {
             path: document.path.clone(),
@@ -229,7 +218,11 @@ impl Transaction {
     ///
     /// # C++ Reference
     /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore/transaction.h:92`
-    pub fn update(&mut self, document: &DocumentReference, data: MapValue) -> Result<(), FirebaseError> {
+    pub fn update(
+        &mut self,
+        document: &DocumentReference,
+        data: MapValue,
+    ) -> Result<(), FirebaseError> {
         self.has_writes = true;
         self.writes.push(TransactionWrite::Update {
             path: document.path.clone(),

@@ -9,7 +9,7 @@ pub enum MetadataChanges {
     ///
     /// Snapshot events will be triggered on metadata changes in addition to data changes.
     Include,
-    
+
     /// Do not listen to metadata-only changes.
     ///
     /// Snapshot events will only be triggered when the document data changes.

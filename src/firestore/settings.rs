@@ -13,38 +13,38 @@
 #[derive(Debug, Clone)]
 pub struct Settings {
     /// Host of the Firestore backend to connect to
-    /// 
+    ///
     /// Default: "firestore.googleapis.com"
     pub host: String,
 
     /// Whether to use SSL for communication
-    /// 
+    ///
     /// Default: true
     pub ssl_enabled: bool,
 
     /// Whether to enable local persistent storage
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/settings.h:120` - is_persistence_enabled()
-    /// 
+    ///
     /// When enabled, Firestore caches documents locally and serves them when offline.
-    /// 
+    ///
     /// Default: true
     pub persistence_enabled: bool,
 
     /// Cache size threshold for on-disk data in bytes
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/settings.h:123` - cache_size_bytes()
-    /// 
+    ///
     /// If the cache grows beyond this size, Firestore will start removing data
     /// that hasn't been recently used. Set to -1 for unlimited cache.
-    /// 
+    ///
     /// Default: 100 MB (104857600 bytes)
     pub cache_size_bytes: i64,
 
     /// Directory path for local cache storage
-    /// 
+    ///
     /// If None, uses platform default:
     /// - macOS/Linux: `~/.firebase_cache/{project_id}/`
     /// - Windows: `%APPDATA%/firebase_cache/{project_id}/`
@@ -66,7 +66,7 @@ impl Default for Settings {
 
 impl Settings {
     /// Constant to use with cache_size_bytes to disable garbage collection
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/settings.h:57` - kCacheSizeUnlimited
     pub const CACHE_SIZE_UNLIMITED: i64 = -1;
@@ -86,19 +86,19 @@ impl Settings {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Source {
     /// Default behavior - try server first, fall back to cache if offline
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/source.h:40` - kDefault
     Default,
 
     /// Only fetch from server, fail if offline
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/source.h:44` - kServer
     Server,
 
     /// Only fetch from local cache, fail if not cached
-    /// 
+    ///
     /// # C++ Reference
     /// - `firestore/src/include/firebase/firestore/source.h:48` - kCache
     Cache,

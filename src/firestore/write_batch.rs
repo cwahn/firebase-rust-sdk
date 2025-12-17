@@ -221,7 +221,8 @@ impl WriteBatch {
         Ok(())
     }
 
-    pub fn operations(&self) -> &[WriteOperation] {
+    /// Get the list of operations in this batch (for testing)
+    pub(crate) fn operations(&self) -> &[WriteOperation] {
         &self.operations
     }
 

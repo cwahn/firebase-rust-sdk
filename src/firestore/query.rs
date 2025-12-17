@@ -23,7 +23,9 @@ use std::sync::Arc;
 /// - `query.h:69` - Query::Direction enum
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
+    /// Sort in ascending order (A-Z, 0-9)
     Ascending,
+    /// Sort in descending order (Z-A, 9-0)
     Descending,
 }
 
@@ -465,7 +467,6 @@ pub trait Query: Clone + Sized {
                     }
                 }
             }
-
         });
 
         super::QuerySnapshotStream::new(rx, cancel_tx)

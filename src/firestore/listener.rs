@@ -10,13 +10,14 @@
 #![allow(clippy::all)]
 
 use crate::error::FirebaseError;
-use crate::firestore::types::{DocumentReference, DocumentSnapshot, SnapshotMetadata, proto};
+use crate::firestore::firestore::FirestoreInner;
+use crate::firestore::types::{proto, DocumentReference, DocumentSnapshot, SnapshotMetadata};
 use crate::firestore::Firestore;
-use proto::google::firestore::v1 as firestore_proto;
 use firestore_proto::firestore_client::FirestoreClient;
 use firestore_proto::listen_response::ResponseType;
 use firestore_proto::{ListenRequest, Target};
 use futures::stream::{Stream, StreamExt};
+use proto::google::firestore::v1 as firestore_proto;
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -29,7 +30,8 @@ use tonic::Request;
 ///
 /// This stream yields `Result<DocumentSnapshot, FirebaseError>` items as the document changes.
 /// The stream will continue until dropped or an error occurs.
-pub type DocumentSnapshotStream = Pin<Box<dyn Stream<Item = Result<DocumentSnapshot, FirebaseError>> + Send>>;
+pub type DocumentSnapshotStream =
+    Pin<Box<dyn Stream<Item = Result<DocumentSnapshot, FirebaseError>> + Send>>;
 
 /// Options for configuring snapshot listeners
 #[derive(Debug, Clone, Default)]
@@ -79,11 +81,11 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 /// Creates a real-time listener stream for a Firestore document using gRPC streaming
 ///
 /// This implements the C++ WatchStream pattern but returns a Rust Stream for idiomatic async iteration.
-/// 
+///
 /// # Example
 /// ```rust,no_run
 /// use futures::stream::StreamExt;
-/// 
+///
 /// let mut stream = firestore.listen_document(
 ///     auth_token,
 ///     project_id,
@@ -91,7 +93,7 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 ///     "users/123",
 ///     ListenerOptions::default()
 /// ).await?;
-/// 
+///
 /// while let Some(result) = stream.next().await {
 ///     match result {
 ///         Ok(snapshot) => println!("Document updated: {:?}", snapshot),
@@ -221,12 +223,19 @@ pub async fn listen_document(
             match msg {
                 Err(e) => {
                     // Stream error - send error and stop
-                    let _ = snapshot_tx.send(Err(FirebaseError::internal(format!("Stream error: {}", e)))).await;
+                    let _ = snapshot_tx
+                        .send(Err(FirebaseError::internal(format!("Stream error: {}", e))))
+                        .await;
                     break;
                 }
                 Ok(response) => {
                     // Process the listen response
-                    let snapshot = match process_listen_response(response, &options, &firestore_inner, &document_path) {
+                    let snapshot = match process_listen_response(
+                        response,
+                        &options,
+                        &firestore_inner,
+                        &document_path,
+                    ) {
                         Err(e) => {
                             let _ = snapshot_tx.send(Err(e)).await;
                             break;
@@ -259,11 +268,11 @@ pub async fn listen_document(
 fn process_listen_response(
     response: firestore_proto::ListenResponse,
     _options: &ListenerOptions,
-    firestore_inner: &Arc<crate::firestore::FirestoreInner>,
+    firestore_inner: &Arc<FirestoreInner>,
     document_path: &str,
 ) -> Result<Option<DocumentSnapshot>, FirebaseError> {
     use crate::firestore::types::MapValue;
-    
+
     match response.response_type {
         Some(ResponseType::DocumentChange(change)) => {
             // Document was added or modified
@@ -276,10 +285,8 @@ fn process_listen_response(
             let fields = doc.fields; // HashMap<String, Value>
 
             // Create DocumentReference for this document
-            let doc_ref = DocumentReference::new(
-                document_path.to_string(),
-                Arc::clone(firestore_inner),
-            );
+            let doc_ref =
+                DocumentReference::new(document_path.to_string(), Arc::clone(firestore_inner));
 
             // Create DocumentSnapshot with MapValue containing the fields
             let snapshot = DocumentSnapshot {
@@ -295,11 +302,9 @@ fn process_listen_response(
         }
         Some(ResponseType::DocumentDelete(_delete)) => {
             // Document was deleted - return snapshot with no data
-            let doc_ref = DocumentReference::new(
-                document_path.to_string(),
-                Arc::clone(firestore_inner),
-            );
-            
+            let doc_ref =
+                DocumentReference::new(document_path.to_string(), Arc::clone(firestore_inner));
+
             // Return a snapshot indicating the document was deleted
             let snapshot = DocumentSnapshot {
                 reference: doc_ref,
@@ -309,7 +314,7 @@ fn process_listen_response(
                     is_from_cache: false,
                 },
             };
-            
+
             Ok(Some(snapshot))
         }
         Some(ResponseType::DocumentRemove(_remove)) => {
@@ -338,17 +343,16 @@ fn process_listen_response(
             // - REMOVE (2): Target was removed
             // - CURRENT (3): All initial data has been sent
             // - RESET (4): Target was reset (need to refetch)
-            
+
             // Check for errors in the target change
             if let Some(cause) = change.cause {
                 let error_msg = format!(
                     "Target change error: code={}, message={}",
-                    cause.code,
-                    cause.message
+                    cause.code, cause.message
                 );
                 return Err(FirebaseError::internal(error_msg));
             }
-            
+
             // For document listeners, these are informational
             // The actual data comes through DocumentChange events
             // If include_metadata_changes is true, could return metadata-only snapshot
@@ -359,7 +363,8 @@ fn process_listen_response(
 }
 
 /// Stream of query snapshots from Firestore listener
-pub type QuerySnapshotStream = Pin<Box<dyn Stream<Item = Result<crate::firestore::QuerySnapshot, FirebaseError>> + Send>>;
+pub type QuerySnapshotStream =
+    Pin<Box<dyn Stream<Item = Result<crate::firestore::QuerySnapshot, FirebaseError>> + Send>>;
 
 /// Creates a real-time listener stream for a Firestore query using gRPC streaming
 ///
@@ -384,7 +389,7 @@ pub async fn listen_query(
 ) -> Result<QuerySnapshotStream, FirebaseError> {
     use crate::firestore::QuerySnapshot;
     use std::collections::HashMap;
-    
+
     let firestore_inner = Arc::clone(&firestore.inner);
     let channel = create_authenticated_channel(&auth_token).await?;
 
@@ -424,9 +429,11 @@ pub async fn listen_query(
         target_type: Some(firestore_proto::target::TargetType::Query(
             firestore_proto::target::QueryTarget {
                 parent,
-                query_type: Some(firestore_proto::target::query_target::QueryType::StructuredQuery(
-                    structured_query,
-                )),
+                query_type: Some(
+                    firestore_proto::target::query_target::QueryType::StructuredQuery(
+                        structured_query,
+                    ),
+                ),
             },
         )),
         resume_type: None,
@@ -435,7 +442,9 @@ pub async fn listen_query(
     let request = ListenRequest {
         database: database.clone(),
         labels: HashMap::new(),
-        target_change: Some(firestore_proto::listen_request::TargetChange::AddTarget(target)),
+        target_change: Some(firestore_proto::listen_request::TargetChange::AddTarget(
+            target,
+        )),
     };
 
     let (request_sender, request_receiver) = mpsc::channel(10);
@@ -462,7 +471,7 @@ pub async fn listen_query(
     tokio::spawn(async move {
         let mut stream = response_stream;
         let _request_sender = request_sender;
-        
+
         // Accumulate documents
         let mut documents: HashMap<String, proto::google::firestore::v1::Document> = HashMap::new();
         let mut is_initial_snapshot = true;
@@ -476,7 +485,9 @@ pub async fn listen_query(
 
             match msg {
                 Err(e) => {
-                    let _ = snapshot_tx.send(Err(FirebaseError::internal(format!("Stream error: {}", e)))).await;
+                    let _ = snapshot_tx
+                        .send(Err(FirebaseError::internal(format!("Stream error: {}", e))))
+                        .await;
                     break;
                 }
                 Ok(response) => {
@@ -565,19 +576,21 @@ fn query_state_to_structured_query(
 
     // Add ordering
     for (field, direction) in &state.orders {
-        query.order_by.push(firestore_proto::structured_query::Order {
-            field: Some(firestore_proto::structured_query::FieldReference {
-                field_path: field.clone(),
-            }),
-            direction: match direction {
-                crate::firestore::Direction::Ascending => {
-                    firestore_proto::structured_query::Direction::Ascending as i32
-                }
-                crate::firestore::Direction::Descending => {
-                    firestore_proto::structured_query::Direction::Descending as i32
-                }
-            },
-        });
+        query
+            .order_by
+            .push(firestore_proto::structured_query::Order {
+                field: Some(firestore_proto::structured_query::FieldReference {
+                    field_path: field.clone(),
+                }),
+                direction: match direction {
+                    crate::firestore::Direction::Ascending => {
+                        firestore_proto::structured_query::Direction::Ascending as i32
+                    }
+                    crate::firestore::Direction::Descending => {
+                        firestore_proto::structured_query::Direction::Descending as i32
+                    }
+                },
+            });
     }
 
     // Add limit
@@ -598,9 +611,7 @@ fn create_field_filter(
     use proto::google::firestore::v1 as firestore_proto;
 
     let operator = match op {
-        FilterOperator::EqualTo => {
-            firestore_proto::structured_query::field_filter::Operator::Equal
-        }
+        FilterOperator::EqualTo => firestore_proto::structured_query::field_filter::Operator::Equal,
         FilterOperator::NotEqualTo => {
             firestore_proto::structured_query::field_filter::Operator::NotEqual
         }
@@ -671,16 +682,21 @@ fn process_query_listen_response(
         }
         Some(TargetChange(change)) => {
             // Check if this is CURRENT state (all initial data received)
-            if change.target_change_type == firestore_proto::target_change::TargetChangeType::Current as i32 {
+            if change.target_change_type
+                == firestore_proto::target_change::TargetChangeType::Current as i32
+            {
                 if *is_initial {
                     *is_initial = false;
                     return true; // Emit initial snapshot
                 }
             }
-            
+
             // Check for errors
             if let Some(cause) = change.cause {
-                eprintln!("Target change error: code={}, message={}", cause.code, cause.message);
+                eprintln!(
+                    "Target change error: code={}, message={}",
+                    cause.code, cause.message
+                );
             }
             false
         }

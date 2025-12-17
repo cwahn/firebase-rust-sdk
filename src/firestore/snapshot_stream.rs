@@ -32,7 +32,6 @@
 /// # Ok(())
 /// # }
 /// ```
-
 use crate::error::FirebaseError;
 use crate::firestore::document_snapshot::DocumentSnapshot;
 use crate::firestore::query_snapshot::QuerySnapshot;
@@ -132,18 +131,18 @@ mod tests {
     #[tokio::test]
     async fn test_document_snapshot_stream_drop_cancels() {
         use futures::StreamExt;
-        
+
         let (tx, rx) = mpsc::unbounded_channel();
         let (cancel_tx, mut cancel_rx) = oneshot::channel();
-        
+
         {
             let _stream = DocumentSnapshotStream::new(rx, cancel_tx);
             // Stream dropped here
         }
-        
+
         // Cancel signal should be sent
         assert!(cancel_rx.try_recv().is_ok());
-        
+
         // Channel should be closed
         assert!(tx.is_closed());
     }
@@ -151,18 +150,18 @@ mod tests {
     #[tokio::test]
     async fn test_query_snapshot_stream_drop_cancels() {
         use futures::StreamExt;
-        
+
         let (tx, rx) = mpsc::unbounded_channel();
         let (cancel_tx, mut cancel_rx) = oneshot::channel();
-        
+
         {
             let _stream = QuerySnapshotStream::new(rx, cancel_tx);
             // Stream dropped here
         }
-        
+
         // Cancel signal should be sent
         assert!(cancel_rx.try_recv().is_ok());
-        
+
         // Channel should be closed
         assert!(tx.is_closed());
     }

@@ -28,7 +28,7 @@ use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClien
 /// Using Arc<AuthData> instead of cloning strings:
 /// - Per-operation cost: 1 Arc increment (~1 atomic op) vs 3 String clones
 /// - Memory: Single copy shared across all operations
-pub struct AuthData {
+pub(crate) struct AuthData {
     pub(crate) id_token: Option<String>,
     pub(crate) project_id: String,
     pub(crate) database_id: String,
@@ -41,14 +41,14 @@ pub struct AuthData {
 #[derive(Clone)]
 pub struct Firestore {
     /// Shared internal state (channel, auth data)
-    pub inner: Arc<FirestoreInner>,
+    pub(crate) inner: Arc<FirestoreInner>,
 }
 
 /// Internal Firestore client state shared across clones
 ///
 /// Contains the gRPC channel and authentication data needed for operations.
 /// Not directly used by consumers - wrapped by the public Firestore struct.
-pub struct FirestoreInner {
+pub(crate) struct FirestoreInner {
     pub(crate) project_id: String,
     pub(crate) database_id: String,
     pub(crate) id_token: Option<String>,
@@ -61,7 +61,7 @@ pub struct FirestoreInner {
 /// gRPC interceptor for adding authentication headers
 /// Mirrors C++ GrpcConnection::CreateContext
 #[derive(Clone)]
-pub struct FirestoreInterceptor {
+pub(crate) struct FirestoreInterceptor {
     pub(crate) auth_data: Arc<AuthData>,
 }
 
