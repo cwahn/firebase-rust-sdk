@@ -7,7 +7,9 @@
 use crate::error::{FirebaseError, FirestoreError};
 use crate::firestore::document_reference::DocumentReference;
 use crate::firestore::document_snapshot::DocumentSnapshot;
-use crate::firestore::field_value::MapValue;
+use crate::firestore::field_value::{MapValue, proto};
+use crate::firestore::firestore::FirestoreInterceptor;
+use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
 use std::sync::Arc;
 use std::collections::HashMap;
 
@@ -153,7 +155,10 @@ impl Transaction {
         };
 
         // Execute gRPC request
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let mut stream = client
             .batch_get_documents(request)
             .await

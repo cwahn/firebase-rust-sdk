@@ -4,7 +4,8 @@
 //! - `firestore/src/include/firebase/firestore/write_batch.h:46`
 
 use super::field_value::{MapValue, proto};
-use crate::firestore::firestore::FirestoreInner;
+use crate::firestore::firestore::{FirestoreInner, FirestoreInterceptor};
+use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
 
 /// Write batch for atomic operations
 ///
@@ -209,7 +210,10 @@ impl WriteBatch {
             transaction: vec![],
         };
         
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let _response = client.commit(request)
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;

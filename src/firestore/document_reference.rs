@@ -5,7 +5,8 @@
 
 use super::document_snapshot::{DocumentSnapshot, SnapshotMetadata};
 use super::field_value::{MapValue, proto};
-use crate::firestore::firestore::FirestoreInner;
+use crate::firestore::firestore::{FirestoreInner, FirestoreInterceptor};
+use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
 use std::sync::Arc;
 
 /// Reference to a Firestore document
@@ -71,6 +72,11 @@ impl DocumentReference {
         let database_path = format!("projects/{}/databases/{}", 
             self.firestore.project_id, self.firestore.database_id);
         
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let _client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
+        
         // Create a Write mutation with Update operation (which acts as set)
         let write = Write {
             operation: Some(Operation::Update(proto::google::firestore::v1::Document {
@@ -90,7 +96,10 @@ impl DocumentReference {
             transaction: vec![],
         };
         
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let _response = client.commit(request)
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
@@ -134,7 +143,10 @@ impl DocumentReference {
             transaction: vec![],
         };
         
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let _response = client.commit(request)
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
@@ -165,7 +177,10 @@ impl DocumentReference {
             transaction: vec![],
         };
         
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let _response = client.commit(request)
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC commit failed: {}", e)))?;
@@ -187,7 +202,10 @@ impl DocumentReference {
             mask: None,
         };
         
-        let mut client = self.firestore.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.firestore.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.firestore.channel.clone(), interceptor);
         let response = client.get_document(request)
             .await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("gRPC get_document failed: {}", e)))?;

@@ -13,7 +13,8 @@ use super::field_value::Value;
 use super::query_snapshot::QuerySnapshot;
 use super::settings::Source;
 use crate::error::FirebaseError;
-use crate::firestore::firestore::FirestoreInner;
+use crate::firestore::firestore::{FirestoreInner, FirestoreInterceptor};
+use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
 use std::sync::Arc;
 
 /// Sort direction for query ordering
@@ -625,7 +626,10 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
     };
 
     // Create a new client from the shared connection
-    let mut client = state.firestore.grpc_client.clone();
+    let interceptor = FirestoreInterceptor {
+        auth_data: state.firestore.auth_data.clone(),
+    };
+    let mut client = GrpcClient::with_interceptor(state.firestore.channel.clone(), interceptor);
     let mut stream = client
         .run_query(request)
         .await

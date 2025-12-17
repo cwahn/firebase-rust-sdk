@@ -18,40 +18,58 @@ use crate::firestore::types::{DocumentReference, CollectionReference, proto};
 // Import generated gRPC client
 use proto::google::firestore::v1::firestore_client::FirestoreClient as GrpcClient;
 
+/// Shared authentication data for gRPC interceptors
+///
+/// Wrapped in Arc to enable cheap cloning across operations without
+/// duplicating heap-allocated strings. Each gRPC operation creates a
+/// lightweight interceptor that shares this immutable auth data.
+///
+/// # Performance
+/// Using Arc<AuthData> instead of cloning strings:
+/// - Per-operation cost: 1 Arc increment (~1 atomic op) vs 3 String clones
+/// - Memory: Single copy shared across all operations
+pub struct AuthData {
+    pub(crate) id_token: Option<String>,
+    pub(crate) project_id: String,
+    pub(crate) database_id: String,
+}
+
 /// Firestore database client
 ///
 /// # C++ Reference
 /// - `firebase-ios-sdk/Firestore/core/src/api/firestore.h:51`
 #[derive(Clone)]
 pub struct Firestore {
-    pub(crate) inner: Arc<FirestoreInner>,
+    /// Shared internal state (channel, auth data)
+    pub inner: Arc<FirestoreInner>,
 }
 
+/// Internal Firestore client state shared across clones
+///
+/// Contains the gRPC channel and authentication data needed for operations.
+/// Not directly used by consumers - wrapped by the public Firestore struct.
 pub struct FirestoreInner {
     pub(crate) project_id: String,
     pub(crate) database_id: String,
     pub(crate) id_token: Option<String>,
-    // GrpcClient is stored directly - its .clone() is cheap and shares the same connection
-    // Mirrors C++ GrpcConnection which stores grpc::GenericStub
-    // C++ Reference: grpc_stub_ is created once in EnsureActiveStub()
-    // Rust equivalent: Create client once here, each operation uses it via .clone()
-    pub(crate) grpc_client: GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>>,
+    // Store Channel (connection pool) - Arc'd internally, cheap to clone
+    // Create GrpcClient per operation with Arc'd interceptor for optimal performance
+    pub(crate) channel: Channel,
+    pub(crate) auth_data: Arc<AuthData>,
 }
 
 /// gRPC interceptor for adding authentication headers
 /// Mirrors C++ GrpcConnection::CreateContext
 #[derive(Clone)]
 pub struct FirestoreInterceptor {
-    id_token: Option<String>,
-    project_id: String,
-    database_id: String,
+    pub(crate) auth_data: Arc<AuthData>,
 }
 
 impl Interceptor for FirestoreInterceptor {
     fn call(&mut self, mut request: Request<()>) -> Result<Request<()>, tonic::Status> {
         // Add Bearer token for authentication if available
         // C++ Reference: GrpcConnection adds authorization header
-        if let Some(ref token) = self.id_token {
+        if let Some(ref token) = self.auth_data.id_token {
             let bearer = format!("Bearer {}", token);
             let bearer_value = bearer.parse()
                 .map_err(|_| tonic::Status::unauthenticated("Invalid ID token"))?;
@@ -62,7 +80,7 @@ impl Interceptor for FirestoreInterceptor {
         // Mirrors C++ kXGoogRequestParams header
         let resource_prefix = format!(
             "projects/{}/databases/{}",
-            self.project_id, self.database_id
+            self.auth_data.project_id, self.auth_data.database_id
         );
         let routing_value = resource_prefix.parse()
             .map_err(|_| tonic::Status::invalid_argument("Invalid resource prefix"))?;
@@ -124,28 +142,27 @@ impl Firestore {
             .tcp_keepalive(Some(std::time::Duration::from_secs(20)))
             .tcp_nodelay(true); // Disable Nagle's algorithm for lower latency
         
-        // CRITICAL: Use connect() instead of connect_lazy() to establish connection IMMEDIATELY
-        // This ensures all subsequent operations have a ready connection
-        // Without this, operations fail with \"Service was not ready: transport error\"
+        // Connect to Firestore with persistent connection
         let channel = endpoint_config.connect().await
-            .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to connect to Firestore: {}", e)))?;
+            .map_err(|e| crate::error::FirestoreError::Connection(
+                format!("Failed to connect to Firestore: {}", e)
+            ))?;
         
-        // Create the gRPC client ONCE with the pre-connected channel
-        // Mirrors C++ GrpcConnection::EnsureActiveStub() which creates grpc_stub_ once
-        // C++ Reference: grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
-        let interceptor = FirestoreInterceptor {
+        // Store auth data in Arc for cheap cloning across operations
+        // Avoids String clones on every gRPC call
+        let auth_data = Arc::new(AuthData {
             id_token: id_token.clone(),
             project_id: project_id.clone(),
             database_id: database_id.clone(),
-        };
-        let grpc_client = GrpcClient::with_interceptor(channel, interceptor);
+        });
         
         Ok(Self {
             inner: Arc::new(FirestoreInner {
                 project_id,
                 database_id,
                 id_token,
-                grpc_client,
+                channel,
+                auth_data,
             }),
         })
     }
@@ -394,7 +411,10 @@ impl Firestore {
             options: None, // Use default transaction options
         };
 
-        let mut client = self.inner.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.inner.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.inner.channel.clone(), interceptor);
         let response = client
             .begin_transaction(request)
             .await
@@ -423,7 +443,10 @@ impl Firestore {
             transaction: transaction_id.to_vec(),
         };
 
-        let mut client = self.inner.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.inner.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.inner.channel.clone(), interceptor);
         client
             .commit(request)
             .await
@@ -448,7 +471,10 @@ impl Firestore {
             transaction: transaction_id.to_vec(),
         };
 
-        let mut client = self.inner.grpc_client.clone();
+        let interceptor = FirestoreInterceptor {
+            auth_data: self.inner.auth_data.clone(),
+        };
+        let mut client = GrpcClient::with_interceptor(self.inner.channel.clone(), interceptor);
         client
             .rollback(request)
             .await
