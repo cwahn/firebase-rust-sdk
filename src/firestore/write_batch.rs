@@ -221,11 +221,6 @@ impl WriteBatch {
         Ok(())
     }
 
-    /// Get the list of operations in this batch (for testing)
-    pub(crate) fn operations(&self) -> &[WriteOperation] {
-        &self.operations
-    }
-
     /// Check if batch is empty
     pub fn is_empty(&self) -> bool {
         self.operations.is_empty()

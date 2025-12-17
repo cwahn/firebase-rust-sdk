@@ -64,6 +64,7 @@ pub struct Transaction {
 
 /// Write operation in a transaction
 #[derive(Debug, Clone)]
+#[allow(dead_code)] // Fields stored for transaction commit (not yet implemented)
 pub(crate) enum TransactionWrite {
     Set { path: String, data: MapValue },
     Update { path: String, data: MapValue },

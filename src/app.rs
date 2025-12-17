@@ -150,35 +150,6 @@ impl App {
         &self.inner.options
     }
 
-    /// Internal: Get current auth token if Auth is initialized
-    ///
-    /// This is the Rust-idiomatic replacement for C++'s function_registry pattern.
-    /// Instead of dynamic function calls, we use direct references with Weak pointers
-    /// to avoid circular dependencies.
-    pub(crate) async fn get_auth_token(&self, force_refresh: bool) -> Option<String> {
-        let auth_ref = self.inner.auth_ref.read().await;
-
-        let Some(weak_auth) = auth_ref.as_ref() else {
-            return None;
-        };
-
-        let Some(auth_inner) = weak_auth.upgrade() else {
-            return None;
-        };
-
-        let user = auth_inner.current_user.read().await;
-
-        let Some(user) = user.as_ref() else {
-            return None;
-        };
-
-        let Ok(token) = user.get_id_token(force_refresh).await else {
-            return None;
-        };
-
-        Some(token)
-    }
-
     /// Internal: Register Auth instance with this App
     pub(crate) async fn register_auth(&self, auth_inner: Weak<AuthInner>) {
         *self.inner.auth_ref.write().await = Some(auth_inner);

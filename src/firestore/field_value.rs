@@ -124,15 +124,3 @@ impl FilterCondition {
         }
     }
 }
-
-/// Order direction for Firestore queries
-///
-/// # C++ Reference
-/// - `firestore/src/include/firebase/firestore/query.h:204` (Direction)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum OrderDirection {
-    /// Sort in ascending order
-    Ascending,
-    /// Sort in descending order
-    Descending,
-}

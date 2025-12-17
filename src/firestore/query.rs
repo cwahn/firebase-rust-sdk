@@ -19,30 +19,23 @@ use std::sync::Arc;
 
 /// Sort direction for query ordering
 ///
+/// Re-exported from proto to match C++ SDK structure where Direction is Query::Direction
+///
 /// # C++ Reference
-/// - `query.h:69` - Query::Direction enum
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Direction {
-    /// Sort in ascending order (A-Z, 0-9)
-    Ascending,
-    /// Sort in descending order (Z-A, 9-0)
-    Descending,
-}
+/// - `query.h:69` - Query::Direction enum (kAscending, kDescending)
+pub use proto::google::firestore::v1::structured_query::Direction;
 
-/// Filter operator type (without the field name and value)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum FilterOperator {
-    EqualTo,
-    NotEqualTo,
-    LessThan,
-    LessThanOrEqualTo,
-    GreaterThan,
-    GreaterThanOrEqualTo,
-    ArrayContains,
-    ArrayContainsAny,
-    In,
-    NotIn,
-}
+// Type aliases to reduce FQN verbosity internally
+// These are proto types from google.firestore.v1.StructuredQuery
+// (not part of C++ SDK public API - C++ uses high-level Filter class)
+use firestore_proto::structured_query::composite_filter::Operator as CompositeFilterOp;
+use firestore_proto::structured_query::field_filter::Operator as FieldFilterOp;
+use firestore_proto::structured_query::filter::FilterType;
+use firestore_proto::structured_query::{
+    CollectionSelector, CompositeFilter, FieldFilter, FieldReference, Filter, Order,
+};
+use firestore_proto::{Cursor, RunQueryRequest, StructuredQuery};
+use proto::google::firestore::v1 as firestore_proto;
 
 /// Internal query state that all query types share
 ///
@@ -51,10 +44,11 @@ pub(crate) enum FilterOperator {
 /// # C++ Reference
 /// - `query_main.h:206` - api::Query query_ member
 #[derive(Clone)]
+#[allow(missing_docs)]
 pub(crate) struct QueryState {
     pub collection_path: String,
     pub firestore: Arc<FirestoreInner>,
-    pub filters: Vec<(String, FilterOperator, Value)>,
+    pub filters: Vec<(String, FieldFilterOp, Value)>,
     pub orders: Vec<(String, Direction)>,
     pub limit_value: Option<i32>,
     pub limit_to_last_value: Option<i32>,
@@ -90,12 +84,20 @@ impl QueryState {
 /// - `query.h:61` - Query class (immutable, methods return new Query)
 /// - `query_main.h:47` - QueryInternal
 pub trait Query: Clone + Sized {
-    /// Get the internal query state
+    /// Get the internal query state (internal use only, not part of public API)
+    /// 
+    /// # C++ Reference
+    /// C++ Query class keeps QueryInternal* internal_ as private member
     #[doc(hidden)]
+    #[allow(private_interfaces)]
     fn query_state(&self) -> &QueryState;
 
-    /// Create a new instance with modified state
+    /// Create a new instance with modified state (internal use only, not part of public API)
+    /// 
+    /// # C++ Reference  
+    /// C++ Query methods return new Query instances by cloning internal state
     #[doc(hidden)]
+    #[allow(private_interfaces)]
     fn with_state(&self, state: QueryState) -> Self;
 
     /// Execute the query and return results
@@ -130,7 +132,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::EqualTo, value));
+            .push((field.into(), FieldFilterOp::Equal, value));
         self.with_state(state)
     }
 
@@ -142,7 +144,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::NotEqualTo, value));
+            .push((field.into(), FieldFilterOp::NotEqual, value));
         self.with_state(state)
     }
 
@@ -154,7 +156,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::LessThan, value));
+            .push((field.into(), FieldFilterOp::LessThan, value));
         self.with_state(state)
     }
 
@@ -166,7 +168,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::LessThanOrEqualTo, value));
+            .push((field.into(), FieldFilterOp::LessThanOrEqual, value));
         self.with_state(state)
     }
 
@@ -178,7 +180,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::GreaterThan, value));
+            .push((field.into(), FieldFilterOp::GreaterThan, value));
         self.with_state(state)
     }
 
@@ -190,7 +192,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::GreaterThanOrEqualTo, value));
+            .push((field.into(), FieldFilterOp::GreaterThanOrEqual, value));
         self.with_state(state)
     }
 
@@ -202,7 +204,7 @@ pub trait Query: Clone + Sized {
         let mut state = self.query_state().clone();
         state
             .filters
-            .push((field.into(), FilterOperator::ArrayContains, value));
+            .push((field.into(), FieldFilterOp::ArrayContains, value));
         self.with_state(state)
     }
 
@@ -216,7 +218,7 @@ pub trait Query: Clone + Sized {
         use proto::google::firestore::v1::ArrayValue;
         state.filters.push((
             field.into(),
-            FilterOperator::ArrayContainsAny,
+            FieldFilterOp::ArrayContainsAny,
             Value {
                 value_type: Some(ValueType::ArrayValue(ArrayValue { values })),
             },
@@ -234,7 +236,7 @@ pub trait Query: Clone + Sized {
         use proto::google::firestore::v1::ArrayValue;
         state.filters.push((
             field.into(),
-            FilterOperator::In,
+            FieldFilterOp::In,
             Value {
                 value_type: Some(ValueType::ArrayValue(ArrayValue { values })),
             },
@@ -252,7 +254,7 @@ pub trait Query: Clone + Sized {
         use proto::google::firestore::v1::ArrayValue;
         state.filters.push((
             field.into(),
-            FilterOperator::NotIn,
+            FieldFilterOp::NotIn,
             Value {
                 value_type: Some(ValueType::ArrayValue(ArrayValue { values })),
             },
@@ -401,6 +403,70 @@ pub trait Query: Clone + Sized {
     /// # }
     /// ```
     ///
+    /// Create a count aggregation query
+    ///
+    /// # C++ Reference
+    /// - `aggregate_query.h:69` - Count()
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("project-id", "(default)", None).await?;
+    ///
+    /// let count = firestore
+    ///     .collection("users")
+    ///     .where_("age", super::FilterCondition::GreaterThan, 18.into())
+    ///     .count()
+    ///     .get()
+    ///     .await?;
+    ///
+    /// println!("Adult users: {}", count.count().unwrap_or(0));
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn count(&self) -> super::aggregate_query::AggregateQuery {
+        super::aggregate_query::AggregateQuery::new(
+            self.query_state().clone(),
+            vec![super::aggregate_query::AggregateField::count()],
+        )
+    }
+
+    /// Create an aggregation query with multiple aggregations
+    ///
+    /// # C++ Reference
+    /// - `aggregate_query.h:36` - AggregateQuery with multiple aggregations
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use firebase_rust_sdk::firestore::Firestore;
+    /// # use firebase_rust_sdk::firestore::aggregate_query::AggregateField;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let firestore = Firestore::new("project-id", "(default)", None).await?;
+    ///
+    /// let result = firestore
+    ///     .collection("products")
+    ///     .aggregate(vec![
+    ///         AggregateField::count(),
+    ///         AggregateField::sum("price").with_alias("total_price"),
+    ///         AggregateField::average("rating").with_alias("avg_rating"),
+    ///     ])
+    ///     .get()
+    ///     .await?;
+    ///
+    /// println!("Total products: {}", result.count().unwrap_or(0));
+    /// println!("Total price: ${}", result.get_double("total_price").unwrap_or(0.0));
+    /// println!("Average rating: {}", result.get_double("avg_rating").unwrap_or(0.0));
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn aggregate(
+        &self,
+        aggregations: Vec<super::aggregate_query::AggregateField>,
+    ) -> super::aggregate_query::AggregateQuery {
+        super::aggregate_query::AggregateQuery::new(self.query_state().clone(), aggregations)
+    }
+
     /// # C++ Reference
     /// - `query.h:634` - `AddSnapshotListener` returns `ListenerRegistration`
     /// - Rust uses async streams with Drop cleanup instead of explicit remove()
@@ -478,8 +544,6 @@ pub trait Query: Clone + Sized {
 /// # C++ Reference
 /// - `query_main.cc:99` - QueryInternal::Get implementation
 pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, FirebaseError> {
-    use proto::google::firestore::v1 as firestore_proto;
-
     let project_id = &state.firestore.project_id;
     let database_id = &state.firestore.database_id;
     let parent = format!(
@@ -488,8 +552,8 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
     );
 
     // Build structured query
-    let mut structured_query = firestore_proto::StructuredQuery {
-        from: vec![firestore_proto::structured_query::CollectionSelector {
+    let mut structured_query = StructuredQuery {
+        from: vec![CollectionSelector {
             collection_id: state.collection_path.clone(),
             all_descendants: false,
         }],
@@ -502,33 +566,16 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
             .filters
             .iter()
             .map(|(field, operator, value)| {
-                use firestore_proto::structured_query::field_filter::Operator;
+                let op = *operator as i32;
 
-                let op = match operator {
-                    FilterOperator::LessThan => Operator::LessThan,
-                    FilterOperator::LessThanOrEqualTo => Operator::LessThanOrEqual,
-                    FilterOperator::EqualTo => Operator::Equal,
-                    FilterOperator::NotEqualTo => Operator::NotEqual,
-                    FilterOperator::GreaterThanOrEqualTo => Operator::GreaterThanOrEqual,
-                    FilterOperator::GreaterThan => Operator::GreaterThan,
-                    FilterOperator::ArrayContains => Operator::ArrayContains,
-                    FilterOperator::ArrayContainsAny => Operator::ArrayContainsAny,
-                    FilterOperator::In => Operator::In,
-                    FilterOperator::NotIn => Operator::NotIn,
-                } as i32;
-
-                firestore_proto::structured_query::Filter {
-                    filter_type: Some(
-                        firestore_proto::structured_query::filter::FilterType::FieldFilter(
-                            firestore_proto::structured_query::FieldFilter {
-                                field: Some(firestore_proto::structured_query::FieldReference {
-                                    field_path: field.clone(),
-                                }),
-                                op,
-                                value: Some(value.clone()),
-                            },
-                        ),
-                    ),
+                Filter {
+                    filter_type: Some(FilterType::FieldFilter(FieldFilter {
+                        field: Some(FieldReference {
+                            field_path: field.clone(),
+                        }),
+                        op,
+                        value: Some(value.clone()),
+                    })),
                 }
             })
             .collect();
@@ -536,16 +583,11 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         if filter_protos.len() == 1 {
             structured_query.r#where = Some(filter_protos.into_iter().next().unwrap());
         } else if filter_protos.len() > 1 {
-            structured_query.r#where = Some(firestore_proto::structured_query::Filter {
-                filter_type: Some(
-                    firestore_proto::structured_query::filter::FilterType::CompositeFilter(
-                        firestore_proto::structured_query::CompositeFilter {
-                            op: firestore_proto::structured_query::composite_filter::Operator::And
-                                as i32,
-                            filters: filter_protos,
-                        },
-                    ),
-                ),
+            structured_query.r#where = Some(Filter {
+                filter_type: Some(FilterType::CompositeFilter(CompositeFilter {
+                    op: CompositeFilterOp::And as i32,
+                    filters: filter_protos,
+                })),
             });
         }
     }
@@ -555,21 +597,12 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         structured_query.order_by = state
             .orders
             .iter()
-            .map(
-                |(field, direction)| firestore_proto::structured_query::Order {
-                    field: Some(firestore_proto::structured_query::FieldReference {
-                        field_path: field.clone(),
-                    }),
-                    direction: match direction {
-                        Direction::Ascending => {
-                            firestore_proto::structured_query::Direction::Ascending as i32
-                        }
-                        Direction::Descending => {
-                            firestore_proto::structured_query::Direction::Descending as i32
-                        }
-                    },
-                },
-            )
+            .map(|(field, direction)| Order {
+                field: Some(FieldReference {
+                    field_path: field.clone(),
+                }),
+                direction: *direction as i32,
+            })
             .collect();
     }
 
@@ -584,41 +617,39 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         // Reverse order for limit to last
         for order in &mut structured_query.order_by {
             order.direction = match order.direction {
-                d if d == firestore_proto::structured_query::Direction::Ascending as i32 => {
-                    firestore_proto::structured_query::Direction::Descending as i32
-                }
-                _ => firestore_proto::structured_query::Direction::Ascending as i32,
+                d if d == Direction::Ascending as i32 => Direction::Descending as i32,
+                _ => Direction::Ascending as i32,
             };
         }
     }
 
     // Apply start/end cursors
     if let Some(values) = &state.start_at {
-        structured_query.start_at = Some(firestore_proto::Cursor {
+        structured_query.start_at = Some(Cursor {
             values: values.clone(),
             before: true,
         });
     }
     if let Some(values) = &state.start_after {
-        structured_query.start_at = Some(firestore_proto::Cursor {
+        structured_query.start_at = Some(Cursor {
             values: values.clone(),
             before: false,
         });
     }
     if let Some(values) = &state.end_at {
-        structured_query.end_at = Some(firestore_proto::Cursor {
+        structured_query.end_at = Some(Cursor {
             values: values.clone(),
             before: false,
         });
     }
     if let Some(values) = &state.end_before {
-        structured_query.end_at = Some(firestore_proto::Cursor {
+        structured_query.end_at = Some(Cursor {
             values: values.clone(),
             before: true,
         });
     }
 
-    let request = firestore_proto::RunQueryRequest {
+    let request = RunQueryRequest {
         parent,
         query_type: Some(
             firestore_proto::run_query_request::QueryType::StructuredQuery(structured_query),

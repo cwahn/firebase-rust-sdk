@@ -15,6 +15,8 @@
 //! - `listener.h` → `listener.rs`
 
 // Individual type modules (following C++ SDK structure)
+/// Aggregation query support
+pub mod aggregate_query;
 pub mod collection_reference;
 pub mod document_reference;
 pub mod document_snapshot;
@@ -45,7 +47,7 @@ pub mod transaction;
 pub use firestore::Firestore;
 
 // Re-export from field_value module
-pub use field_value::{FilterCondition, MapValue, OrderDirection, Value, ValueType};
+pub use field_value::{FilterCondition, MapValue, Value, ValueType};
 
 // Re-export proto types for internal use
 pub(crate) use field_value::proto;
@@ -53,7 +55,7 @@ pub(crate) use field_value::proto;
 // Re-export commonly used proto types
 pub use field_value::proto::google::firestore::v1::{ArrayValue, Document, StructuredQuery};
 
-// Re-export from query module
+// Re-export from query module (Direction is re-exported from proto in query module)
 pub use query::{Direction, Query};
 
 // Re-export from timestamp module
@@ -79,6 +81,9 @@ pub use query_snapshot::{DocumentChange, DocumentChangeType, QuerySnapshot};
 
 // Re-export from write_batch module
 pub use write_batch::{WriteBatch, WriteOperation};
+
+// Re-export from aggregate_query module
+pub use aggregate_query::{AggregateField, AggregateQuery, AggregateQuerySnapshot, AggregationType};
 
 // Re-export from metadata_changes module
 pub use metadata_changes::MetadataChanges;
