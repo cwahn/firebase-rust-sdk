@@ -200,7 +200,7 @@ fn bench_crud_get(c: &mut Criterion) {
     let firestore = Arc::clone(&FIRESTORE);
     
     // Pre-create documents for get benchmark
-    let doc_paths: Vec<_> = RUNTIME.block_on(async {
+    let _doc_paths: Vec<_> = RUNTIME.block_on(async {
         let mut paths = Vec::new();
         for i in 0..256 {
             let path = format!("benchmark_get/doc_{}", i);
@@ -479,6 +479,7 @@ fn bench_query_simple(c: &mut Criterion) {
                         .map(|i| {
                             let firestore = Arc::clone(&firestore);
                             async move {
+                                use firebase_rust_sdk::firestore::Query;
                                 let category = format!("cat_{}", i % 10);
                                 let snapshot = firestore
                                     .collection("benchmark_query")
@@ -595,6 +596,7 @@ fn bench_listen_query(c: &mut Criterion) {
                         .map(|i| {
                             let firestore = Arc::clone(&firestore);
                             async move {
+                                use firebase_rust_sdk::firestore::Query;
                                 let category = format!("cat_{}", i % 10);
                                 let mut stream = firestore
                                     .collection("benchmark_query")
