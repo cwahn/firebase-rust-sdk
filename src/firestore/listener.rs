@@ -41,7 +41,6 @@ pub struct ListenerOptions {
 }
 
 /// Internal function to create gRPC channel with authentication
-#[cfg(not(target_arch = "wasm32"))]
 async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, FirebaseError> {
     // Configure TLS with webpki root certificates (similar to C++ SDK's LoadGrpcRootCertificate)
     let tls_config = tonic::transport::ClientTlsConfig::new()
@@ -112,7 +111,6 @@ async fn create_authenticated_channel(_auth_token: &str) -> Result<Channel, Fire
 ///
 /// # Returns
 /// Stream of `Result<DocumentSnapshot, FirebaseError>` that yields updates as they occur
-#[cfg(not(target_arch = "wasm32"))]
 pub async fn listen_document(
     firestore: &Firestore,
     auth_token: String,
@@ -378,7 +376,6 @@ pub type QuerySnapshotStream =
 /// * `database_id` - Firestore database ID
 /// * `query_state` - Query filters, orders, limits
 /// * `options` - Listener configuration options
-#[cfg(not(target_arch = "wasm32"))]
 pub(crate) async fn listen_query(
     firestore: &Firestore,
     auth_token: String,
@@ -680,31 +677,4 @@ fn process_query_listen_response(
     }
 }
 
-// WASM support will be added using tonic-web-wasm-client
-#[cfg(target_arch = "wasm32")]
-pub async fn listen_document(
-    _firestore: &Firestore,
-    _auth_token: String,
-    _project_id: String,
-    _database_id: String,
-    _document_path: String,
-    _options: ListenerOptions,
-) -> Result<DocumentSnapshotStream, FirebaseError> {
-    Err(FirebaseError::internal(
-        "WASM listener support not yet implemented",
-    ))
-}
 
-#[cfg(target_arch = "wasm32")]
-pub async fn listen_query(
-    _firestore: &Firestore,
-    _auth_token: String,
-    _project_id: String,
-    _database_id: String,
-    _query_state: crate::firestore::query::QueryState,
-    _options: ListenerOptions,
-) -> Result<QuerySnapshotStream, FirebaseError> {
-    Err(FirebaseError::internal(
-        "WASM listener support not yet implemented",
-    ))
-}
