@@ -1938,3 +1938,245 @@ fn test_query_listener_document_removal() {
         println!("✅ Query listener detects document removals!");
     });
 }
+
+#[test]
+fn test_count_aggregation() {
+    SHARED_RUNTIME.block_on(async {
+        let firestore = get_firestore().await;
+        let unique_id = format!("count_test_{}", rand::thread_rng().gen::<u32>());
+        let collection = firestore.collection(&unique_id);
+
+        // Create test documents
+        for i in 0..5 {
+            let doc_id = format!("doc_{}", i);
+            let data = create_map(vec![
+                ("counter", ValueType::IntegerValue(i as i64)),
+                ("category", ValueType::StringValue("A".to_string())),
+            ]);
+
+            collection
+                .document(&doc_id)
+                .set(data)
+                .await
+                .expect("Failed to set document");
+        }
+
+        // Test count aggregation  - CollectionReference implements Query trait
+        use firebase_rust_sdk::firestore::Query;
+        let aggregate_query = collection.count();
+
+        let snapshot = aggregate_query
+            .get()
+            .await
+            .expect("Failed to execute aggregate query");
+
+        let count = snapshot
+            .get("count")
+            .expect("Count not found in results");
+
+        match count.value_type {
+            Some(ValueType::IntegerValue(n)) => {
+                assert_eq!(n, 5, "Expected 5 documents");
+            }
+            _ => panic!("Count should be an integer, got {:?}", count),
+        }
+
+        // Cleanup
+        for i in 0..5 {
+            let doc_id = format!("doc_{}", i);
+            collection
+                .document(&doc_id)
+                .delete()
+                .await
+                .expect("Failed to delete document");
+        }
+
+        println!("✅ Count aggregation works!");
+    });
+}
+
+#[test]
+fn test_sum_aggregation() {
+    SHARED_RUNTIME.block_on(async {
+        let firestore = get_firestore().await;
+        let unique_id = format!("sum_test_{}", rand::thread_rng().gen::<u32>());
+        let collection = firestore.collection(&unique_id);
+
+        // Add test documents with numeric values
+        for i in 1..=5 {
+            let doc_id = format!("doc_{}", i);
+            let data = create_map(vec![
+                ("amount", ValueType::IntegerValue(i)),
+            ]);
+
+            collection
+                .document(&doc_id)
+                .set(data)
+                .await
+                .expect("Failed to set document");
+        }
+
+        // Test sum aggregation - CollectionReference implements Query trait
+        use firebase_rust_sdk::firestore::{AggregateField, Query};
+        let sum_field = AggregateField::sum("amount");
+        let aggregate_query = collection.aggregate(vec![sum_field]);
+
+        let snapshot = aggregate_query
+            .get()
+            .await
+            .expect("Failed to execute aggregate query");
+
+        let sum = snapshot
+            .get("sum_amount")
+            .expect("Sum not found in results");
+
+        match sum.value_type {
+            Some(ValueType::IntegerValue(n)) => {
+                assert_eq!(n, 15, "Expected sum of 1+2+3+4+5 = 15");
+            }
+            Some(ValueType::DoubleValue(n)) => {
+                assert_eq!(n, 15.0, "Expected sum of 1+2+3+4+5 = 15");
+            }
+            _ => panic!("Sum should be a number, got {:?}", sum),
+        }
+
+        // Cleanup
+        for i in 1..=5 {
+            let doc_id = format!("doc_{}", i);
+            collection
+                .document(&doc_id)
+                .delete()
+                .await
+                .expect("Failed to delete document");
+        }
+
+        println!("✅ Sum aggregation works!");
+    });
+}
+
+#[test]
+fn test_average_aggregation() {
+    SHARED_RUNTIME.block_on(async {
+        let firestore = get_firestore().await;
+        let unique_id = format!("avg_test_{}", rand::thread_rng().gen::<u32>());
+        let collection = firestore.collection(&unique_id);
+
+        // Add test documents
+        for i in 1..=4 {
+            let doc_id = format!("doc_{}", i);
+            let data = create_map(vec![
+                ("score", ValueType::IntegerValue(i * 10)),
+            ]);
+
+            collection
+                .document(&doc_id)
+                .set(data)
+                .await
+                .expect("Failed to set document");
+        }
+
+        // Test average aggregation - CollectionReference implements Query trait
+        use firebase_rust_sdk::firestore::{AggregateField, Query};
+        let avg_field = AggregateField::average("score");
+        let aggregate_query = collection.aggregate(vec![avg_field]);
+
+        let snapshot = aggregate_query
+            .get()
+            .await
+            .expect("Failed to execute aggregate query");
+
+        let avg = snapshot
+            .get("average_score")
+            .expect("Average not found in results");
+
+        match avg.value_type {
+            Some(ValueType::DoubleValue(n)) => {
+                assert_eq!(n, 25.0, "Expected average of 10+20+30+40 = 25");
+            }
+            _ => panic!("Average should be a double, got {:?}", avg),
+        }
+
+        // Cleanup
+        for i in 1..=4 {
+            let doc_id = format!("doc_{}", i);
+            collection
+                .document(&doc_id)
+                .delete()
+                .await
+                .expect("Failed to delete document");
+        }
+
+        println!("✅ Average aggregation works!");
+    });
+}
+
+#[test]
+fn test_multiple_aggregations() {
+    SHARED_RUNTIME.block_on(async {
+        let firestore = get_firestore().await;
+        let unique_id = format!("multi_agg_test_{}", rand::thread_rng().gen::<u32>());
+        let collection = firestore.collection(&unique_id);
+
+        // Add test documents
+        for i in 1..=3 {
+            let doc_id = format!("doc_{}", i);
+            let data = create_map(vec![
+                ("value", ValueType::IntegerValue(i * 100)),
+            ]);
+
+            collection
+                .document(&doc_id)
+                .set(data)
+                .await
+                .expect("Failed to set document");
+        }
+
+        // Test multiple aggregations at once - CollectionReference implements Query trait
+        use firebase_rust_sdk::firestore::{AggregateField, Query};
+        let aggregations = vec![
+            AggregateField::count(),
+            AggregateField::sum("value"),
+            AggregateField::average("value"),
+        ];
+        let aggregate_query = collection.aggregate(aggregations);
+
+        let snapshot = aggregate_query
+            .get()
+            .await
+            .expect("Failed to execute aggregate query");
+
+        // Verify count
+        let count = snapshot.get("count").expect("Count not found");
+        match count.value_type {
+            Some(ValueType::IntegerValue(n)) => assert_eq!(n, 3),
+            _ => panic!("Count should be an integer"),
+        }
+
+        // Verify sum
+        let sum = snapshot.get("sum_value").expect("Sum not found");
+        match sum.value_type {
+            Some(ValueType::IntegerValue(n)) => assert_eq!(n, 600), // 100 + 200 + 300
+            Some(ValueType::DoubleValue(n)) => assert_eq!(n, 600.0),
+            _ => panic!("Sum should be a number"),
+        }
+
+        // Verify average
+        let avg = snapshot.get("average_value").expect("Average not found");
+        match avg.value_type {
+            Some(ValueType::DoubleValue(n)) => assert_eq!(n, 200.0),
+            _ => panic!("Average should be a double"),
+        }
+
+        // Cleanup
+        for i in 1..=3 {
+            let doc_id = format!("doc_{}", i);
+            collection
+                .document(&doc_id)
+                .delete()
+                .await
+                .expect("Failed to delete document");
+        }
+
+        println!("✅ Multiple aggregations work!");
+    });
+}

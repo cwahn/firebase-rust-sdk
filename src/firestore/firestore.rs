@@ -56,6 +56,7 @@ pub(crate) struct FirestoreInner {
     // Create GrpcClient per operation with Arc'd interceptor for optimal performance
     pub(crate) channel: Channel,
     pub(crate) auth_data: Arc<AuthData>,
+    pub(crate) settings: crate::firestore::Settings,
 }
 
 /// gRPC interceptor for adding authentication headers
@@ -91,7 +92,7 @@ impl Interceptor for FirestoreInterceptor {
 }
 
 impl Firestore {
-    /// Create a new Firestore instance
+    /// Create a new Firestore instance with default settings
     ///
     /// # Arguments
     /// * `project_id` - Firebase project ID
@@ -105,31 +106,82 @@ impl Firestore {
     /// # Note
     /// For authenticated access, you must provide an ID token obtained from Auth.
     /// Unauthenticated access requires Firestore security rules to allow public read/write.
+    ///
+    /// For custom settings, use `Firestore::with_settings()`.
     pub async fn new(
         project_id: impl Into<String>, 
         database_id: impl Into<String>,
         id_token: Option<String>
     ) -> Result<Self, FirebaseError> {
+        Self::with_settings(project_id, database_id, id_token, crate::firestore::Settings::default()).await
+    }
+
+    /// Create a new Firestore instance with custom settings
+    ///
+    /// # Arguments
+    /// * `project_id` - Firebase project ID
+    /// * `database_id` - Database ID (default: "default")
+    /// * `id_token` - Optional Firebase ID token for authentication
+    /// * `settings` - Firestore configuration settings
+    ///
+    /// # C++ Reference
+    /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore.h:160` - set_settings()
+    ///
+    /// # Example
+    /// ```no_run
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use firebase_rust_sdk::firestore::{Firestore, Settings};
+    ///
+    /// let mut settings = Settings::default();
+    /// settings.host = "localhost:8080".to_string();
+    /// settings.ssl_enabled = false;
+    ///
+    /// let firestore = Firestore::with_settings(
+    ///     "my-project",
+    ///     "(default)",
+    ///     None,
+    ///     settings
+    /// ).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn with_settings(
+        project_id: impl Into<String>, 
+        database_id: impl Into<String>,
+        id_token: Option<String>,
+        settings: crate::firestore::Settings,
+    ) -> Result<Self, FirebaseError> {
         let project_id = project_id.into();
         let database_id = database_id.into();
         
         // Connect to Firestore gRPC endpoint with TLS
-        // Create multiple endpoints for connection pooling to handle high concurrency
-        let endpoint = "https://firestore.googleapis.com";
-        
-        // Configure TLS (mirrors C++ LoadGrpcRootCertificate)
-        let tls_config = tonic::transport::ClientTlsConfig::new()
-            .with_webpki_roots()
-            .domain_name("firestore.googleapis.com");
+        // Use settings to determine host and SSL configuration
+        let protocol = if settings.ssl_enabled { "https" } else { "http" };
+        let endpoint = format!("{}://{}", protocol, settings.host);
         
         // Create endpoint with aggressive settings for high concurrency
         // Production apps handling dozens of concurrent operations need:
         // 1. Large HTTP/2 windows to avoid flow control blocking
         // 2. Aggressive keep-alive to maintain connection health  
         // 3. Reasonable timeouts that don't fail under load
-        let endpoint_config = Channel::from_static(endpoint)
-            .tls_config(tls_config)
-            .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to configure TLS: {}", e)))?
+        let mut endpoint_config = Channel::from_shared(endpoint)
+            .map_err(|e| crate::error::FirestoreError::Connection(
+                format!("Invalid endpoint: {}", e)
+            ))?;
+
+        // Configure TLS if enabled (mirrors C++ LoadGrpcRootCertificate)
+        if settings.ssl_enabled {
+            let tls_config = tonic::transport::ClientTlsConfig::new()
+                .with_webpki_roots()
+                .domain_name(settings.host.split(':').next().unwrap_or(&settings.host));
+            endpoint_config = endpoint_config
+                .tls_config(tls_config)
+                .map_err(|e| crate::error::FirestoreError::Connection(
+                    format!("Failed to configure TLS: {}", e)
+                ))?;
+        }
+
+        let endpoint_config = endpoint_config
             .timeout(std::time::Duration::from_secs(60))
             .connect_timeout(std::time::Duration::from_secs(30))
             .concurrency_limit(256) // Allow up to 256 concurrent requests per connection
@@ -163,11 +215,18 @@ impl Firestore {
                 id_token,
                 channel,
                 auth_data,
+                settings,
             }),
         })
     }
 
-
+    /// Get current settings
+    ///
+    /// # C++ Reference
+    /// - `firebase-cpp-sdk/firestore/src/include/firebase/firestore.h:168` - settings()
+    pub fn settings(&self) -> &crate::firestore::Settings {
+        &self.inner.settings
+    }
 
     /// Get the project ID
     pub fn project_id(&self) -> &str {

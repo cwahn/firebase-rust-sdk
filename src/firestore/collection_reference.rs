@@ -75,6 +75,7 @@ impl CollectionReference {
 /// # C++ Reference
 /// - `query.h:61` - CollectionReference inherits from Query
 /// - `collection_reference_main.h` - CollectionReferenceInternal inherits QueryInternal
+#[allow(private_interfaces)]
 impl Query for CollectionReference {
     fn query_state(&self) -> &QueryState {
         &self.state

@@ -5,7 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0-alpha.1] - 2025-12-16
+## [Unreleased]
+
+## [0.1.0-beta.1] - 2024-12-17
+
+### Added
+- **Query Listeners**: Real-time query snapshot listeners with automatic cleanup
+- **Aggregation Queries**: COUNT, SUM, AVERAGE operations with custom aliases
+- **Settings Configuration**: Firestore settings with host, SSL, and cache configuration
+- Integration tests for all new features (35 tests passing)
+
+### Changed
+- **Proto Type Integration**: Refactored to use proto types directly for better performance
+  - Removed custom Direction and FilterOperator enums
+  - Direction re-exported from proto in query module (matches C++ SDK Query::Direction)
+  - Internal type aliases for cleaner code (CompositeFilterOp, FieldFilterOp)
+- **API Cleanup**: Removed unused methods and improved code organization
+- **Performance**: Eliminated enum conversions, direct proto usage reduces overhead
+
+### Fixed
+- All compiler warnings resolved
+- Transaction field visibility and naming
+- Query listener cleanup on drop
+- Proto type compatibility across all modules
+
+## [0.1.0-alpha.1] - 2024-12-16
 
 ### Added
 

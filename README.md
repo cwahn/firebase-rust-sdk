@@ -8,7 +8,7 @@ Idiomatic Rust SDK for Firebase Authentication and Cloud Firestore with full asy
 
 > **⚠️ Unofficial Port**: This is an unofficial community port of the Firebase C++ SDK. It is not affiliated with, endorsed by, or supported by Google or Firebase.
 >
-> **⚠️ Alpha Release**: This is version 0.1.0-alpha.1. APIs may change before 1.0.0. Use at your own risk in production.
+> **⚠️ Beta Release**: This is version 0.1.0-beta.1. APIs are stabilizing but may still change before 1.0.0. Suitable for development and testing.
 
 ## Features
 
@@ -27,7 +27,9 @@ Idiomatic Rust SDK for Firebase Authentication and Cloud Firestore with full asy
 - ✅ Queries with filters, ordering, pagination
 - ✅ WriteBatch for atomic operations
 - ✅ Transactions with automatic retry
-- ✅ Real-time listeners using gRPC streaming
+- ✅ Real-time listeners using gRPC streaming (documents & queries)
+- ✅ Aggregation queries (COUNT, SUM, AVERAGE)
+- ✅ Settings configuration (host, SSL, cache)
 - ✅ Nested collections
 - ✅ Compound filters (And/Or)
 - ✅ GeoPoint, Timestamp support
@@ -39,7 +41,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-firebase-rust-sdk = "0.1.0-alpha.1"
+firebase-rust-sdk = "0.1.0-beta.1"
 tokio = { version = "1", features = ["full"] }
 ```
 

@@ -379,7 +379,7 @@ pub type QuerySnapshotStream =
 /// * `query_state` - Query filters, orders, limits
 /// * `options` - Listener configuration options
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn listen_query(
+pub(crate) async fn listen_query(
     firestore: &Firestore,
     auth_token: String,
     project_id: String,
@@ -589,6 +589,9 @@ fn query_state_to_structured_query(
                     crate::firestore::Direction::Descending => {
                         firestore_proto::structured_query::Direction::Descending as i32
                     }
+                    crate::firestore::Direction::Unspecified => {
+                        firestore_proto::structured_query::Direction::Ascending as i32
+                    }
                 },
             });
     }
@@ -604,38 +607,10 @@ fn query_state_to_structured_query(
 /// Create a field filter from query state format
 fn create_field_filter(
     field: &str,
-    op: &crate::firestore::query::FilterOperator,
+    op: &proto::google::firestore::v1::structured_query::field_filter::Operator,
     value: &proto::google::firestore::v1::Value,
 ) -> proto::google::firestore::v1::structured_query::Filter {
-    use crate::firestore::query::FilterOperator;
     use proto::google::firestore::v1 as firestore_proto;
-
-    let operator = match op {
-        FilterOperator::EqualTo => firestore_proto::structured_query::field_filter::Operator::Equal,
-        FilterOperator::NotEqualTo => {
-            firestore_proto::structured_query::field_filter::Operator::NotEqual
-        }
-        FilterOperator::LessThan => {
-            firestore_proto::structured_query::field_filter::Operator::LessThan
-        }
-        FilterOperator::LessThanOrEqualTo => {
-            firestore_proto::structured_query::field_filter::Operator::LessThanOrEqual
-        }
-        FilterOperator::GreaterThan => {
-            firestore_proto::structured_query::field_filter::Operator::GreaterThan
-        }
-        FilterOperator::GreaterThanOrEqualTo => {
-            firestore_proto::structured_query::field_filter::Operator::GreaterThanOrEqual
-        }
-        FilterOperator::ArrayContains => {
-            firestore_proto::structured_query::field_filter::Operator::ArrayContains
-        }
-        FilterOperator::ArrayContainsAny => {
-            firestore_proto::structured_query::field_filter::Operator::ArrayContainsAny
-        }
-        FilterOperator::In => firestore_proto::structured_query::field_filter::Operator::In,
-        FilterOperator::NotIn => firestore_proto::structured_query::field_filter::Operator::NotIn,
-    };
 
     firestore_proto::structured_query::Filter {
         filter_type: Some(
@@ -644,7 +619,7 @@ fn create_field_filter(
                     field: Some(firestore_proto::structured_query::FieldReference {
                         field_path: field.to_string(),
                     }),
-                    op: operator as i32,
+                    op: *op as i32,
                     value: Some(value.clone()),
                 },
             ),
