@@ -11,21 +11,17 @@
 //! Tests with 1, 2, 4, 8, 16, 32, 64, 128, 256 concurrent operations
 //!
 //! ## Core Configuration
-//! Set RAYON_NUM_THREADS to control core count:
-//! - Single core: RAYON_NUM_THREADS=1
-//! - Dual core: RAYON_NUM_THREADS=2
-//! - Quad core: RAYON_NUM_THREADS=4
+//! Benchmarks use a multi-threaded tokio runtime.
+//! To control thread count, modify the `worker_threads()` in RUNTIME builder.
 //!
 //! ## Running Benchmarks
 //! ```bash
-//! # Single core
-//! RAYON_NUM_THREADS=1 cargo bench --bench firestore_bench
+//! # All benchmarks
+//! cargo bench --bench firestore_bench
 //!
-//! # Dual core
-//! RAYON_NUM_THREADS=2 cargo bench --bench firestore_bench
-//!
-//! # Quad core
-//! RAYON_NUM_THREADS=4 cargo bench --bench firestore_bench
+//! # Single benchmark group
+//! cargo bench --bench firestore_bench auth
+//! cargo bench --bench firestore_bench crud
 //!
 //! # Specific benchmark
 //! cargo bench --bench firestore_bench -- crud_get/32
@@ -45,11 +41,18 @@ use std::time::Duration;
 use tokio::runtime::Runtime;
 
 /// Shared runtime for all benchmarks
+/// Set TOKIO_WORKER_THREADS env var to control thread count (default: # of CPUs)
 static RUNTIME: Lazy<Runtime> = Lazy::new(|| {
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .expect("Failed to create runtime")
+    let mut builder = tokio::runtime::Builder::new_multi_thread();
+    
+    // Allow controlling thread count via environment variable
+    if let Ok(threads) = env::var("TOKIO_WORKER_THREADS") {
+        if let Ok(n) = threads.parse::<usize>() {
+            builder.worker_threads(n);
+        }
+    }
+    
+    builder.enable_all().build().expect("Failed to create runtime")
 });
 
 /// Pre-authenticated Firestore instance (auth time excluded from CRUD/listen benchmarks)

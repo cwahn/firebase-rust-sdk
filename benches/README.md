@@ -41,19 +41,21 @@ Tests run with: **1, 2, 4, 8, 16, 32, 64, 128, 256** concurrent operations
 
 ## Running Benchmarks
 
-### All Benchmarks (Single Core)
+### All Benchmarks
 ```bash
-RAYON_NUM_THREADS=1 cargo bench --bench firestore_bench
+cargo bench --bench firestore_bench
 ```
 
-### All Benchmarks (Dual Core)
+### Control Thread Count (Optional)
 ```bash
-RAYON_NUM_THREADS=2 cargo bench --bench firestore_bench
-```
+# Single core
+TOKIO_WORKER_THREADS=1 cargo bench --bench firestore_bench
 
-### All Benchmarks (Quad Core)
-```bash
-RAYON_NUM_THREADS=4 cargo bench --bench firestore_bench
+# Dual core
+TOKIO_WORKER_THREADS=2 cargo bench --bench firestore_bench
+
+# Quad core
+TOKIO_WORKER_THREADS=4 cargo bench --bench firestore_bench
 ```
 
 ### Specific Category
@@ -143,13 +145,13 @@ To compare performance across different core counts:
 
 ```bash
 # Single core baseline
-RAYON_NUM_THREADS=1 cargo bench --bench firestore_bench -- crud/get > results_1core.txt
+TOKIO_WORKER_THREADS=1 cargo bench --bench firestore_bench -- crud/get > results_1core.txt
 
 # Dual core
-RAYON_NUM_THREADS=2 cargo bench --bench firestore_bench -- crud/get > results_2core.txt
+TOKIO_WORKER_THREADS=2 cargo bench --bench firestore_bench -- crud/get > results_2core.txt
 
 # Quad core
-RAYON_NUM_THREADS=4 cargo bench --bench firestore_bench -- crud/get > results_4core.txt
+TOKIO_WORKER_THREADS=4 cargo bench --bench firestore_bench -- crud/get > results_4core.txt
 
 # Compare results
 diff results_1core.txt results_2core.txt
