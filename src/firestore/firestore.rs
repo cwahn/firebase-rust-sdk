@@ -9,7 +9,6 @@
 ///! - `firebase-ios-sdk/Firestore/core/src/remote/datastore.h` - Datastore gRPC layer
 
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use tonic::transport::Channel;
 use tonic::service::Interceptor;
 use tonic::Request;
@@ -32,9 +31,10 @@ pub struct FirestoreInner {
     pub(crate) project_id: String,
     pub(crate) database_id: String,
     pub(crate) id_token: Option<String>,
-    // GrpcClient is cheap to clone - all clones share the same underlying connection
-    // Tower's internal buffer handles request serialization automatically
-    // HTTP/2 multiplexing allows concurrent streams on the single connection
+    // GrpcClient is stored directly - its .clone() is cheap and shares the same connection
+    // Mirrors C++ GrpcConnection which stores grpc::GenericStub
+    // C++ Reference: grpc_stub_ is created once in EnsureActiveStub()
+    // Rust equivalent: Create client once here, each operation uses it via .clone()
     pub(crate) grpc_client: GrpcClient<tonic::service::interceptor::InterceptedService<Channel, FirestoreInterceptor>>,
 }
 
@@ -130,9 +130,9 @@ impl Firestore {
         let channel = endpoint_config.connect().await
             .map_err(|e| crate::error::FirestoreError::Connection(format!("Failed to connect to Firestore: {}", e)))?;
         
-        // Create the gRPC client AFTER connection is established
-        // This ensures the Tower buffer worker starts with a ready connection
-        // CRITICAL: Must use connect() not connect_lazy() to establish connection first
+        // Create the gRPC client ONCE with the pre-connected channel
+        // Mirrors C++ GrpcConnection::EnsureActiveStub() which creates grpc_stub_ once
+        // C++ Reference: grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
         let interceptor = FirestoreInterceptor {
             id_token: id_token.clone(),
             project_id: project_id.clone(),

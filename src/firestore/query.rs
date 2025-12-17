@@ -624,7 +624,7 @@ pub(crate) async fn execute_query(state: &QueryState) -> Result<QuerySnapshot, F
         ..Default::default()
     };
 
-    // Clone is cheap - all clones share the same underlying connection
+    // Create a new client from the shared connection
     let mut client = state.firestore.grpc_client.clone();
     let mut stream = client
         .run_query(request)
