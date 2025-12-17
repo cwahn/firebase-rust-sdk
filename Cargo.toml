@@ -70,8 +70,3 @@ ureq = "2.10"
 [dev-dependencies]
 tokio-test = "0.4"
 dotenvy = "0.15"   # Load .env file for integration tests
-criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
-
-[[bench]]
-name = "firestore_bench"
-harness = false
