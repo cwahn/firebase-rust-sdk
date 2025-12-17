@@ -1,6 +1,6 @@
 [package]
 name = "firebase-rust-sdk"
-version = "0.1.0-beta.1"
+version = "0.1.0-beta"
 edition = "2021"
 authors = ["Firebase Rust Contributors"]
 description = "Unofficial Rust port of Firebase C++ SDK"
@@ -70,3 +70,8 @@ ureq = "2.10"
 [dev-dependencies]
 tokio-test = "0.4"
 dotenvy = "0.15"   # Load .env file for integration tests
+criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
+
+[[bench]]
+name = "firestore_bench"
+harness = false

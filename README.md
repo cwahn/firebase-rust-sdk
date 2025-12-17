@@ -8,7 +8,7 @@ Idiomatic Rust SDK for Firebase Authentication and Cloud Firestore with full asy
 
 > **⚠️ Unofficial Port**: This is an unofficial community port of the Firebase C++ SDK. It is not affiliated with, endorsed by, or supported by Google or Firebase.
 >
-> **⚠️ Beta Release**: This is version 0.1.0-beta.1. APIs are stabilizing but may still change before 1.0.0. Suitable for development and testing.
+> **⚠️ Beta Release**: This is version 0.1.0-beta. APIs are stabilizing but may still change before 1.0.0. Suitable for development and testing.
 
 ## Features
 
@@ -41,7 +41,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-firebase-rust-sdk = "0.1.0-beta.1"
+firebase-rust-sdk = "0.1.0-beta"
 tokio = { version = "1", features = ["full"] }
 ```
 
